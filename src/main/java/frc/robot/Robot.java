@@ -29,6 +29,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * project, you must also update the build.gradle file in the project.
  */
 public class Robot extends LoggedRobot {
+    // check for git
     private Command autonomousCommand;
     private RobotContainer robotContainer;
 
