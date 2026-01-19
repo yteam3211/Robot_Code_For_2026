@@ -17,11 +17,17 @@ import static edu.wpi.first.units.Units.*;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Button.defualtButton;
 import frc.robot.commands.DriveCommands;
@@ -43,14 +49,16 @@ public class RobotContainer {
     public static LoggedMechanism2d Mechanism2d = new LoggedMechanism2d(10, 10, new Color8Bit(Color.kBlack));
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
-
+    
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         subsystems = new Robotsubsystems();
         controler = new Controler();
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
+        NamedCommands.registerCommand("shoot full", new WaitCommand(5));
+        Trigger collect = new EventTrigger("collect");
+        collect.onTrue(new PrintCommand("collect"));
         // Set up SysId routines
         autoChooser.addOption(
                 "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(subsystems.drive));
@@ -88,13 +96,5 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         return autoChooser.get();
-    }
-
-    public void resetSimulationField() {
-        subsystems.resetSimulationField();
-    }
-
-    public void updateSimulation() {
-        subsystems.updateSimulation();
     }
 }
