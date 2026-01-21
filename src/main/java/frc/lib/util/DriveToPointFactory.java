@@ -4,10 +4,13 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.units.measure.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
+
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
+
 import java.util.function.Supplier;
 
 public class DriveToPointFactory {
@@ -22,8 +25,8 @@ public class DriveToPointFactory {
         return new PathConstraints(
                 2, // 3.0
                 3, // 4.0 // max vel, accel (m/s, m/s^2)
-                Units.Degrees.of(540).in(Units.Radians), // max ang vel rad/s
-                Units.Degrees.of(720).in(Units.Radians) // max ang accel rad/s^2
+                Degrees.of(540).in(Radians), // max ang vel rad/s
+                Degrees.of(720).in(Radians) // max ang accel rad/s^2
                 );
     }
 

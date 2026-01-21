@@ -14,18 +14,6 @@
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-<<<<<<< Updated upstream
-import org.littletonrobotics.junction.AutoLog;
-
-public interface ModuleIO {
-    @AutoLog
-    class ModuleIOInputs {
-        public boolean driveConnected = false;
-        public double drivePositionRad = 0.0;
-        public double driveVelocityRadPerSec = 0.0;
-        public double driveAppliedVolts = 0.0;
-        public double driveCurrentAmps = 0.0;
-=======
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
@@ -37,36 +25,18 @@ public interface ModuleIO {
     public double driveVelocityRadPerSec = 0.0;
     public double driveAppliedVolts = 0.0;
     public double driveCurrentAmps = 0.0;
->>>>>>> Stashed changes
 
-        public boolean turnConnected = false;
-        public boolean turnEncoderConnected = false;
-        public Rotation2d turnAbsolutePosition = new Rotation2d();
-        public double turnVelocityRadPerSec = 0.0;
-        public double turnAppliedVolts = 0.0;
-        public double turnCurrentAmps = 0.0;
+    public boolean turnConnected = false;
+    public boolean turnEncoderConnected = false;
+    public Rotation2d turnAbsolutePosition = new Rotation2d();
+    public double turnVelocityRadPerSec = 0.0;
+    public double turnAppliedVolts = 0.0;
+    public double turnCurrentAmps = 0.0;
 
-        public double[] odometryTimestamps = new double[] {};
-        public double[] odometryDrivePositionsRad = new double[] {};
-        public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
-    }
+    public double[] odometryTimestamps = new double[] {};
+    public double[] odometryDrivePositionsRad = new double[] {};
+    public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
 
-    /** Updates the set of loggable inputs. */
-    default void updateInputs(ModuleIOInputs inputs) {}
-
-<<<<<<< Updated upstream
-    /** Run the drive motor at the specified open loop value. */
-    default void setDriveOpenLoop(double output) {}
-
-    /** Run the turn motor at the specified open loop value. */
-    default void setTurnOpenLoop(double output) {}
-
-=======
-      // Odometry
-      table.put("odometryTimestamps", odometryTimestamps);
-      table.put("odometryDrivePositionsRad", odometryDrivePositionsRad);
-      table.put("odometryTurnPositions", odometryTurnPositions);
-  }
   @Override
   public void fromLog(LogTable table) {
         // Drive
@@ -83,7 +53,6 @@ public interface ModuleIO {
             table.get("turnEncoderConnected", turnEncoderConnected);
         turnAbsolutePosition =
             table.get("turnAbsolutePosition", turnAbsolutePosition);
-        turnPosition = table.get("turnPosition", turnPosition);
         turnVelocityRadPerSec =
             table.get("turnVelocityRadPerSec", turnVelocityRadPerSec);
         turnAppliedVolts = table.get("turnAppliedVolts", turnAppliedVolts);
@@ -97,6 +66,12 @@ public interface ModuleIO {
         odometryTurnPositions =
             table.get("odometryTurnPositions", odometryTurnPositions);
     }
+
+@Override
+public void toLog(LogTable table) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'toLog'");
+}
 }
 
     /** Updates the set of loggable inputs. */
@@ -108,7 +83,6 @@ public interface ModuleIO {
     /** Run the turn motor at the specified open loop value. */
     default void setTurnOpenLoop(double output) {}
 
->>>>>>> Stashed changes
     /** Run the drive motor at the specified velocity. */
     default void setDriveVelocity(double velocityRadPerSec) {}
 

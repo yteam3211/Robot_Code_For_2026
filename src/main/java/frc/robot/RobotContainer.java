@@ -86,7 +86,6 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return autoChooser.get();
     }
-<<<<<<< Updated upstream
 
     public void resetSimulationField() {
         subsystems.resetSimulationField();
@@ -94,9 +93,5 @@ public class RobotContainer {
 
     public void updateSimulation() {
         subsystems.updateSimulation();
-=======
-    public void updateSim(){
-        subsystems.updateSim();
->>>>>>> Stashed changes
     }
 }

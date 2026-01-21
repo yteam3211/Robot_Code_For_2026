@@ -9,11 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
-<<<<<<< Updated upstream
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-=======
 import frc.lib.util.SetSubsystemTargetCommand;
->>>>>>> Stashed changes
 import frc.robot.Controler;
 import frc.robot.Robotsubsystems;
 import frc.robot.SubsystemState;

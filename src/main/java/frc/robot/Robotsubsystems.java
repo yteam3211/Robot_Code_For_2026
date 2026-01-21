@@ -4,56 +4,56 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Inch;
-
-import org.ironmaple.simulation.IntakeSimulation;
-import org.ironmaple.simulation.IntakeSimulation.IntakeSide;
-import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
-import org.ironmaple.simulation.gamepieces.GamePiece;
-import org.littletonrobotics.junction.Logger;
-
-import com.reduxrobotics.canand.CanandEventLoop;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.lib.util.DriveToPointFactory;
-import frc.lib.util.DONT_TUCH_THIS.Arena_2026_withBump;
+import frc.robot.subsystems.Gneralsubsystems.withsim.GeneralWithSim;
 import frc.robot.subsystems.IntakePitch.IntakePitch;
 import frc.robot.subsystems.IntakePitch.IntakePitchReal;
 import frc.robot.subsystems.IntakePitch.IntakePitchSim;
+// import frc.robot.subsystems.drive.;
+// import frc.robot.subsystems.drive.GyroIO;
+// import frc.robot.subsystems.drive.ModuleIOSim;
+// import frc.robot.subsystems.drive.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIONavX;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.GyroIOSim;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOTalonFXReal;
 import frc.robot.subsystems.drive.ModuleIOTalonFXSim;
 import frc.robot.subsystems.drive.TunerConstants;
 
+import static edu.wpi.first.units.Units.Inch;
+
+import org.ironmaple.simulation.IntakeSimulation;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.IntakeSimulation.IntakeSide;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.littletonrobotics.junction.Logger;
+
 /** Add your docs here. */
 public class Robotsubsystems {
     // GeneralWithSim general = new GeneralWithSim(new GeneralIOSim(SingleJointedArmSim.class.getName()));
     // GeneralWithoutSim general = new GeneralWithoutSim();
     private SwerveDriveSimulation driveSimulation = null;
+    private IntakeSimulation intakeSimulation = null;
     public Drive drive;
-    public DriveToPointFactory driveToPointFactory;
+    public GeneralWithSim general = null;
     public IntakePitch intakePitch;
-    private IntakeSimulation intakeSimulation;
+    public DriveToPointFactory driveToPointFactory;
 
-
-    private SwerveDriveSimulation swerveDriveSimulation = null;
     public Robotsubsystems() {
-        CanandEventLoop.getInstance(); 
         switch (Constants.currentMode) {
             case REAL:
                 // Real robot, instantiate hardware IO implementations
                 drive = new Drive(
-                        new GyroIONavX(),
+                        new GyroIOPigeon2(),
                         new ModuleIOTalonFXReal(TunerConstants.FrontLeft),
                         new ModuleIOTalonFXReal(TunerConstants.FrontRight),
                         new ModuleIOTalonFXReal(TunerConstants.BackLeft),
                         new ModuleIOTalonFXReal(TunerConstants.BackRight),
-                        (pose)->{});
+                        (pose) -> {});
                 intakePitch = new IntakePitch(new IntakePitchReal());
                 // this.vision = new Vision(
                 //         drive,
@@ -62,26 +62,23 @@ public class Robotsubsystems {
 
                 break;
             case SIM:
-                swerveDriveSimulation = new SwerveDriveSimulation(
-                    Drive.mapleSimConfig,
-                    new Pose2d(7,3, new Rotation2d()));
-                intakeSimulation = IntakeSimulation.OverTheBumperIntake("Fuel", swerveDriveSimulation, 
-                Inch.of(32), Inch.of(12), IntakeSide.FRONT, 40);
-                intakeSimulation.register(Arena_2026_withBump.getInstance());
                 // Sim robot, instantiate physics sim IO implementations
 
                 driveSimulation = new SwerveDriveSimulation(Drive.mapleSimConfig, new Pose2d(3, 3, new Rotation2d()));
                 SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation);
+                intakeSimulation = IntakeSimulation.OverTheBumperIntake("Fuel", driveSimulation, Inch.of(35), Inch.of(12), IntakeSide.FRONT, 40);
                 drive = new Drive(
-                        new GyroIOSim(swerveDriveSimulation.getGyroSimulation()),
-                        new ModuleIOTalonFXSim(TunerConstants.FrontLeft, swerveDriveSimulation.getModules()[0]), 
-                        new ModuleIOTalonFXSim(TunerConstants.FrontRight, swerveDriveSimulation.getModules()[1]), 
-                        new ModuleIOTalonFXSim(TunerConstants.BackLeft, swerveDriveSimulation.getModules()[2]), 
-                        new ModuleIOTalonFXSim(TunerConstants.BackRight, swerveDriveSimulation.getModules()[3]),
-                        swerveDriveSimulation::setSimulationWorldPose
-                        );
+                        new GyroIOSim(driveSimulation.getGyroSimulation()),
+                        new ModuleIOTalonFXSim(
+                                TunerConstants.FrontLeft, driveSimulation.getModules()[0]),
+                        new ModuleIOTalonFXSim(
+                                TunerConstants.FrontRight, driveSimulation.getModules()[1]),
+                        new ModuleIOTalonFXSim(
+                                TunerConstants.BackLeft, driveSimulation.getModules()[2]),
+                        new ModuleIOTalonFXSim(
+                                TunerConstants.BackRight, driveSimulation.getModules()[3]),
+                        driveSimulation::setSimulationWorldPose);
                 intakePitch = new IntakePitch(new IntakePitchSim(intakeSimulation));
-                Arena_2026_withBump.getInstance().addDriveTrainSimulation(swerveDriveSimulation);
                 // vision = new Vision(
                 //         drive,
                 //         new VisionIOPhotonVisionSim(
@@ -99,18 +96,12 @@ public class Robotsubsystems {
                         new ModuleIO() {},
                         new ModuleIO() {},
                         new ModuleIO() {},
-                        (pose)-> {});
+                        (pose) -> {});
                 // vision = new Vision(drive, new VisionIO() {}, new VisionIO() {});
 
                 break;
         }
         driveToPointFactory = new DriveToPointFactory(drive);
-        Arena_2026_withBump.getInstance();
-    }
-    public void updateSim(){
-        Arena_2026_withBump.getInstance().simulationPeriodic();
-        Logger.recordOutput("FieldSimulation/robotPose",swerveDriveSimulation.getSimulatedDriveTrainPose());
-        Logger.recordOutput("FieldSimulation/Fuel", Arena_2026_withBump.getInstance().getGamePiecesArrayByType("Fuel"));
     }
 
     public void resetSimulationField() {
