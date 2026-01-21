@@ -23,15 +23,11 @@ import frc.robot.subsystems.drive.Drive;
 /** Add your docs here. */
 public class defualtButton {
     public static void loadButton(Robotsubsystems subsystems, Controler controller) {
-<<<<<<< Updated upstream
-        swerveDefualt(subsystems.drive, controller.SimController);
-=======
         swerveDefualt(subsystems.drive, controller.swerveController);
         IntakePitchDefualt(subsystems, controller);
->>>>>>> Stashed changes
     }
 
-    private static void swerveDefualt(Drive drive, CommandXboxController controller) {
+    private static void swerveDefualt(Drive drive, CommandPS5Controller controller) {
         drive.setDefaultCommand(DriveCommands.joystickDrive(
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
         controller.touchpad().onTrue(
