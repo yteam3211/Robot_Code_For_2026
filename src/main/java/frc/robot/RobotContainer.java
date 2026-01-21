@@ -13,9 +13,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
-import static frc.robot.subsystems.vision.VisionConstants.*;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -24,9 +21,8 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Button.defualtButton;
+import frc.robot.Button.devButoon;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.vision.*;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -79,6 +75,7 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
         defualtButton.loadButton(subsystems, controler);
+        devButoon.loadButton(subsystems, controler);
     }
 
     /**
@@ -89,6 +86,7 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return autoChooser.get();
     }
+<<<<<<< Updated upstream
 
     public void resetSimulationField() {
         subsystems.resetSimulationField();
@@ -96,5 +94,9 @@ public class RobotContainer {
 
     public void updateSimulation() {
         subsystems.updateSimulation();
+=======
+    public void updateSim(){
+        subsystems.updateSim();
+>>>>>>> Stashed changes
     }
 }

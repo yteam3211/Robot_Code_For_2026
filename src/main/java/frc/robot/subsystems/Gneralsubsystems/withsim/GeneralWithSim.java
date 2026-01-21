@@ -5,7 +5,6 @@
 package frc.robot.subsystems.Gneralsubsystems.withsim;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.SubsystemState;
 import frc.robot.subsystems.Gneralsubsystems.withsim.GeneralIO.GeneralInputs;
 
 public class GeneralWithSim extends SubsystemBase {
@@ -31,6 +30,6 @@ public class GeneralWithSim extends SubsystemBase {
     }
 
     public void setState(Generalstate state) {
-        SubsystemState.generalstate = state;
+        // SubsystemState.generalstate = state;
     }
 }

@@ -49,6 +49,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.util.LocalADStarAK;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+<<<<<<< Updated upstream
+=======
+import frc.robot.subsystems.drive.GyroIO.GyroIOInputs;
+>>>>>>> Stashed changes
 import frc.robot.subsystems.vision.Vision;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -59,7 +63,11 @@ import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+<<<<<<< Updated upstream
 public class Drive extends SubsystemBase implements Vision.VisionConsumer {
+=======
+public class Drive extends SubsystemBase implements Vision.VisionConsumerPose2d {
+>>>>>>> Stashed changes
     // TunerConstants doesn't include these constants, so they are declared locally
     static final double ODOMETRY_FREQUENCY =
             new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
@@ -90,7 +98,11 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
     public static final DriveTrainSimulationConfig mapleSimConfig = DriveTrainSimulationConfig.Default()
             .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
             .withCustomModuleTranslations(getModuleTranslations())
+<<<<<<< Updated upstream
             .withGyro(COTS.ofPigeon2())
+=======
+            .withGyro(COTS.ofNav2X())
+>>>>>>> Stashed changes
             .withSwerveModule(new SwerveModuleSimulationConfig(
                     DCMotor.getKrakenX60(1),
                     DCMotor.getFalcon500(1),
@@ -100,11 +112,20 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                     Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
                     Meters.of(TunerConstants.FrontLeft.WheelRadius),
                     KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
+<<<<<<< Updated upstream
                     WHEEL_COF));
 
     static final Lock odometryLock = new ReentrantLock();
     private final GyroIO gyroIO;
     private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
+=======
+                    WHEEL_COF))
+                    .withBumperSize(Inch.of(35), Inch.of(29));
+
+    static final Lock odometryLock = new ReentrantLock();
+    private final GyroIO gyroIO;
+    private final GyroIOInputs gyroInputs = new GyroIOInputs();
+>>>>>>> Stashed changes
     private final Module[] modules = new Module[4]; // FL, FR, BL, BR
     private final SysIdRoutine sysId;
     private final Alert gyroDisconnectedAlert =
@@ -120,7 +141,11 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
                 new SwerveModulePosition()
             };
     private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
+<<<<<<< Updated upstream
             kinematics, rawGyroRotation, lastModulePositions, new Pose2d(3, 3, new Rotation2d()));
+=======
+            kinematics, rawGyroRotation, lastModulePositions, new Pose2d(7, 3, new Rotation2d()));
+>>>>>>> Stashed changes
 
     private final Consumer<Pose2d> resetSimulationPoseCallBack;
 
@@ -346,7 +371,11 @@ public class Drive extends SubsystemBase implements Vision.VisionConsumer {
 
     /** Adds a new timestamped vision measurement. */
     @Override
+<<<<<<< Updated upstream
     public void accept(Pose2d visionRobotPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs) {
+=======
+    public void acceptPose2d(Pose2d visionRobotPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs) {
+>>>>>>> Stashed changes
         poseEstimator.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
 

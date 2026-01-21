@@ -24,7 +24,11 @@ import org.littletonrobotics.junction.Logger;
 
 public class Module {
     private final ModuleIO io;
+<<<<<<< Updated upstream
     private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
+=======
+    private final ModuleIOInputs inputs = new ModuleIOInputs();
+>>>>>>> Stashed changes
     private final int index;
     private final SwerveModuleConstants constants;
 

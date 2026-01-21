@@ -14,11 +14,9 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
-import java.util.concurrent.RunnableFuture;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 
-import org.littletonrobotics.junction.Logger;
 
 /** Add your docs here. */
 public class SimulationWrapper {

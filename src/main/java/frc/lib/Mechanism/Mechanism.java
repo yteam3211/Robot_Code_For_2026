@@ -4,13 +4,6 @@
 
 package frc.lib.Mechanism;
 
-import java.util.function.Consumer;
-import java.util.function.DoubleConsumer;
-
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
-
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import frc.robot.Robot;
@@ -36,10 +29,11 @@ public class Mechanism {
         this.Motor = Motor;
         if (config != null && Robot.isSimulation()) {
             simulation = new SimulationWrapper(config);
-        }
-        positionFactorForSimulation = config.mechanismType == MechanismType.Elevator
+            positionFactorForSimulation = config.mechanismType == MechanismType.Elevator
                 ? config.JkMeterSquaerdOrDrum * 2 * Math.PI * config.gearRatio
                 : config.gearRatio;
+        }
+        
     }
 
     public void periodic() {
@@ -48,7 +42,7 @@ public class Mechanism {
     public void updateVisual(){
         
     }
-    public LoggableInputs inputsFromMotor(){
+    public MotorInputsLogged inputsFromMotor(){
         return new MotorInputsLogged(Motor);
     }
 
@@ -56,8 +50,8 @@ public class Mechanism {
         simulation.setVoltage(Motor.getSimState().getMotorVoltage());
         simulation.update(0.02);
         Motor.getSimState().setRawRotorPosition(simulation.getPosition() * positionFactorForSimulation);
-        Motor.getSimState().setRotorVelocity(simulation.getVelocity());
-        Motor.getSimState().setRotorAcceleration(simulation.getAccelration());
+        Motor.getSimState().setRotorVelocity(simulation.getVelocity() * positionFactorForSimulation);
+        Motor.getSimState().setRotorAcceleration(simulation.getAccelration() * positionFactorForSimulation);
     }
     public double getPosition(){
         return Motor.getPosition().getValueAsDouble();

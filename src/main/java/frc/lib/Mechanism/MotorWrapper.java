@@ -4,7 +4,6 @@
 
 package frc.lib.Mechanism;
 
-import java.util.logging.Logger;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.FeedbackConfigs;

@@ -14,6 +14,7 @@
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+<<<<<<< Updated upstream
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ModuleIO {
@@ -24,6 +25,19 @@ public interface ModuleIO {
         public double driveVelocityRadPerSec = 0.0;
         public double driveAppliedVolts = 0.0;
         public double driveCurrentAmps = 0.0;
+=======
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
+
+public interface ModuleIO {
+
+  public static class ModuleIOInputs implements LoggableInputs{
+    public boolean driveConnected = false;
+    public double drivePositionRad = 0.0;
+    public double driveVelocityRadPerSec = 0.0;
+    public double driveAppliedVolts = 0.0;
+    public double driveCurrentAmps = 0.0;
+>>>>>>> Stashed changes
 
         public boolean turnConnected = false;
         public boolean turnEncoderConnected = false;
@@ -40,12 +54,61 @@ public interface ModuleIO {
     /** Updates the set of loggable inputs. */
     default void updateInputs(ModuleIOInputs inputs) {}
 
+<<<<<<< Updated upstream
     /** Run the drive motor at the specified open loop value. */
     default void setDriveOpenLoop(double output) {}
 
     /** Run the turn motor at the specified open loop value. */
     default void setTurnOpenLoop(double output) {}
 
+=======
+      // Odometry
+      table.put("odometryTimestamps", odometryTimestamps);
+      table.put("odometryDrivePositionsRad", odometryDrivePositionsRad);
+      table.put("odometryTurnPositions", odometryTurnPositions);
+  }
+  @Override
+  public void fromLog(LogTable table) {
+        // Drive
+        driveConnected = table.get("driveConnected", driveConnected);
+        drivePositionRad = table.get("drivePositionRad", drivePositionRad);
+        driveVelocityRadPerSec =
+            table.get("driveVelocityRadPerSec", driveVelocityRadPerSec);
+        driveAppliedVolts = table.get("driveAppliedVolts", driveAppliedVolts);
+        driveCurrentAmps = table.get("driveCurrentAmps", driveCurrentAmps);
+
+        // Turn
+        turnConnected = table.get("turnConnected", turnConnected);
+        turnEncoderConnected =
+            table.get("turnEncoderConnected", turnEncoderConnected);
+        turnAbsolutePosition =
+            table.get("turnAbsolutePosition", turnAbsolutePosition);
+        turnPosition = table.get("turnPosition", turnPosition);
+        turnVelocityRadPerSec =
+            table.get("turnVelocityRadPerSec", turnVelocityRadPerSec);
+        turnAppliedVolts = table.get("turnAppliedVolts", turnAppliedVolts);
+        turnCurrentAmps = table.get("turnCurrentAmps", turnCurrentAmps);
+
+        // Odometry
+        odometryTimestamps =
+            table.get("odometryTimestamps", odometryTimestamps);
+        odometryDrivePositionsRad =
+            table.get("odometryDrivePositionsRad", odometryDrivePositionsRad);
+        odometryTurnPositions =
+            table.get("odometryTurnPositions", odometryTurnPositions);
+    }
+}
+
+    /** Updates the set of loggable inputs. */
+    default void updateInputs(ModuleIOInputs inputs) {}
+
+    /** Run the drive motor at the specified open loop value. */
+    default void setDriveOpenLoop(double output) {}
+
+    /** Run the turn motor at the specified open loop value. */
+    default void setTurnOpenLoop(double output) {}
+
+>>>>>>> Stashed changes
     /** Run the drive motor at the specified velocity. */
     default void setDriveVelocity(double velocityRadPerSec) {}
 

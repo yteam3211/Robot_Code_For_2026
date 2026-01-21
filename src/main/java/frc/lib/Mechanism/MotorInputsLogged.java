@@ -4,8 +4,6 @@
 
 package frc.lib.Mechanism;
 
-import java.security.AccessControlContext;
-
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
@@ -17,17 +15,20 @@ public class MotorInputsLogged implements LoggableInputs{
     private double velocity;
     private double accelration;
     private double voltage;
-    public MotorInputsLogged(double position,double velocity,double accelration, double voltage){
+    private boolean isConncted;
+    public MotorInputsLogged(double position,double velocity,double accelration, double voltage, boolean isConncted){
         this.position = position;
         this.velocity = velocity;
         this.accelration = accelration;
         this.voltage = voltage;
+        this.isConncted = isConncted;
     }
     public MotorInputsLogged(TalonFX Motor){
         this.position = Motor.getPosition().getValueAsDouble();
         this.velocity = Motor.getVelocity().getValueAsDouble();
         this.accelration = Motor.getAcceleration().getValueAsDouble();
         this.voltage = Motor.getMotorVoltage().getValueAsDouble();
+        this.isConncted = Motor.isConnected();
     }
     @Override
     public void toLog(LogTable table) {
@@ -35,6 +36,7 @@ public class MotorInputsLogged implements LoggableInputs{
         table.put("velocity", velocity);
         table.put("accelration", accelration);
         table.put("voltage", voltage);
+        table.put("isConncted", isConncted);
     }
     @Override
     public void fromLog(LogTable table) {
@@ -42,5 +44,7 @@ public class MotorInputsLogged implements LoggableInputs{
         velocity = table.get("velocity", velocity);
         accelration = table.get("accelration", accelration);
         voltage = table.get("voltage", voltage);
+        isConncted = table.get("isConncted", isConncted);
     }
+
 }
