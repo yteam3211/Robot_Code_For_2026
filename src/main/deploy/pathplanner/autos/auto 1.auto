@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "path start"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot full"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "path over bunp "
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "collect"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "path collct ball"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "path end and shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot full"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": false,
+  "folder": null,
+  "choreoAuto": false
+}

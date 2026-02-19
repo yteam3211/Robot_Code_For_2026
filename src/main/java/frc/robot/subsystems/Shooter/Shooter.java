@@ -4,14 +4,168 @@
 
 package frc.robot.subsystems.Shooter;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Minute;
+import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.lib.util.AllianceFlipUtil;
+import frc.robot.Constants;
+import frc.robot.SubsystemState;
+import frc.robot.subsystems.Shooter.ShooterIO.ShooterIOInputs;
+import frc.robot.subsystems.drive.Drive;
 
 public class Shooter extends SubsystemBase {
   /** Creates a new Shooter. */
-  public Shooter() {}
+  private ShooterIO io;
+  private ShooterIOInputs inputs = new ShooterIOInputs();
+  private double requireVelRPM;
+  private Timer Fuel_Timer = new Timer();
+  private boolean haveFuel;
+  private SysIdRoutine sysid;
+  private static Shooter instance;
+  private Map<AngularVelocity , AngularVelocity> fuelShootLost = new HashMap<>();
+  private InterpolatingDoubleTreeMap RpmFromDistance = new InterpolatingDoubleTreeMap();
+  private InterpolatingDoubleTreeMap TOF = new InterpolatingDoubleTreeMap();
+  public Shooter(ShooterIO io) {
+    this.io = io;
+    io.updateInputs(inputs);
+    sysid = new SysIdRoutine(
+      new SysIdRoutine.Config(Volts.of(1.2).per(Second), Volts.of(8), Second.of(11), (state)-> Logger.recordOutput("sysid/shooter", state.toString())), 
+      new SysIdRoutine.Mechanism(
+        (volts)-> io.setVoltage(volts.in(Volts)), null, this, "Shooter"));
+  }
+
+  public static Shooter getInstance(){
+    if (instance == null) {
+      switch (Constants.currentMode) {
+        case REAL:
+          instance = new Shooter(new ShooterIOReal());
+          break;
+        case SIM:
+          instance = new Shooter(new ShooterIOSimLeft());
+        break;
+        default:
+          instance = new Shooter(new ShooterIO() {});
+          break;
+      }
+    }
+    return instance;
+  }
 
   @Override
   public void periodic() {
+    io.updateInputs(inputs);
+    TimerCheckFuel();
+    Logger.recordOutput("Shooter/requireVelRPM", requireVelRPM);
+    Logger.recordOutput("Shooter/isAtVel", isAtVel());
+    Logger.processInputs("Shooter", inputs);
+    if (haveFuel) {
+      fuelShootLost.put(getVelocity(), Rotation.per(Minute).of(requireVelRPM));
+    }
     // This method will be called once per scheduler run
+  }
+  public void setVelocity(double velRPM){
+    if (velRPM == 0) {
+      Logger.recordOutput("Shooter/what", "stop");
+      setVoltage(0.5);
+    } 
+    else{
+      requireVelRPM = velRPM;
+      Logger.recordOutput("Shooter/what", "velocity");
+      io.setVelocity(velRPM);
+    }
+  }
+
+  public void TimerCheckFuel(){
+    if (inputs.haveFuel) {
+      Fuel_Timer.restart();
+      haveFuel = true;
+    }
+    else if (Fuel_Timer.get() > 0.4) {
+      haveFuel = false;
+    }
+  }
+
+  public boolean haveFuel(){
+    return haveFuel;
+  }
+  public Command setVelocityCommand(double velRPM){
+    return Commands.runOnce(()-> setVelocity(velRPM));
+  }
+  public void setVoltage(double voltage){
+    io.setVoltage(voltage);
+  }
+  public Command setVotlageCommand(double voltage){
+    return Commands.runOnce(()-> setVoltage(voltage));
+  }
+  public void setState(ShooterState state){
+      SubsystemState.shooterState = state;
+  }
+  public Command setStateCommand(ShooterState state){
+    return Commands.runOnce(()-> setState(state));
+  }
+  public Command setStateCommandUntil(ShooterState state){
+    return Commands.run(()-> setState(state));
+  }
+  public boolean isAtVel(){ 
+    return Math.abs(inputs.velocity.in(Rotation.per(Minute)) - requireVelRPM) < 40;
+  }
+  public Command appliePIDF(){
+    return this.runOnce(()->{
+      io.apliePIDF();
+    });
+  }
+  public Command Stop(){
+    return setVotlageCommand(0);
+  }
+  public final static Translation2d hubPose = AllianceFlipUtil.apply(new Translation2d(Meters.of(4.59), Meters.of(4.035)));
+  private static double a = 2 * Math.pow(Math.cos(Units.degreesToRadians(45)), 2);
+  private static double g = 9.8;
+  private static double wheelRadiusMeters = Units.inchesToMeters(3.0);
+  public static double CalcRPMToShoot(){
+    double x = Drive.getInsatnce().getPose().getTranslation().getDistance(hubPose );
+    double upValue = g * (x * x);
+    double targetHeight = 1.8288; 
+    double startHeight = 0.6096;
+    double b = (targetHeight - startHeight) - (Math.tan(Units.degreesToRadians(45)) * x);
+    double c = a * b;
+    double velocitySquared = upValue / c;
+    velocitySquared = -velocitySquared;   
+    if (velocitySquared < 0) {
+      return 0.0;
+    }
+    double idealVelocity = Math.sqrt(velocitySquared);
+    idealVelocity = idealVelocity * 1.15;
+    Logger.recordOutput("M/S_FromFunction", idealVelocity);
+    double circumference = 2 * Math.PI * wheelRadiusMeters;
+    double rpm = (idealVelocity / circumference) * 60;
+    Logger.recordOutput("RPMFromFuction", rpm);
+    return rpm;
+  }
+  public Command sysidQuasistatic(Direction direction){
+    return sysid.quasistatic(direction);
+  }
+  public Command sysidDynamic(Direction direction){
+    return sysid.dynamic(direction);
+  }
+  public AngularVelocity getVelocity(){
+    return inputs.velocity;
   }
 }

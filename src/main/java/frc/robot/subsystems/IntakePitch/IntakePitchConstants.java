@@ -7,54 +7,55 @@ package frc.robot.subsystems.IntakePitch;
 import static edu.wpi.first.units.Units.Inch;
 import static edu.wpi.first.units.Units.Meter;
 
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.Robot;
 
 /** Add your docs here. */
 public class IntakePitchConstants {
         /** the DC motor that is used */
     public static final DCMotor dcMotor = DCMotor.getKrakenX60(1);
     /** the id of the motor subsystem */
-    public static final int m_MotorId = 0;
+    public static final int m_MotorId = 55;
     /** the can bus name defualt is rio */
-    public static final String m_CanBusName = "rio";
+    public static final String m_CanBusName = "canv";
     /** what mod dose the motor be in when idel */
-    public static final NeutralModeValue NeutralMode = NeutralModeValue.Brake;
+    public static final NeutralModeValue NeutralMode = NeutralModeValue.Coast;
+    /** inverted or not */
+    public static final InvertedValue Invetrted = InvertedValue.Clockwise_Positive;
     /** gear ratio of the mechanism */
-    public static final double gearRatio = 71.1;
+    public static final double gearRatio = Robot.isReal() ? 71.1111111111111 : 33.333333333;
     /** Min and Max angle in radians */
-    public static final double minAngleDegree = 0 + 90;
-    public static final double maxAngleDegree = 493.12 + 90;
+    public static final double minAngleDegree = 0;
+    public static final double maxAngleDegree = 75;
     /** the start position of the motor (arm should start at 90 if are facing up) */
     public static final double startingAngle = 90;
     /** the length of the mechanism */
     public static final double lengthMeters = Inch.of(12).in(Meter);
-    /** the wight of the ar, becuse we estamite moi */
-    private static final double MassKg = 1.5;
     /** the MOI for the mechanism get is from CAD (אתה לוקח את זה מסרטוט) */
-    public static final double JKgMeterSqured = SingleJointedArmSim.estimateMOI(lengthMeters, MassKg);
+    public static final double JKgMeterSqured = 1.3424871;
     /** position factor that cahnge from the sensor to the acual degree of the mechanism */
-    public static final double POSITION_CONVERSION_FACTOR = (1 / (gearRatio));
+    public static final double POSITION_CONVERSION_FACTOR = gearRatio;
 
     public final class MotionMagicConstants {
-        public static final double MOTION_MAGIC_VELOCITY = 0;
-        public static final double MOTION_MAGIC_ACCELERATION = 0;
+        public static final double MOTION_MAGIC_VELOCITY = 4;
+        public static final double MOTION_MAGIC_ACCELERATION = 4.5;
         public static final double MOTION_MAGIC_JERK = 0;
 
-        public static final double MOTOR_KS = 0;
-        public static final double MOTOR_KA = 0;
-        public static final double MOTOR_KV = 0;
-        public static final double MOTOR_KG = 0;
-        public static final double MOTOR_KP = 20;
-        public static final double MOTOR_KI = 0;
-        public static final double MOTOR_KD = 0;
-        /**
-         * what the gravity type ? {@link GravityTypeValue#Arm_Cosine} for Arm (can fall to either side)
-         * {@link GravityTypeValue#Elevator_Static} for an Elevator (can fall only down)
-         */
+
+        public static final LoggedNetworkNumber MOTOR_KS = new LoggedNetworkNumber("/Tuning/IntakePitch/S",0.15348);
+        public static final LoggedNetworkNumber MOTOR_KA = new LoggedNetworkNumber("/Tuning/IntakePitch/A",0.0048511);
+        public static final LoggedNetworkNumber MOTOR_KV = new LoggedNetworkNumber("/Tuning/IntakePitch/V",0.021274);
+        public static final LoggedNetworkNumber MOTOR_KG = new LoggedNetworkNumber("/Tuning/IntakePitch/G",0.011);
+        public static final LoggedNetworkNumber MOTOR_KP = new LoggedNetworkNumber("/Tuning/IntakePitch/P",15.643);
+        public static final LoggedNetworkNumber MOTOR_KI = new LoggedNetworkNumber("/Tuning/IntakePitch/I",0);
+        public static final LoggedNetworkNumber MOTOR_KD = new LoggedNetworkNumber("/Tuning/IntakePitch/D",0.37462);
         public static final GravityTypeValue GravityType = GravityTypeValue.Arm_Cosine;
     }
 }

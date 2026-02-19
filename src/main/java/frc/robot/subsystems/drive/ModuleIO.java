@@ -1,24 +1,19 @@
-// Copyright 2021-2025 FRC 6328
+// Copyright (c) 2021-2026 Littleton Robotics
 // http://github.com/Mechanical-Advantage
 //
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
+// Use of this source code is governed by a BSD
+// license that can be found in the LICENSE file
+// at the root directory of this project.
 
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public interface ModuleIO {
-
+  @AutoLog
   public static class ModuleIOInputs implements LoggableInputs{
     public boolean driveConnected = false;
     public double drivePositionRad = 0.0;
@@ -28,7 +23,8 @@ public interface ModuleIO {
 
     public boolean turnConnected = false;
     public boolean turnEncoderConnected = false;
-    public Rotation2d turnAbsolutePosition = new Rotation2d();
+    public Rotation2d turnAbsolutePosition = Rotation2d.kZero;
+    public Rotation2d turnPosition = Rotation2d.kZero;
     public double turnVelocityRadPerSec = 0.0;
     public double turnAppliedVolts = 0.0;
     public double turnCurrentAmps = 0.0;
@@ -37,55 +33,79 @@ public interface ModuleIO {
     public double[] odometryDrivePositionsRad = new double[] {};
     public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
 
+      @Override
+  public void toLog(LogTable table) {
+    table.put("DriveConnected", driveConnected);
+    table.put("DrivePositionRad", drivePositionRad);
+    table.put("DriveVelocityRadPerSec", driveVelocityRadPerSec);
+    table.put("DriveAppliedVolts", driveAppliedVolts);
+    table.put("DriveCurrentAmps", driveCurrentAmps);
+    table.put("TurnConnected", turnConnected);
+    table.put("TurnEncoderConnected", turnEncoderConnected);
+    table.put("TurnAbsolutePosition", turnAbsolutePosition);
+    table.put("TurnPosition", turnPosition);
+    table.put("TurnVelocityRadPerSec", turnVelocityRadPerSec);
+    table.put("TurnAppliedVolts", turnAppliedVolts);
+    table.put("TurnCurrentAmps", turnCurrentAmps);
+    table.put("OdometryTimestamps", odometryTimestamps);
+    table.put("OdometryDrivePositionsRad", odometryDrivePositionsRad);
+    table.put("OdometryTurnPositions", odometryTurnPositions);
+  }
+
   @Override
   public void fromLog(LogTable table) {
-        // Drive
-        driveConnected = table.get("driveConnected", driveConnected);
-        drivePositionRad = table.get("drivePositionRad", drivePositionRad);
-        driveVelocityRadPerSec =
-            table.get("driveVelocityRadPerSec", driveVelocityRadPerSec);
-        driveAppliedVolts = table.get("driveAppliedVolts", driveAppliedVolts);
-        driveCurrentAmps = table.get("driveCurrentAmps", driveCurrentAmps);
+    driveConnected = table.get("DriveConnected", driveConnected);
+    drivePositionRad = table.get("DrivePositionRad", drivePositionRad);
+    driveVelocityRadPerSec = table.get("DriveVelocityRadPerSec", driveVelocityRadPerSec);
+    driveAppliedVolts = table.get("DriveAppliedVolts", driveAppliedVolts);
+    driveCurrentAmps = table.get("DriveCurrentAmps", driveCurrentAmps);
+    turnConnected = table.get("TurnConnected", turnConnected);
+    turnEncoderConnected = table.get("TurnEncoderConnected", turnEncoderConnected);
+    turnAbsolutePosition = table.get("TurnAbsolutePosition", turnAbsolutePosition);
+    turnPosition = table.get("TurnPosition", turnPosition);
+    turnVelocityRadPerSec = table.get("TurnVelocityRadPerSec", turnVelocityRadPerSec);
+    turnAppliedVolts = table.get("TurnAppliedVolts", turnAppliedVolts);
+    turnCurrentAmps = table.get("TurnCurrentAmps", turnCurrentAmps);
+    odometryTimestamps = table.get("OdometryTimestamps", odometryTimestamps);
+    odometryDrivePositionsRad = table.get("OdometryDrivePositionsRad", odometryDrivePositionsRad);
+    odometryTurnPositions = table.get("OdometryTurnPositions", odometryTurnPositions);
+  }
 
-        // Turn
-        turnConnected = table.get("turnConnected", turnConnected);
-        turnEncoderConnected =
-            table.get("turnEncoderConnected", turnEncoderConnected);
-        turnAbsolutePosition =
-            table.get("turnAbsolutePosition", turnAbsolutePosition);
-        turnVelocityRadPerSec =
-            table.get("turnVelocityRadPerSec", turnVelocityRadPerSec);
-        turnAppliedVolts = table.get("turnAppliedVolts", turnAppliedVolts);
-        turnCurrentAmps = table.get("turnCurrentAmps", turnCurrentAmps);
+  public ModuleIOInputs clone() {
+    ModuleIOInputs copy = new ModuleIOInputs();
+    copy.driveConnected = this.driveConnected;
+    copy.drivePositionRad = this.drivePositionRad;
+    copy.driveVelocityRadPerSec = this.driveVelocityRadPerSec;
+    copy.driveAppliedVolts = this.driveAppliedVolts;
+    copy.driveCurrentAmps = this.driveCurrentAmps;
+    copy.turnConnected = this.turnConnected;
+    copy.turnEncoderConnected = this.turnEncoderConnected;
+    copy.turnAbsolutePosition = this.turnAbsolutePosition;
+    copy.turnPosition = this.turnPosition;
+    copy.turnVelocityRadPerSec = this.turnVelocityRadPerSec;
+    copy.turnAppliedVolts = this.turnAppliedVolts;
+    copy.turnCurrentAmps = this.turnCurrentAmps;
+    copy.odometryTimestamps = this.odometryTimestamps.clone();
+    copy.odometryDrivePositionsRad = this.odometryDrivePositionsRad.clone();
+    copy.odometryTurnPositions = this.odometryTurnPositions.clone();
+    return copy;
+  }
+  }
 
-        // Odometry
-        odometryTimestamps =
-            table.get("odometryTimestamps", odometryTimestamps);
-        odometryDrivePositionsRad =
-            table.get("odometryDrivePositionsRad", odometryDrivePositionsRad);
-        odometryTurnPositions =
-            table.get("odometryTurnPositions", odometryTurnPositions);
-    }
+  /** Updates the set of loggable inputs. */
+  public default void updateInputs(ModuleIOInputs inputs) {}
 
-@Override
-public void toLog(LogTable table) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'toLog'");
-}
-}
+  /** Run the drive motor at the specified open loop value. */
+  public default void setDriveOpenLoop(double output) {}
 
-    /** Updates the set of loggable inputs. */
-    default void updateInputs(ModuleIOInputs inputs) {}
+  /** Run the turn motor at the specified open loop value. */
+  public default void setTurnOpenLoop(double output) {}
 
-    /** Run the drive motor at the specified open loop value. */
-    default void setDriveOpenLoop(double output) {}
+  /** Run the drive motor at the specified velocity. */
+  public default void setDriveVelocity(double velocityRadPerSec) {}
 
-    /** Run the turn motor at the specified open loop value. */
-    default void setTurnOpenLoop(double output) {}
+  /** Run the turn motor to the specified rotation. */
+  public default void setTurnPosition(Rotation2d rotation) {}
 
-    /** Run the drive motor at the specified velocity. */
-    default void setDriveVelocity(double velocityRadPerSec) {}
-
-    /** Run the turn motor to the specified rotation. */
-    default void setTurnPosition(Rotation2d rotation) {}
+  public default void apliiePIDF(){};
 }

@@ -9,8 +9,8 @@ import frc.lib.util.ITarget;
 /** Add your docs here. */
 public enum IntakePitchState implements ITarget {
     colse(0),
-    Open(493.12 + 90),
-    middle(291.56);
+    Open(70),
+    middle(45);
 
     private double degree;
     private IntakePitchState(double degree){

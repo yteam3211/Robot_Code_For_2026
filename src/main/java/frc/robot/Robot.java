@@ -13,9 +13,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.lib.util.DONT_TUCH_THIS.Arena_2026_withBump;
+import frc.lib.Loggers.TalonFXLogger;
+import frc.robot.subsystems.Shooter.Shooter;
+import frc.robot.subsystems.drive.Drive;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -61,7 +66,7 @@ public class Robot extends LoggedRobot {
                 break;
 
             case SIM:
-                // Running a physics simulator, log to NT
+                // Running a physics simulator, log to NT   
                 Logger.addDataReceiver(new NT4Publisher());
                 break;
 
@@ -80,12 +85,14 @@ public class Robot extends LoggedRobot {
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
         robotContainer = new RobotContainer();
+        Logger.recordOutput("hub", new Pose2d(Shooter.hubPose,new Rotation2d()));
     }
-
     /** This function is called periodically during all modes. */
     @Override
     public void robotPeriodic() {
-        
+        SubsystemState.logState();
+        TalonFXLogger.LogTalons();  
+        Logger.recordOutput("DistanceToHub", Drive.getInsatnce().getPose().getTranslation().getDistance(Shooter.hubPose));
         // Switch thread to high priority to improve loop timing
         // Threads.setCurrentThreadPriority(true, 99);
 
@@ -102,7 +109,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
-        robotContainer.resetSimulationField();
+        SubsystemState.resetState();
     }
     /** This function is called periodically when disabled. */
     @Override
@@ -152,16 +159,9 @@ public class Robot extends LoggedRobot {
 
     /** This function is called once when the robot is first started up. */
     @Override
-    public void simulationInit() {
-        Arena_2026_withBump.getInstance();
-        for (var gamePiece : Arena_2026_withBump.getInstance().getGamePiecesByType("Fuel")) {
-            Arena_2026_withBump.getInstance().removePiece(gamePiece);
-        }
-    }
+    public void simulationInit() {}
 
     /** This function is called periodically whilst in simulation. */
     @Override
-    public void simulationPeriodic() {
-        robotContainer.updateSimulation();
-    }
+    public void simulationPeriodic() {}
 }

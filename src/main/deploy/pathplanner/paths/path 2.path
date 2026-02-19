@@ -1,0 +1,124 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.5055180722891564,
+        "y": 5.564879518072289
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.479080199003483,
+        "y": 5.411189093736093
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.8690870185449355,
+        "y": 6.0081455064194005
+      },
+      "prevControl": {
+        "x": 0.23087568939298175,
+        "y": 6.11482906726514
+      },
+      "nextControl": {
+        "x": 1.5990065271129834,
+        "y": 5.886131984020346
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.9647108433734939,
+        "y": 4.985710843373495
+      },
+      "prevControl": {
+        "x": 2.1399350219572986,
+        "y": 5.19810378711144
+      },
+      "nextControl": {
+        "x": 1.6040963855421686,
+        "y": 4.548602409638555
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.9263338088445074,
+        "y": 4.623708987161199
+      },
+      "prevControl": {
+        "x": 3.0081448815278278,
+        "y": 4.387474043966073
+      },
+      "nextControl": {
+        "x": 2.792274440867247,
+        "y": 5.010814376934916
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.4772039942938655,
+        "y": 3.9897146932952925
+      },
+      "prevControl": {
+        "x": 1.6159355601761374,
+        "y": 4.60410551137843
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 3,
+      "rotationDegrees": -25.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "shoot full",
+      "waypointRelativePos": 3.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "climb",
+      "waypointRelativePos": 4.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 4.7244,
+    "maxAcceleration": 6.74914286,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

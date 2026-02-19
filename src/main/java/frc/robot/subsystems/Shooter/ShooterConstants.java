@@ -4,50 +4,54 @@
 
 package frc.robot.subsystems.Shooter;
 
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 
 /** Add your docs here. */
 public class ShooterConstants {
-    public static final int m_masterID = 40;
-    public static final int m_slaveID1 = 41;
-    public static final int m_slaveID2 = 42;
-    public static final int m_slaveID3 = 43;
+    public static final int m_MasterR_ID = 40;
+    public static final int m_SlaveR_ID = 41;
+    public static final int m_SlaveL1_ID = 42;
+    public static final int m_SlaveL2_ID = 43;
     /** the DC motor that is used */
-    public static final DCMotor dcMotor = DCMotor.getKrakenX60Foc(4);
+    public static final DCMotor dcMotor = DCMotor.getKrakenX60Foc(2);
     /** the canbus of the subsystem */
-    public static final CANBus m_canbus = new CANBus("rio");
+    public static final CANBus m_canbus = new CANBus("subsystems");
     /** what mod dose the motor be in when idel */
     public static final NeutralModeValue NeutralMode = NeutralModeValue.Coast;
     /** gear ratio of the mechanism */
-    public static final double gearRatio = 0;
+    public static final double gearRatio = 1;
     /** the MOI for the mechanism get is from CAD (אתה לוקח את זה מסרטוט) */
-    public static final double JKgMeterSqured = 0;
+    public static final double JKgMeterSqured = 0.00002454;
     /** position factor that cahnge from the sensor to the acual degree of the mechanism */
-    public static final double POSITION_CONVERSION_FACTOR = (1 / (gearRatio * 360));
+    public static final double POSITION_CONVERSION_FACTOR = gearRatio;
+
+    public static final Pose2d shooterPose = new Pose2d();
+    public static final InvertedValue Inverted = InvertedValue.Clockwise_Positive;
 
     
     public final class MotionMagicConstants {
-        public static final double MOTION_MAGIC_VELOCITY = 0;
-        public static final double MOTION_MAGIC_ACCELERATION = 0;
+        public static final double MOTION_MAGIC_VELOCITY = 6000;
+        public static final double MOTION_MAGIC_ACCELERATION = 24000;
         public static final double MOTION_MAGIC_JERK = 0;
 
-        public static final double MOTOR_KS = 0;
-        public static final double MOTOR_KA = 0;
-        public static final double MOTOR_KV = 0;
-        public static final double MOTOR_KG = 0;
-        public static final double MOTOR_KP = 0;
-        public static final double MOTOR_KI = 0;
-        public static final double MOTOR_KD = 0;
-
+        public static final double Slot0_MOTOR_KS = 0.5;//0.22189
+        public static final double Slot0_MOTOR_KA = 0;//0.00099091
+        public static final double Slot0_MOTOR_KV = 0.124;//0.135
+        public static final double Slot0_MOTOR_KG = 0;
+        public static final double Slot0_MOTOR_KP = 0.7;//0.12
+        public static final double Slot0_MOTOR_KI = 0;
+        public static final double Slot0_MOTOR_KD = 0.001;
+        
         public static final GravityTypeValue GravityType = GravityTypeValue.Arm_Cosine;
         public static final StaticFeedforwardSignValue staticFeedForward = StaticFeedforwardSignValue.UseVelocitySign;
     }
-    public static FlywheelSim ads = new FlywheelSim(LinearSystemId.createFlywheelSystem(dcMotor, JKgMeterSqured,gearRatio), dcMotor);
 }

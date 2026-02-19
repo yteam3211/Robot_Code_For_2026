@@ -4,17 +4,10 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.NamedCommands;
-
-
 /** Add your docs here. */
 public class CommandForAuto {
-    public static boolean loadCommand(Robotsubsystems subsystems){
-        try {
-            NamedCommands.registerCommand("shoot full", null);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    public static void loadCommand(){
+
+
     }
 }

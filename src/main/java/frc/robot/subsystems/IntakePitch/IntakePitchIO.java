@@ -4,22 +4,35 @@
 
 package frc.robot.subsystems.IntakePitch;
 
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
+
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 
 /** Add your docs here. */
 public interface IntakePitchIO {
     public class IntakePitchIOInputs implements LoggableInputs{
         public boolean isConncted = false;
-        public double position = 0;
-        public double velocity = 0;
-        public double acc = 0;
+        public Angle position = Degree.of(0);
+        public AngularVelocity velocity = RotationsPerSecond.of(0);
+        public AngularAcceleration acc = RotationsPerSecondPerSecond.of(0);
+        public Voltage voltage = Volts.of(0);
         @Override
         public void toLog(LogTable table){
             table.put("isConncted", isConncted);
             table.put("position", position);
             table.put("velocity", velocity);
             table.put("acc", acc);
+            table.put("voltage", voltage);
         }
         @Override
         public void fromLog(LogTable table){
@@ -27,14 +40,16 @@ public interface IntakePitchIO {
             position = table.get("position", position);
             velocity = table.get("velocity", velocity);
             acc = table.get("acc", acc);
+            voltage = table.get("voltage", voltage);
         }
-
     }
-    public void UpdateInputs(IntakePitchIOInputs inputs);
+    public default void UpdateInputs(IntakePitchIOInputs inputs){};
 
-    public void goToDegree(double degree);
+    public default void goToRotation(double degree){};
 
-    public void setSpeed(double dutyCycle);
+    public default void setSpeed(double dutyCycle){};
     
-    public void setPos(double pos);
+    public default void setPos(double pos){};
+    public default void setVoltage(double volts){};
+    public default void apliePIDF(){};
 }

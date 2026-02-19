@@ -13,6 +13,7 @@
 
 package frc.robot.subsystems.vision;
 
+import static edu.wpi.first.units.Units.Centimeter;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import edu.wpi.first.math.Matrix;
@@ -20,14 +21,19 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.commands.BasicCommands.DriveCommands;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 
+import java.lang.annotation.Retention;
 import java.util.LinkedList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
@@ -37,6 +43,7 @@ public class Vision extends SubsystemBase {
     private final VisionIO[] io;
     private final VisionIOInputs[] inputs;
     private final Alert[] disconnectedAlerts;
+    private static Vision instnce;
 
     public Vision(VisionConsumer consumer, VisionIO... io) {
         this.consumer = consumer;
@@ -54,6 +61,24 @@ public class Vision extends SubsystemBase {
             disconnectedAlerts[i] =
                     new Alert("Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
         }
+    }
+
+    public static Vision getInstance(){
+        if (instnce == null) {
+            switch (Constants.currentMode) {
+                case REAL:
+                    instnce = new Vision(Drive.getInsatnce(), new VisionIOLimelight("limelight-left", Drive.getInsatnce()::getRotation));
+                    break;
+                case SIM:
+                    instnce = new Vision(Drive.getInsatnce(), new VisionIOPhotonVisionSim("limelight-left", new Transform3d(Centimeter.of(angularStdDevBaseline), null, null, null), Drive.getInsatnce()::getPose));
+                break;
+            
+                default:
+                    instnce = new Vision(Drive.getInsatnce(), new VisionIO(){});
+                    break;
+            }
+        }
+        return instnce;
     }
 
     /**

@@ -14,15 +14,24 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Button.defualtButton;
+import frc.robot.Button.AutoCommands;
+import frc.robot.Button.defualtCommand;
 import frc.robot.Button.devButoon;
-import frc.robot.commands.DriveCommands;
+import frc.robot.commands.BasicCommands.DriveCommands;
+import frc.robot.subsystems.Indexer.Indexer;
+import frc.robot.subsystems.IntakePitch.IntakePitch;
+import frc.robot.subsystems.IntakeRoller.IntakeRoller;
+import frc.robot.subsystems.Shooter.Shooter;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.vision.Vision;
+
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -32,8 +41,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  * Instead, the structure of the robot (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    // Subsystems
-    Robotsubsystems subsystems;
     // Controller
     Controler controler;
     public static LoggedMechanism2d Mechanism2d = new LoggedMechanism2d(10, 10, new Color8Bit(Color.kBlack));
@@ -42,26 +49,29 @@ public class RobotContainer {
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
-        subsystems = new Robotsubsystems();
+        getInstnce();
         controler = new Controler();
+        // NamedCommands.registerCommand("collect", new WaitCommand(5));
+
         // Set up auto routines
+        CommandForAuto.loadCommand();
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
         // Set up SysId routines
         autoChooser.addOption(
-                "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(subsystems.drive));
+                "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(Drive.getInsatnce()));
         autoChooser.addOption(
-                "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(subsystems.drive));
+                "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(Drive.getInsatnce()));
         autoChooser.addOption(
                 "Drive SysId (Quasistatic Forward)",
-                subsystems.drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+                Drive.getInsatnce().sysIdQuasistatic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption(
                 "Drive SysId (Quasistatic Reverse)",
-                subsystems.drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+                Drive.getInsatnce().sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
         autoChooser.addOption(
-                "Drive SysId (Dynamic Forward)", subsystems.drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+                "Drive SysId (Dynamic Forward)", Drive.getInsatnce().sysIdDynamic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption(
-                "Drive SysId (Dynamic Reverse)", subsystems.drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+                "Drive SysId (Dynamic Reverse)", Drive.getInsatnce().sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -74,8 +84,9 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
-        defualtButton.loadButton(subsystems, controler);
-        devButoon.loadButton(subsystems, controler);
+        defualtCommand.loadButton(controler);
+        devButoon.loadButton(controler);
+        // AutoCommands.loadCommands();
     }
 
     /**
@@ -87,11 +98,13 @@ public class RobotContainer {
         return autoChooser.get();
     }
 
-    public void resetSimulationField() {
-        subsystems.resetSimulationField();
-    }
+    public static void getInstnce(){
+        Drive.getInsatnce();
+        Vision.getInstance();
+        Shooter.getInstance();
+        // IntakePitch.getInstance();
+        Indexer.getInstance();
 
-    public void updateSimulation() {
-        subsystems.updateSimulation();
+        // IntakeRoller.getInstance();
     }
 }

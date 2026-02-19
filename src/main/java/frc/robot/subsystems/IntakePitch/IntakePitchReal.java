@@ -4,28 +4,53 @@
 
 package frc.robot.subsystems.IntakePitch;
 
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.HardwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.ForwardLimitSourceValue;
+import com.ctre.phoenix6.signals.ForwardLimitTypeValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.util.Units;
+import frc.lib.Loggers.TalonFXLogger;
+import frc.robot.subsystems.Shooter.ShooterConstants;
 
 /** Add your docs here. */
 public class IntakePitchReal implements IntakePitchIO{
-    private TalonFX m_intakePitch = new TalonFX(IntakePitchConstants.m_MotorId, new CANBus(IntakePitchConstants.m_CanBusName));
+    private TalonFXLogger m_intakePitch = new TalonFXLogger(IntakePitchConstants.m_MotorId, new CANBus(IntakePitchConstants.m_CanBusName),"IntakePitch");
     private MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(true);
     public IntakePitchReal(){
+        m_intakePitch.setPosition(0);
         TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
-        FeedbackConfigs feedbackConfigsspin = talonFXConfiguration.Feedback;
-        feedbackConfigsspin.SensorToMechanismRatio = IntakePitchConstants.POSITION_CONVERSION_FACTOR;
+        FeedbackConfigs feedbackConfigs = talonFXConfiguration.Feedback;
+        feedbackConfigs.SensorToMechanismRatio = IntakePitchConstants.POSITION_CONVERSION_FACTOR;
         MotorOutputConfigs motorOutputConfigs = talonFXConfiguration.MotorOutput;
         motorOutputConfigs.NeutralMode = IntakePitchConstants.NeutralMode;
+        motorOutputConfigs.Inverted = IntakePitchConstants.Invetrted;
+        SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = talonFXConfiguration.SoftwareLimitSwitch;
+        softwareLimitSwitchConfigs.ForwardSoftLimitEnable = true;
+        softwareLimitSwitchConfigs.ReverseSoftLimitEnable = true;
+        softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = IntakePitchConstants.maxAngleDegree / 360;
+        softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = IntakePitchConstants.minAngleDegree / 360;
         MotionMagicConfigs motionMagicConfigs = talonFXConfiguration.MotionMagic;
         motionMagicConfigs.MotionMagicCruiseVelocity =
                 IntakePitchConstants.MotionMagicConstants.MOTION_MAGIC_VELOCITY;
@@ -34,13 +59,13 @@ public class IntakePitchReal implements IntakePitchIO{
         motionMagicConfigs.MotionMagicJerk = IntakePitchConstants.MotionMagicConstants.MOTION_MAGIC_JERK;
 
         Slot0Configs slot0 = talonFXConfiguration.Slot0;
-        slot0.kS = IntakePitchConstants.MotionMagicConstants.MOTOR_KS;
-        slot0.kG = IntakePitchConstants.MotionMagicConstants.MOTOR_KG;
-        slot0.kV = IntakePitchConstants.MotionMagicConstants.MOTOR_KV;
-        slot0.kA = IntakePitchConstants.MotionMagicConstants.MOTOR_KA;
-        slot0.kP = IntakePitchConstants.MotionMagicConstants.MOTOR_KP;
-        slot0.kI = IntakePitchConstants.MotionMagicConstants.MOTOR_KI;
-        slot0.kD = IntakePitchConstants.MotionMagicConstants.MOTOR_KD;
+        slot0.kS = IntakePitchConstants.MotionMagicConstants.MOTOR_KS.get();
+        slot0.kG = IntakePitchConstants.MotionMagicConstants.MOTOR_KG.get();
+        slot0.kV = IntakePitchConstants.MotionMagicConstants.MOTOR_KV.get();
+        slot0.kA = IntakePitchConstants.MotionMagicConstants.MOTOR_KA.get();
+        slot0.kP = IntakePitchConstants.MotionMagicConstants.MOTOR_KP.get();
+        slot0.kI = IntakePitchConstants.MotionMagicConstants.MOTOR_KI.get();
+        slot0.kD = IntakePitchConstants.MotionMagicConstants.MOTOR_KD.get();
         slot0.GravityType = IntakePitchConstants.MotionMagicConstants.GravityType;
 
         StatusCode status = StatusCode.StatusCodeNotInitialized;
@@ -51,14 +76,15 @@ public class IntakePitchReal implements IntakePitchIO{
         if (!status.isOK()) {
             System.out.println("Could not configure device. Error: " + status.toString());
         }
+        m_intakePitch.setPosition(0);
     }
     @Override
     public void setSpeed(double dutyCycle){
         m_intakePitch.set(dutyCycle);
     }
     @Override
-    public void goToDegree(double degree){
-        m_intakePitch.setControl(motionMagicVoltage.withPosition(Units.degreesToRotations(degree)));
+    public void goToRotation(double rotation){
+        m_intakePitch.setControl(motionMagicVoltage.withPosition(rotation).withSlot(0).withEnableFOC(true));
     }
     @Override
     public void setPos(double pos){
@@ -66,9 +92,31 @@ public class IntakePitchReal implements IntakePitchIO{
     }
     @Override
     public void UpdateInputs(IntakePitchIOInputs inputs){
-        inputs.isConncted = true;
-        inputs.position = Units.rotationsToDegrees(m_intakePitch.getPosition().getValueAsDouble());
-        inputs.velocity = Units.rotationsToDegrees(m_intakePitch.getVelocity().getValueAsDouble());
-        inputs.acc = Units.rotationsToDegrees(m_intakePitch.getAcceleration().getValueAsDouble());
+        inputs.isConncted = m_intakePitch.isConnected();
+        inputs.position = m_intakePitch.getPosition().getValue();
+        inputs.velocity = m_intakePitch.getVelocity().getValue();
+        inputs.acc = m_intakePitch.getAcceleration().getValue();
+        inputs.voltage = m_intakePitch.getMotorVoltage().getValue();
     }
+    @Override
+    public void apliePIDF(){
+        Slot0Configs slot0 = new Slot0Configs();
+        slot0.kS = IntakePitchConstants.MotionMagicConstants.MOTOR_KS.get();
+        slot0.kG = IntakePitchConstants.MotionMagicConstants.MOTOR_KG.get();
+        slot0.kV = IntakePitchConstants.MotionMagicConstants.MOTOR_KV.get();
+        slot0.kA = IntakePitchConstants.MotionMagicConstants.MOTOR_KA.get();
+        slot0.kP = IntakePitchConstants.MotionMagicConstants.MOTOR_KP.get();
+        slot0.kI = IntakePitchConstants.MotionMagicConstants.MOTOR_KI.get();
+        slot0.kD = IntakePitchConstants.MotionMagicConstants.MOTOR_KD.get();
+        slot0.GravityType = GravityTypeValue.Arm_Cosine;
+        slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
+        m_intakePitch.getConfigurator().apply(
+            slot0
+        );
+    }
+    @Override
+    public void setVoltage(double volts){
+        m_intakePitch.setVoltage(volts);
+    };
+
 }
