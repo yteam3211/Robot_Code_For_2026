@@ -102,9 +102,8 @@ public class RobotContainer {
         Drive.getInsatnce();
         Vision.getInstance();
         Shooter.getInstance();
-        // IntakePitch.getInstance();
+        IntakePitch.getInstance();
         Indexer.getInstance();
-
-        // IntakeRoller.getInstance();
+        IntakeRoller.getInstance();
     }
 }

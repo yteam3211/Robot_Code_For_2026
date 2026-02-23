@@ -42,9 +42,6 @@ public class Mechanism {
     public void updateVisual(){
         
     }
-    public MotorInputsLogged inputsFromMotor(){
-        return new MotorInputsLogged(Motor);
-    }
 
     public void simulationPeriodic() {
         simulation.setVoltage(Motor.getSimState().getMotorVoltage());

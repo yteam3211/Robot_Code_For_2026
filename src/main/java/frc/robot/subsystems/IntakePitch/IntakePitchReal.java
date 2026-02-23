@@ -23,6 +23,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ForwardLimitSourceValue;
@@ -31,12 +32,15 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import frc.lib.Loggers.TalonFXLogger;
 import frc.robot.subsystems.Shooter.ShooterConstants;
 
 /** Add your docs here. */
 public class IntakePitchReal implements IntakePitchIO{
     private TalonFXLogger m_intakePitch = new TalonFXLogger(IntakePitchConstants.m_MotorId, new CANBus(IntakePitchConstants.m_CanBusName),"IntakePitch");
+    private DigitalInput m_beambreak_Front = new DigitalInput(IntakePitchConstants.m_beambreak_Front_Id);
+    private DigitalInput m_beambreak_Back = new DigitalInput(IntakePitchConstants.m_beambreak_back_Id);
     private MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(true);
     public IntakePitchReal(){
         m_intakePitch.setPosition(0);
@@ -46,6 +50,9 @@ public class IntakePitchReal implements IntakePitchIO{
         MotorOutputConfigs motorOutputConfigs = talonFXConfiguration.MotorOutput;
         motorOutputConfigs.NeutralMode = IntakePitchConstants.NeutralMode;
         motorOutputConfigs.Inverted = IntakePitchConstants.Invetrted;
+        VoltageConfigs voltageConfigs = talonFXConfiguration.Voltage;
+        voltageConfigs.PeakForwardVoltage = 4;
+        voltageConfigs.PeakReverseVoltage = -4;
         SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = talonFXConfiguration.SoftwareLimitSwitch;
         softwareLimitSwitchConfigs.ForwardSoftLimitEnable = true;
         softwareLimitSwitchConfigs.ReverseSoftLimitEnable = true;
@@ -97,6 +104,7 @@ public class IntakePitchReal implements IntakePitchIO{
         inputs.velocity = m_intakePitch.getVelocity().getValue();
         inputs.acc = m_intakePitch.getAcceleration().getValue();
         inputs.voltage = m_intakePitch.getMotorVoltage().getValue();
+        inputs.fuel90 = m_beambreak_Back.get() || m_beambreak_Front.get();
     }
     @Override
     public void apliePIDF(){
@@ -118,5 +126,4 @@ public class IntakePitchReal implements IntakePitchIO{
     public void setVoltage(double volts){
         m_intakePitch.setVoltage(volts);
     };
-
 }

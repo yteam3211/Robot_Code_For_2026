@@ -9,6 +9,8 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.swerve.utility.WheelForceCalculator.Feedforwards;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -114,6 +116,15 @@ public class Drive extends SubsystemBase implements VisionConsumer {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(
           kinematics, rawYawGyroRotation, lastModulePositions, Pose2d.kZero);
+
+  public static Slot1Configs driveSwerveSecondConfigs = new Slot1Configs()
+        .withKP(0.1).withKI(0).withKD(0)
+        .withKS(0).withKV(0.124);
+
+  public static Slot1Configs steerSwerveSecondConfigs = new Slot1Configs()
+        .withKP(100).withKI(0).withKD(0.5)
+        .withKS(0.1).withKV(2.66).withKA(0)
+        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
   // private SwerveDrivePoseEstimator3d poseEstimator3d =
   //     new SwerveDrivePoseEstimator3d(
   //         kinematics, new Rotation3d(), lastModulePositions, new Pose3d());

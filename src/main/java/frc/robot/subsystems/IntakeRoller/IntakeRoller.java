@@ -4,13 +4,9 @@
 
 package frc.robot.subsystems.IntakeRoller;
 
-import org.dyn4j.collision.narrowphase.Sat;
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.configs.CustomParamsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
-import com.ctre.phoenix6.configs.VoltageConfigs;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;

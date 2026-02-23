@@ -26,6 +26,7 @@ public interface IntakePitchIO {
         public AngularVelocity velocity = RotationsPerSecond.of(0);
         public AngularAcceleration acc = RotationsPerSecondPerSecond.of(0);
         public Voltage voltage = Volts.of(0);
+        public boolean fuel90 = false;
         @Override
         public void toLog(LogTable table){
             table.put("isConncted", isConncted);
@@ -33,6 +34,7 @@ public interface IntakePitchIO {
             table.put("velocity", velocity);
             table.put("acc", acc);
             table.put("voltage", voltage);
+            table.put("fuel90",fuel90);
         }
         @Override
         public void fromLog(LogTable table){
@@ -41,6 +43,7 @@ public interface IntakePitchIO {
             velocity = table.get("velocity", velocity);
             acc = table.get("acc", acc);
             voltage = table.get("voltage", voltage);
+            fuel90 = table.get("fuel90", fuel90);
         }
     }
     public default void UpdateInputs(IntakePitchIOInputs inputs){};

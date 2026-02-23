@@ -43,13 +43,13 @@ public class ShooterConstants {
         public static final double MOTION_MAGIC_ACCELERATION = 24000;
         public static final double MOTION_MAGIC_JERK = 0;
 
-        public static final double Slot0_MOTOR_KS = 0.5;//0.22189
-        public static final double Slot0_MOTOR_KA = 0;//0.00099091
-        public static final double Slot0_MOTOR_KV = 0.124;//0.135
+        public static final double Slot0_MOTOR_KS = 0.5;//0.5
+        public static final double Slot0_MOTOR_KA = 0.016;//0.016
+        public static final double Slot0_MOTOR_KV = 0.124;//0.124
         public static final double Slot0_MOTOR_KG = 0;
-        public static final double Slot0_MOTOR_KP = 0.7;//0.12
+        public static final double Slot0_MOTOR_KP = 0.7;//0.7
         public static final double Slot0_MOTOR_KI = 0;
-        public static final double Slot0_MOTOR_KD = 0.001;
+        public static final double Slot0_MOTOR_KD = 0.001;//0.001
         
         public static final GravityTypeValue GravityType = GravityTypeValue.Arm_Cosine;
         public static final StaticFeedforwardSignValue staticFeedForward = StaticFeedforwardSignValue.UseVelocitySign;

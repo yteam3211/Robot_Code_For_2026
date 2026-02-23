@@ -23,7 +23,6 @@ public class IndexerIOSim implements IndexerIO{
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
         updateSIM();
-        inputs.Fuel90 = true;
         inputs.isConnected = true;
         inputs.velocity = m_Indexer.getVelocity().getValue();
         inputs.pos = m_Indexer.getPosition().getValue();

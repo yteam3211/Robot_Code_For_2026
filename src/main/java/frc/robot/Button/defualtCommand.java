@@ -26,9 +26,9 @@ public class defualtCommand {
     public static void loadButton(Controler controller) {
         swerveDefualt(controller);
         // IntakePitchDefualt(controller);
-        ShooterDefualt(controller);
-        IndexerDefualt(controller);
-        KickerDefualt(controller);
+        // ShooterDefualt(controller);
+        // IndexerDefualt(controller);
+        // KickerDefualt(controller);
         // IntakeRollerDefualt(controller);
         }
     private static void IntakeRollerDefualt(Controler controller) {
@@ -71,14 +71,13 @@ public class defualtCommand {
             public void run() {
                 switch (SubsystemState.shooterState) {
                     case shoot:
-                        Shooter.getInstance().setVelocity(Shooter.CalcRPMToShoot());
+                        Shooter.getInstance().setVelocity(Shooter.getInstance().CalcRPMToShoot());
                     break;
                     case stop:
                         Shooter.getInstance().setVelocity(0);
                     break;
                     case shootAtPlace:
                          Shooter.getInstance().setVelocity(RPM.get());
-
                     break;
                 
                     default:

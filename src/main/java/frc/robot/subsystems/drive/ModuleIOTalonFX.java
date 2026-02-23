@@ -38,6 +38,8 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.lib.Loggers.TalonFXLogger;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.IntakePitch.IntakePitch;
+import frc.robot.subsystems.Shooter.Shooter;
 
 import java.util.Queue;
 
@@ -139,7 +141,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             : InvertedValue.CounterClockwise_Positive;
     tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
     tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25));
-
+    tryUntilOk(5, ()-> driveTalon.getConfigurator().apply(Drive.driveSwerveSecondConfigs,0.25));
     // Configure turn motor
     var turnConfig = new TalonFXConfiguration();
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -165,7 +167,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
     tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25));
-
+    tryUntilOk(5, ()-> turnTalon.getConfigurator().apply(Drive.steerSwerveSecondConfigs,0.25));
     // Configure CANCoder
     CANcoderConfiguration cancoderConfig = constants.EncoderInitialConfigs;
     cancoderConfig.MagnetSensor.MagnetOffset = constants.EncoderOffset;
@@ -263,11 +265,12 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void setDriveVelocity(double velocityRadPerSec) {
+    int slotGanis = IntakePitch.getInstance().fuel90() ? 1 : 0;
     double velocityRotPerSec = Units.radiansToRotations(velocityRadPerSec);
     driveTalon.setControl(
         switch (constants.DriveMotorClosedLoopOutput) {
-          case Voltage -> velocityVoltageRequest.withVelocity(velocityRotPerSec);
-          case TorqueCurrentFOC -> velocityTorqueCurrentRequest.withVelocity(velocityRotPerSec);
+          case Voltage -> velocityVoltageRequest.withVelocity(velocityRotPerSec).withSlot(slotGanis);
+          case TorqueCurrentFOC -> velocityTorqueCurrentRequest.withVelocity(velocityRotPerSec).withSlot(slotGanis);
         });
   }
 

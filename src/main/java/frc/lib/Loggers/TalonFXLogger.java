@@ -39,7 +39,8 @@ public class TalonFXLogger extends TalonFX implements LoggableInputs{
             table.put(name + "/Velocity", super.getVelocity().getValue());
             table.put(name + "/Acceleration", super.getAcceleration().getValue());
             table.put(name + "/Voltage", super.getMotorVoltage().getValue());
-            table.put(name + "/Current", super.getStatorCurrent().getValue());
+            table.put(name + "/StatorCurrent", super.getStatorCurrent().getValue());
+            table.put(name + "/SupplayCurrent", super.getSupplyCurrent().getValue());
             table.put(name + "/Torque", super.getTorqueCurrent().getValue());
             table.put(name + "/ControlMode", super.getControlMode().getValue());
             table.put(name + "/Position", super.getPosition().getValue());

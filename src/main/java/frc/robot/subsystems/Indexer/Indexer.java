@@ -51,9 +51,6 @@ public class Indexer extends SubsystemBase {
   public void setVoltage(double voltage){
     io.setVoltage(voltage);
   }
-  public boolean Fuel90(){
-    return inputs.Fuel90;
-  }
   public Command setVoltageCommand(double voltage){
     return Commands.runOnce(()-> setVoltage(voltage));
   }

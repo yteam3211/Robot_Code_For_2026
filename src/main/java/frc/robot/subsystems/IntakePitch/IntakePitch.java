@@ -94,4 +94,7 @@ public class IntakePitch extends SubsystemBase {
   public Command sysidDynamic(SysIdRoutine.Direction direction){
     return sysid.dynamic(direction);
   }
+  public boolean fuel90(){
+    return inputs.fuel90;
+  }
 }

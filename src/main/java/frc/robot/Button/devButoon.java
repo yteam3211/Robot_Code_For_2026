@@ -6,9 +6,13 @@ package frc.robot.Button;
 
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.lib.util.DriveToPointFactory;
 import frc.lib.util.FieldConstants;
 import frc.lib.util.FuelSim;
 import frc.robot.Controler;
@@ -38,24 +42,26 @@ public class devButoon {
             spwanFuel(controller);
         }
     }
+    private static Rotation2d findAngle(){
+        double x = Shooter.hubPose.getX() - Drive.getInsatnce().getPose().getX();
+        double y = Shooter.hubPose.getY() - Drive.getInsatnce().getPose().getY();
+        return Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg);
+    }
 
     private static void sysidAll(Controler controller) {
-        Command comm = new moveToRotation();
-        controller.swerveController.triangle().whileTrue(Shooter.getInstance().setStateCommand(ShooterState.shootAtPlace).alongWith(comm));//new moveToRotation().alongWith(Shooter.getInstance().setStateCommand(ShooterState.shootAtPlace))
+        controller.swerveController.triangle().whileTrue(Shooter.getInstance().setStateCommand(ShooterState.shoot));
+        controller.swerveController.triangle().whileTrue(Shooter.getInstance().setStateCommand(ShooterState.shoot));
         controller.swerveController.triangle().whileFalse(Shooter.getInstance().setStateCommand(ShooterState.stop));
         controller.swerveController.square().whileTrue(Kicker.getInstance().setStateCommand(KickerState.moveFuelToShooter).alongWith(Indexer.getInstance().setStaetCommand(IndexerState.Index)));
         controller.swerveController.square().whileFalse(Kicker.getInstance().setStateCommand(KickerState.stop).alongWith(Indexer.getInstance().setStaetCommand(IndexerState.Stop)));
-        // LoggedNetworkNumber p = new LoggedNetworkNumber("/Tuning/MTR/p",5);
-        // LoggedNetworkNumber i = new LoggedNetworkNumber("/Tuning/MTR/i",0);
-        // LoggedNetworkNumber d = new LoggedNetworkNumber("/Tuning/MTR/d",0);
-        // controller.swerveController.square().onTrue(moveToRotation.setPid(p.get(), i.get(), d.get()));
+        controller.swerveController.cross().whileTrue(DriveCommands.joystickDriveAtAngle(Drive.getInsatnce(), ()-> 0, ()-> 0, devButoon::findAngle));
         
         // controller.swerveController.square().onTrue(Shooter.getInstance().setVelocityCommand(3000));
 
-        // controller.swerveController.triangle().onTrue(Kicker.getInstance().setVelocityCommand(400));
-        // controller.swerveController.circle().onTrue(Kicker.getInstance().setVelocityCommand(500));
-        // controller.swerveController.cross().onTrue(Kicker.getInstance().setVelocityCommand(0));
-        // controller.swerveController.square().onTrue(Kicker.getInstance().setVelocityCommand(300));
+        // controller.swerveController.triangle().onTrue(Shooter.getInstance().setVelocityCommand(4000));
+        // controller.swerveController.circle().onTrue(Shooter.getInstance().setVelocityCommand(3000));
+        // controller.swerveController.cross().onTrue(Shooter.getInstance().setVelocityCommand(0));
+        // controller.swerveController.square().onTrue(Shooter.getInstance().setVelocityCommand(2000));
 
         // controller.swerveController.triangle().onTrue(Shooter.getInstance().sysidQuasistatic(Direction.kForward));
         // controller.swerveController.square().onTrue(Shooter.getInstance().sysidQuasistatic(Direction.kReverse));

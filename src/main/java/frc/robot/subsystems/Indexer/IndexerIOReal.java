@@ -26,7 +26,6 @@ import frc.lib.Loggers.TalonFXLogger;
 /** Add your docs here. */
 public class IndexerIOReal implements IndexerIO{
     private TalonFXLogger m_indexer;
-    private DigitalInput m_beamBreak = new DigitalInput(IndexerConstants.m_beamBreakID);
     private MotionMagicVelocityVoltage motionMagicVelocityVoltage = new MotionMagicVelocityVoltage(0).withSlot(0).withEnableFOC(true);
     public IndexerIOReal(){
         m_indexer = new TalonFXLogger(IndexerConstants.m_indexerID, IndexerConstants.m_canbus,"Indexer");
@@ -69,7 +68,6 @@ public class IndexerIOReal implements IndexerIO{
     public void updateInputs(IndexerIOInputs inputs) {
         inputs.isConnected = m_indexer.isConnected();
         inputs.velocity = m_indexer.getVelocity().getValue();
-        inputs.Fuel90 = true;
         inputs.volts = m_indexer.getMotorVoltage().getValue();
         inputs.pos = m_indexer.getPosition().getValue();
     }

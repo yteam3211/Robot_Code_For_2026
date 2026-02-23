@@ -6,6 +6,7 @@ package frc.robot.subsystems.Shooter;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Minute;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
@@ -40,7 +41,6 @@ public class Shooter extends SubsystemBase {
   private boolean haveFuel;
   private SysIdRoutine sysid;
   private static Shooter instance;
-  private Map<AngularVelocity , AngularVelocity> fuelShootLost = new HashMap<>();
   private InterpolatingDoubleTreeMap RpmFromDistance = new InterpolatingDoubleTreeMap();
   private InterpolatingDoubleTreeMap TOF = new InterpolatingDoubleTreeMap();
   public Shooter(ShooterIO io) {
@@ -50,6 +50,17 @@ public class Shooter extends SubsystemBase {
       new SysIdRoutine.Config(Volts.of(1.2).per(Second), Volts.of(8), Second.of(11), (state)-> Logger.recordOutput("sysid/shooter", state.toString())), 
       new SysIdRoutine.Mechanism(
         (volts)-> io.setVoltage(volts.in(Volts)), null, this, "Shooter"));
+      updateMAP();
+  }
+  private void updateMAP(){
+    RpmFromDistance.put(1.733, 2275.0);
+    RpmFromDistance.put(2.165,2300.0);
+    RpmFromDistance.put(2.607, 2500.0);
+    RpmFromDistance.put(2.976, 2650.0);
+    RpmFromDistance.put(3.328, 2800.0);
+    RpmFromDistance.put(3.235, 2600.0);
+    RpmFromDistance.put(4.015, 3000.0);
+    RpmFromDistance.put(4.51, 3200.0);
   }
 
   public static Shooter getInstance(){
@@ -76,9 +87,6 @@ public class Shooter extends SubsystemBase {
     Logger.recordOutput("Shooter/requireVelRPM", requireVelRPM);
     Logger.recordOutput("Shooter/isAtVel", isAtVel());
     Logger.processInputs("Shooter", inputs);
-    if (haveFuel) {
-      fuelShootLost.put(getVelocity(), Rotation.per(Minute).of(requireVelRPM));
-    }
     // This method will be called once per scheduler run
   }
   public void setVelocity(double velRPM){
@@ -135,29 +143,11 @@ public class Shooter extends SubsystemBase {
   public Command Stop(){
     return setVotlageCommand(0);
   }
-  public final static Translation2d hubPose = AllianceFlipUtil.apply(new Translation2d(Meters.of(4.59), Meters.of(4.035)));
-  private static double a = 2 * Math.pow(Math.cos(Units.degreesToRadians(45)), 2);
-  private static double g = 9.8;
-  private static double wheelRadiusMeters = Units.inchesToMeters(3.0);
-  public static double CalcRPMToShoot(){
-    double x = Drive.getInsatnce().getPose().getTranslation().getDistance(hubPose );
-    double upValue = g * (x * x);
-    double targetHeight = 1.8288; 
-    double startHeight = 0.6096;
-    double b = (targetHeight - startHeight) - (Math.tan(Units.degreesToRadians(45)) * x);
-    double c = a * b;
-    double velocitySquared = upValue / c;
-    velocitySquared = -velocitySquared;   
-    if (velocitySquared < 0) {
-      return 0.0;
-    }
-    double idealVelocity = Math.sqrt(velocitySquared);
-    idealVelocity = idealVelocity * 1.15;
-    Logger.recordOutput("M/S_FromFunction", idealVelocity);
-    double circumference = 2 * Math.PI * wheelRadiusMeters;
-    double rpm = (idealVelocity / circumference) * 60;
-    Logger.recordOutput("RPMFromFuction", rpm);
-    return rpm;
+  public final static Translation2d hubPose = 
+  AllianceFlipUtil.apply(new Translation2d(Meters.of(4.59), Meters.of(4.035)));
+  public double CalcRPMToShoot(){
+    double value = Drive.getInsatnce().getPose().getTranslation().getDistance(hubPose);
+    return RpmFromDistance.get(value);
   }
   public Command sysidQuasistatic(Direction direction){
     return sysid.quasistatic(direction);
