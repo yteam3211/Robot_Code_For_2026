@@ -4,37 +4,38 @@
 
 package frc.robot.subsystems.IntakePitch;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Millimeter;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
-import java.lang.annotation.Retention;
-import java.util.stream.IntStream;
-
+import org.ironmaple.simulation.IntakeSimulation;
+import org.ironmaple.simulation.IntakeSimulation.IntakeSide;
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.SubsystemState;
-import frc.robot.subsystems.IntakePitch.IntakePitchIO.IntakePitchIOInputs;
+import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.drive.Drive;
 
 public class IntakePitch extends SubsystemBase {
   private final IntakePitchIO io;
-  private IntakePitchIOInputs inputs = new IntakePitchIOInputs();
+  private IntakePitchIOInputsAutoLogged inputs = new IntakePitchIOInputsAutoLogged();
   private SysIdRoutine sysid;
   private static IntakePitch instance;
+  private static IntakeSimulation intakeSimulation;
   /** Creates a new IntakePitch. */
   public IntakePitch(IntakePitchIO io) {
     super("IntakePitch");
     this.io = io;
-    sysid = new SysIdRoutine(
-      new SysIdRoutine.Config(Volts.of(1).per(Second), Volts.of(2), Second.of(2), (state)-> Logger.recordOutput("intakePitch",state.toString())),
-      new SysIdRoutine.Mechanism((volts)-> io.setVoltage(volts.in(Volts)), null, this, "intakePitch/sysid"));
+    sysid = new SysIdRoutine( 
+      new SysIdRoutine.Config(Volts.of(-8).per(Second), Volts.of(12), Second.of(2), (state)-> Logger.recordOutput("intakePitch",state.toString())),
+      new SysIdRoutine.Mechanism((volts)-> io.setVoltage(volts), null, this, "intakePitch/sysid"));
   }
 
   public static IntakePitch getInstance(){
@@ -44,9 +45,9 @@ public class IntakePitch extends SubsystemBase {
           instance = new IntakePitch(new IntakePitchReal());
           break;
         case SIM:
-          instance = new IntakePitch(new IntakePitchSim());
-        break;
-      
+          instance = new IntakePitch(new IntakePitchSim(getIntakeSimulation()));
+          break;
+        
         default:
           instance = new IntakePitch(new IntakePitchIO() {});
           break;
@@ -54,11 +55,26 @@ public class IntakePitch extends SubsystemBase {
     }
     return instance;
   }
+          
+  public static IntakeSimulation getIntakeSimulation() {
+    if (intakeSimulation == null) {
+      intakeSimulation = IntakeSimulation.OverTheBumperIntake(
+        "Fuel",
+        Drive.getSwerveDriveSim(), 
+        Meters.of(TunerConstants.FrontLeft.LocationY), 
+        Millimeter.of(269.11), 
+        IntakeSide.FRONT, 
+        67);
+      intakeSimulation.register();
+    }
+    return intakeSimulation;
+  }
 
   @Override
   public void periodic() {
     io.UpdateInputs(inputs);
     Logger.processInputs("IntakePitch", inputs);
+    // resetPosViaLimit();
   }
   private void setState(IntakePitchState state){
       SubsystemState.intakePitchState = state;
@@ -66,21 +82,21 @@ public class IntakePitch extends SubsystemBase {
   public Command setStateCommand(IntakePitchState state){
     return Commands.runOnce(()-> setState(state));
   }
-  public void goToAnlge(double degree){
-    Logger.recordOutput("IntakePitch/degreeToGo", degree);
-    io.goToRotation(degree / 360);
+  public void goToAnlge(Angle angle){
+    Logger.recordOutput("IntakePitch/AngleToGo", angle);
+    io.goToRotation(angle);
   }
-  public Command goToAnlgeCommand(double degree){
-    return Commands.runOnce(()-> goToAnlge(degree));
+  public Command goToAnlgeCommand(Angle angle){
+    return Commands.runOnce(()-> goToAnlge(angle));
   }
-  public void setPos(double degree){
+  public void setPos(Angle degree){
     io.setPos(degree);
   }
-  public Command setPosCommand(double degree){
-    return Commands.runOnce(()-> setPos(degree));
+  public Command setPosCommand(Angle angle){
+    return Commands.runOnce(()-> setPos(angle));
   }
   public Command setVoltage(double volts){
-    return Commands.runOnce(()-> io.setVoltage(volts));
+    return Commands.runOnce(()-> io.setVoltage(Volts.of(volts)));
   }
   public Angle getAngle(){
     return inputs.position; 
@@ -94,7 +110,12 @@ public class IntakePitch extends SubsystemBase {
   public Command sysidDynamic(SysIdRoutine.Direction direction){
     return sysid.dynamic(direction);
   }
-  public boolean fuel90(){
-    return inputs.fuel90;
+  public void resetPosViaLimit(){
+    if (inputs.FullyClosed) {
+      io.setPos(IntakePitchConstants.minAngleDegree);
+    }
+    if (inputs.FullyOpen) {
+      io.setPos(IntakePitchConstants.maxAngleDegree);
+    }
   }
 }

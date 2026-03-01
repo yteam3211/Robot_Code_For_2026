@@ -4,20 +4,26 @@
 
 package frc.robot.subsystems.IntakePitch;
 
+import static edu.wpi.first.units.Units.Degree;
+
+import edu.wpi.first.units.measure.Angle;
 import frc.lib.util.ITarget;
 
 /** Add your docs here. */
-public enum IntakePitchState implements ITarget {
+public enum IntakePitchState implements ITarget<Angle> {
     colse(0),
     Open(70),
     middle(45);
 
-    private double degree;
+    private Angle angle;
+    private IntakePitchState(Angle angle){
+        this.angle = angle;
+    }
     private IntakePitchState(double degree){
-        this.degree = degree;
+        this(Degree.of(degree));
     }
     @Override
-    public double getTarget() {
-        return degree;
+    public Angle getTarget() {
+        return angle;
     }
 }

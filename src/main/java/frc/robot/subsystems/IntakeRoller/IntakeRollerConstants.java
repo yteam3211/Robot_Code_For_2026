@@ -15,5 +15,5 @@ public class IntakeRollerConstants {
     /** what mod dose the motor be in when idel */
     public static final NeutralModeValue NeutralMode = NeutralModeValue.Brake;
     public static final double gearRatio = 1.777777777777;
-
+ 
 }

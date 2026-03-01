@@ -5,13 +5,11 @@
 package frc.robot.subsystems.IntakePitch;
 
 import static edu.wpi.first.units.Units.Degree;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
+import org.littletonrobotics.junction.AutoLog;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
@@ -20,39 +18,19 @@ import edu.wpi.first.units.measure.Voltage;
 
 /** Add your docs here. */
 public interface IntakePitchIO {
-    public class IntakePitchIOInputs implements LoggableInputs{
+    @AutoLog
+    public class IntakePitchIOInputs{
         public boolean isConncted = false;
         public Angle position = Degree.of(0);
         public AngularVelocity velocity = RotationsPerSecond.of(0);
         public AngularAcceleration acc = RotationsPerSecondPerSecond.of(0);
         public Voltage voltage = Volts.of(0);
-        public boolean fuel90 = false;
-        @Override
-        public void toLog(LogTable table){
-            table.put("isConncted", isConncted);
-            table.put("position", position);
-            table.put("velocity", velocity);
-            table.put("acc", acc);
-            table.put("voltage", voltage);
-            table.put("fuel90",fuel90);
-        }
-        @Override
-        public void fromLog(LogTable table){
-            isConncted = table.get("isConncted", isConncted);
-            position = table.get("position", position);
-            velocity = table.get("velocity", velocity);
-            acc = table.get("acc", acc);
-            voltage = table.get("voltage", voltage);
-            fuel90 = table.get("fuel90", fuel90);
-        }
+        public boolean FullyOpen = false;
+        public boolean FullyClosed = false;
     }
     public default void UpdateInputs(IntakePitchIOInputs inputs){};
-
-    public default void goToRotation(double degree){};
-
-    public default void setSpeed(double dutyCycle){};
-    
-    public default void setPos(double pos){};
-    public default void setVoltage(double volts){};
+    public default void goToRotation(Angle angle){};
+    public default void setPos(Angle pos){};
+    public default void setVoltage(Voltage volts){};
     public default void apliePIDF(){};
 }

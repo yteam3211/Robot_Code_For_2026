@@ -13,14 +13,27 @@
 
 package frc.robot.subsystems.vision;
 
-import static edu.wpi.first.units.Units.Centimeter;
-import static frc.robot.subsystems.vision.VisionConstants.*;
+import static edu.wpi.first.units.Units.Degree;
+import static frc.robot.subsystems.vision.VisionConstants.angularStdDevBaseline;
+import static frc.robot.subsystems.vision.VisionConstants.angularStdDevMegatag2Factor;
+import static frc.robot.subsystems.vision.VisionConstants.aprilTagLayout;
+import static frc.robot.subsystems.vision.VisionConstants.cameraStdDevFactors;
+import static frc.robot.subsystems.vision.VisionConstants.linearStdDevBaseline;
+import static frc.robot.subsystems.vision.VisionConstants.linearStdDevMegatag2Factor;
+import static frc.robot.subsystems.vision.VisionConstants.maxAmbiguity;
+import static frc.robot.subsystems.vision.VisionConstants.maxZError;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -28,20 +41,13 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.commands.BasicCommands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
-import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
-
-import java.lang.annotation.Retention;
-import java.util.LinkedList;
-import java.util.List;
-import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
     private final VisionConsumer consumer;
     private final VisionIO[] io;
-    private final VisionIOInputs[] inputs;
+    private final VisionIOInputsAutoLogged[] inputs;
     private final Alert[] disconnectedAlerts;
     private static Vision instnce;
 
@@ -50,9 +56,9 @@ public class Vision extends SubsystemBase {
         this.io = io;
 
         // Initialize inputs
-        this.inputs = new VisionIOInputs[io.length];
+        this.inputs = new VisionIOInputsAutoLogged[io.length];
         for (int i = 0; i < inputs.length; i++) {
-            inputs[i] = new VisionIOInputs();
+            inputs[i] = new VisionIOInputsAutoLogged();
         }
 
         // Initialize disconnected alerts
@@ -67,10 +73,19 @@ public class Vision extends SubsystemBase {
         if (instnce == null) {
             switch (Constants.currentMode) {
                 case REAL:
-                    instnce = new Vision(Drive.getInsatnce(), new VisionIOLimelight("limelight-left", Drive.getInsatnce()::getRotation));
+                    instnce = new Vision(Drive.getInsatnce(), 
+                        new VisionIOLimelight("limelight-3G", Drive.getInsatnce()::getRotation),
+                        new VisionIOLimelight("limelight-4", Drive.getInsatnce()::getRotation));
                     break;
                 case SIM:
-                    instnce = new Vision(Drive.getInsatnce(), new VisionIOPhotonVisionSim("limelight-left", new Transform3d(Centimeter.of(angularStdDevBaseline), null, null, null), Drive.getInsatnce()::getPose));
+                    instnce = new Vision(Drive.getInsatnce(), 
+                    new VisionIOPhotonVisionSim("limelight-3G", 
+                        new Transform3d(-0.1808,-0.23073,0.44788,
+                        new Rotation3d(Degree.of(0),Degree.of(0),Degree.of(180))), 
+                        Drive.getSwerveDriveSim()::getSimulatedDriveTrainPose),
+                    new VisionIOPhotonVisionSim("limelight-4", 
+                        new Transform3d(Constants.LIME_LIGHT_4_POSE.getTranslation(),Constants.LIME_LIGHT_4_POSE.getRotation()), 
+                        Drive.getSwerveDriveSim()::getSimulatedDriveTrainPose));
                 break;
             
                 default:

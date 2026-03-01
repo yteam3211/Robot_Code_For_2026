@@ -4,9 +4,10 @@
 
 package frc.robot.subsystems.Indexer;
 
-import org.ironmaple.simulation.IntakeSimulation;
+import com.ctre.phoenix6.controls.VoltageOut;
 
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.lib.Loggers.TalonFXLogger;
 
@@ -23,15 +24,15 @@ public class IndexerIOSim implements IndexerIO{
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
         updateSIM();
-        inputs.isConnected = true;
-        inputs.velocity = m_Indexer.getVelocity().getValue();
+        inputs.isConnected = m_Indexer.isConnected();
         inputs.pos = m_Indexer.getPosition().getValue();
+        inputs.velocity = m_Indexer.getVelocity().getValue();
         inputs.volts = m_Indexer.getMotorVoltage().getValue();
     }
 
     @Override
-    public void setVoltage(double voltage) {
-        m_Indexer.setVoltage(voltage);
+    public void setVoltage(Voltage voltage) {
+        m_Indexer.setControl(new VoltageOut(voltage).withEnableFOC(true));
     }
     private void updateSIM(){
         flywheelSim.setInputVoltage(m_Indexer.getSimState().getMotorVoltage());

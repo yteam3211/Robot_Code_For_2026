@@ -24,7 +24,7 @@ import frc.robot.subsystems.drive.Drive;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class moveToRotation extends Command {
   /** Creates a new moveToRotation. */
-  private static PIDController rotController = new PIDController(10, 0.01, 0.2);
+  private static PIDController rotController = new PIDController(10, 0, 0.2);
   private Rotation2d RotTarget;
   private final static Translation2d hubPose = AllianceFlipUtil.apply(new Translation2d(Meters.of(4.59), Meters.of(4.035)));
 

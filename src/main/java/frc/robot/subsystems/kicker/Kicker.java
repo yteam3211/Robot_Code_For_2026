@@ -6,6 +6,7 @@ package frc.robot.subsystems.kicker;
 
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.time.Instant;
@@ -33,7 +34,7 @@ import frc.robot.SubsystemState;
 
 public class Kicker extends SubsystemBase {
   private TalonFXLogger m_kicker = new TalonFXLogger(kickerConstants.m_kickerID, kickerConstants.m_canbus,"Kicker");
-  private kickerIOinputs inputs = new kickerIOinputs();
+  private kickerIOinputsAutoLogged inputs = new kickerIOinputsAutoLogged();
   private MotionMagicVelocityVoltage motionMagicVelocityVoltage = new MotionMagicVelocityVoltage(0).withEnableFOC(true);
   private SysIdRoutine sysid = new SysIdRoutine(new SysIdRoutine.Config(null, null, null, (state)-> Logger.recordOutput("sysid/kicker", state.toString())), 
   new SysIdRoutine.Mechanism((voltage)-> setVoltage(voltage.in(Volts)), null, this, "kicker"));
@@ -103,16 +104,16 @@ public class Kicker extends SubsystemBase {
   public Command setVoltageCommand(double volatge){
     return Commands.runOnce(()-> setVoltage(volatge));
   }
-  public Command setVelocityCommand(double velocity){
+  public Command setVelocityCommand(AngularVelocity velocity){
     return Commands.runOnce(()-> setVelocity(velocity));
   }
-  public void setVelocity(double velocity){
-    if (velocity == 0) {
+  public void setVelocity(AngularVelocity velocity){
+    if (velocity.in(RotationsPerSecond) == 0) {
       m_kicker.setVoltage(0);
     }
     else{
-    m_kicker.setControl(motionMagicVelocityVoltage.withVelocity(velocity / 60).withSlot(0));
-    AngularVelocity req = Rotation.per(Minute).of(velocity);
+    m_kicker.setControl(motionMagicVelocityVoltage.withVelocity(velocity).withSlot(0));
+    AngularVelocity req = velocity;
     Logger.recordOutput("kicker/RPMreq", req);
     }
   }

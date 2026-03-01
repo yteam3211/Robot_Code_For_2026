@@ -4,14 +4,11 @@
 
 package frc.robot;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /** Add your docs here. */
 public final class Controler {
     public CommandPS5Controller swerveController = new CommandPS5Controller(0);
     public CommandPS5Controller subController = new CommandPS5Controller(1);
-    public CommandXboxController SimController = new CommandXboxController(0);
+    // public CommandXboxController SimController = new CommandXboxController(0);
 }

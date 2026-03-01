@@ -1,6 +1,8 @@
 package frc.lib.util;
 
+import edu.wpi.first.units.Measure;
+
 @FunctionalInterface
-public interface ITarget {
-    public double getTarget();
+public interface ITarget<T extends Measure> {
+    public T getTarget();
 }

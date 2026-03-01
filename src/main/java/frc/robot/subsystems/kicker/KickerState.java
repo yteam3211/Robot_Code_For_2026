@@ -4,18 +4,22 @@
 
 package frc.robot.subsystems.kicker;
 
+import static edu.wpi.first.units.Units.Minute;
+import static edu.wpi.first.units.Units.Rotation;
+
+import edu.wpi.first.units.measure.AngularVelocity;
 import frc.lib.util.ITarget;
 
 /** Add your docs here. */
-public enum KickerState implements ITarget{
-    moveFuelToShooter(3000),
-    stop(0);
-    private double velocity;
-    private KickerState(double velocity){
+public enum KickerState implements ITarget<AngularVelocity>{
+    moveFuelToShooter(Rotation.per(Minute).of(3000)),
+    stop(Rotation.per(Minute).of(0));
+    private AngularVelocity velocity;
+    private KickerState(AngularVelocity velocity){
         this.velocity = velocity;
     }
     @Override
-    public double getTarget() {
+    public AngularVelocity getTarget() {
         return velocity;
     }
 }

@@ -13,20 +13,23 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.lib.Loggers.TalonFXLogger;
-import frc.robot.subsystems.Shooter.Shooter;
-import frc.robot.subsystems.drive.Drive;
-
+import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.lib.Loggers.TalonFXLogger;
+import frc.lib.util.FieldConstants;
+import frc.robot.Button.devButoon;
+import frc.robot.subsystems.IntakePitch.IntakePitch;
+import frc.robot.subsystems.drive.Drive;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as
@@ -40,22 +43,22 @@ public class Robot extends LoggedRobot {
 
     public Robot() {
         // Record metadata
-        // Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-        // Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-        // Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-        // Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-        // Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-        // switch (BuildConstants.DIRTY) {
-        //     case 0:
-        //         Logger.recordMetadata("GitDirty", "All changes committed");
-        //         break;
-        //     case 1:
-        //         Logger.recordMetadata("GitDirty", "Uncomitted changes");
-        //         break;
-        //     default:
-        //         Logger.recordMetadata("GitDirty", "Unknown");
-        //         break;
-        // }
+        Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
+        Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+        Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+        Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+        Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+        switch (BuildConstants.DIRTY) {
+            case 0:
+                Logger.recordMetadata("GitDirty", "All changes committed");
+                break;
+            case 1:
+                Logger.recordMetadata("GitDirty", "Uncomitted changes");
+                break;
+            default:
+                Logger.recordMetadata("GitDirty", "Unknown");
+                break;
+        }
 
         // Set up data receivers & replay source
         switch (Constants.currentMode) {
@@ -85,14 +88,16 @@ public class Robot extends LoggedRobot {
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
         robotContainer = new RobotContainer();
-        Logger.recordOutput("hub", new Pose2d(Shooter.hubPose,new Rotation2d()));
+        Logger.recordOutput("hub", new Pose2d(FieldConstants.Hub.innerCenterPoint.toTranslation2d(),new Rotation2d()));
     }
     /** This function is called periodically during all modes. */
     @Override
     public void robotPeriodic() {
         SubsystemState.logState();
         TalonFXLogger.LogTalons();  
-        Logger.recordOutput("DistanceToHub", Drive.getInsatnce().getPose().getTranslation().getDistance(Shooter.hubPose));
+        Logger.recordOutput("DistanceToHub", Drive.getInsatnce().getPose().getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
+        Logger.recordOutput("ErorrToHUBDegree", devButoon.findAngle().getDegrees() - Drive.getInsatnce().getRotation().getDegrees());
+        Logger.recordOutput("TrajectoryToHub", new Pose2d[]{Drive.getInsatnce().getPose(),new Pose2d(FieldConstants.Hub.innerCenterPoint.toTranslation2d(), new Rotation2d())});
         // Switch thread to high priority to improve loop timing
         // Threads.setCurrentThreadPriority(true, 99);
 
@@ -110,6 +115,9 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
         SubsystemState.resetState();
+        if (Constants.currentMode != Constants.Mode.SIM) return;
+        Drive.getInsatnce().setPose(new Pose2d(2,2, new Rotation2d()));
+        SimulatedArena.getInstance().resetFieldForAuto();
     }
     /** This function is called periodically when disabled. */
     @Override
@@ -163,5 +171,12 @@ public class Robot extends LoggedRobot {
 
     /** This function is called periodically whilst in simulation. */
     @Override
-    public void simulationPeriodic() {}
+    public void simulationPeriodic() {
+        SimulatedArena.getInstance().simulationPeriodic();
+        Logger.recordOutput("FieldSimulation/Fuel", 
+        SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
+        Logger.recordOutput("FieldSimulation/RobotPosition", Drive.getSwerveDriveSim().getSimulatedDriveTrainPose());
+        Logger.recordOutput("FieldSimulation/FuelInInatke", IntakePitch.getIntakeSimulation().getGamePiecesAmount());
+        Logger.recordOutput("FieldSimulation/IntakeRunning", IntakePitch.getIntakeSimulation().isRunning());
+    }
 }

@@ -7,7 +7,9 @@ package frc.robot.subsystems.IntakeRoller;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.controls.VoltageOut;
 
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,7 +18,7 @@ import frc.robot.SubsystemState;
 
 public class IntakeRoller extends SubsystemBase {
   private TalonFXLogger m_Roller = new TalonFXLogger(IntakeRollerConstants.m_masterID, IntakeRollerConstants.m_canbus,"IntakeRoller");
-  private IntakeRollerInputs inputs = new IntakeRollerInputs();
+  private IntakeRollerInputsAutoLogged inputs = new IntakeRollerInputsAutoLogged();
   /** Creates a new IntakeRoller. */
   public IntakeRoller() {
     m_Roller.getConfigurator().apply(new MotorOutputConfigs()
@@ -43,8 +45,8 @@ public class IntakeRoller extends SubsystemBase {
     inputs.isConnected = m_Roller.isConnected();
     inputs.voltage = m_Roller.getMotorVoltage().getValue();
   }
-  public void SetVoltage(double voltage){
-    m_Roller.setVoltage(voltage);
+  public void SetVoltage(Voltage voltage){
+    m_Roller.setControl(new VoltageOut(voltage).withEnableFOC(true));
   }
   public void setState(IntakeRollerState state){
     SubsystemState.rollerState = state;

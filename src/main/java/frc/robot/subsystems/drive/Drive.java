@@ -7,22 +7,29 @@
 
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Kilogram;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.COTS;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
-import com.ctre.phoenix6.swerve.utility.WheelForceCalculator.Feedforwards;
-import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
-import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.PathPlannerLogging;
-import com.pathplanner.lib.util.swerve.SwerveSetpoint;
-import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
@@ -31,7 +38,6 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -46,25 +52,13 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.util.LocalADStarAK;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.drive.GyroIO.GyroIOInputs;
-import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.Vision.VisionConsumer;
-import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-
-import java.lang.annotation.Retention;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase implements VisionConsumer {
   // TunerConstants doesn't include these constants, so they are declared locally
@@ -98,11 +92,13 @@ public class Drive extends SubsystemBase implements VisionConsumer {
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
-  private final GyroIOInputs gyroInputs = new GyroIOInputs();
+  private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
   private final SysIdRoutine sysId;
   private final Alert gyroDisconnectedAlert =
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
+
+  private static SwerveDriveSimulation swerveDriveSimulation;
 
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
   private Rotation2d rawYawGyroRotation = Rotation2d.kZero;
@@ -115,7 +111,7 @@ public class Drive extends SubsystemBase implements VisionConsumer {
       };
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(
-          kinematics, rawYawGyroRotation, lastModulePositions, Pose2d.kZero);
+          kinematics, rawYawGyroRotation, lastModulePositions, new Pose2d(2,2,new Rotation2d()));
 
   public static Slot1Configs driveSwerveSecondConfigs = new Slot1Configs()
         .withKP(0.1).withKI(0).withKD(0)
@@ -201,11 +197,11 @@ public class Drive extends SubsystemBase implements VisionConsumer {
       case SIM:
         instance =
             new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(TunerConstants.FrontLeft),
-                new ModuleIOSim(TunerConstants.FrontRight),
-                new ModuleIOSim(TunerConstants.BackLeft),
-                new ModuleIOSim(TunerConstants.BackRight));
+                new GyroIOSim(getSwerveDriveSim().getGyroSimulation()),
+                new ModuleIOSim(TunerConstants.FrontLeft,getSwerveDriveSim().getModules()[0]),
+                new ModuleIOSim(TunerConstants.FrontRight,getSwerveDriveSim().getModules()[1]),
+                new ModuleIOSim(TunerConstants.BackLeft,getSwerveDriveSim().getModules()[2]),
+                new ModuleIOSim(TunerConstants.BackRight,getSwerveDriveSim().getModules()[3]));
         break;
 
       default:
@@ -272,14 +268,8 @@ public class Drive extends SubsystemBase implements VisionConsumer {
         Twist2d twist = kinematics.toTwist2d(moduleDeltas);
         rawYawGyroRotation = rawYawGyroRotation.plus(new Rotation2d(twist.dtheta));
       }
-
       // Apply update
       poseEstimator.updateWithTime(sampleTimestamps[i], rawYawGyroRotation, modulePositions);
-      // poseEstimator3d.updateWithTime(
-      //     sampleTimestamps[i],
-      //     new Rotation3d(rawRollGyroRotaion, rawPitchGyroRotaion,
-      // rawYawGyroRotation.getRadians()),
-      //     modulePositions);
     }
 
     // Update gyro alert
@@ -408,6 +398,7 @@ public class Drive extends SubsystemBase implements VisionConsumer {
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawYawGyroRotation, getModulePositions(), pose);
+    getSwerveDriveSim().setSimulationWorldPose(pose);
     // poseEstimator3d.resetPosition(
     //     new Rotation3d(rawRollGyroRotaion, rawPitchGyroRotaion, rawYawGyroRotation.getRadians()),
     //     lastModulePositions,
@@ -449,5 +440,17 @@ public class Drive extends SubsystemBase implements VisionConsumer {
       new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
+  }
+  public static SwerveDriveSimulation getSwerveDriveSim(){
+    if (swerveDriveSimulation == null) {
+      DriveTrainSimulationConfig config = DriveTrainSimulationConfig.Default()
+      .withGyro(COTS.ofPigeon2())
+      .withCustomModuleTranslations(getModuleTranslations())
+      .withSwerveModule(COTS.ofMark4i(DCMotor.getKrakenX60Foc(1), DCMotor.getKrakenX60Foc(1), WHEEL_COF, 2))
+      .withRobotMass(Kilogram.of(ROBOT_MASS_KG));
+      swerveDriveSimulation = new SwerveDriveSimulation(config, new Pose2d(2,2,new Rotation2d()));
+      SimulatedArena.getInstance().addDriveTrainSimulation(swerveDriveSimulation);
+    }
+    return swerveDriveSimulation;
   }
 }

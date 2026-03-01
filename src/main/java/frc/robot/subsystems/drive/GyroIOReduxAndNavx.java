@@ -7,14 +7,16 @@
 
 package frc.robot.subsystems.drive;
 
+import java.util.Queue;
+
 import com.reduxrobotics.sensors.canandgyro.Canandgyro;
 import com.reduxrobotics.sensors.canandgyro.CanandgyroSettings;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
-import java.util.Queue;
 
 public class GyroIOReduxAndNavx implements GyroIO {
   private final Canandgyro canandgyro = new Canandgyro(47, "rio");

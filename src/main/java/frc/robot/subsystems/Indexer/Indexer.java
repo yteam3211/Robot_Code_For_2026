@@ -6,20 +6,18 @@ package frc.robot.subsystems.Indexer;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.SubsystemState;
-import frc.robot.subsystems.Indexer.IndexerIO.IndexerIOInputs;
 
 public class Indexer extends SubsystemBase {
   private IndexerIO io;
-  private IndexerIOInputs inputs = new IndexerIOInputs();
+  private IndexerIOInputsAutoLogged inputs = new IndexerIOInputsAutoLogged();
   private static Indexer instance;
   /** Creates a new Indixer. */
   public Indexer(IndexerIO io) {
@@ -48,10 +46,10 @@ public class Indexer extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Indexer", inputs);
   }
-  public void setVoltage(double voltage){
+  public void setVoltage(Voltage voltage){
     io.setVoltage(voltage);
   }
-  public Command setVoltageCommand(double voltage){
+  public Command setVoltageCommand(Voltage voltage){
     return Commands.runOnce(()-> setVoltage(voltage));
   }
   public void setState(IndexerState state){
@@ -66,10 +64,10 @@ public class Indexer extends SubsystemBase {
   public AngularVelocity getVelocity(){
     return inputs.velocity;
   }
-  public void setVelocity(double Rpm){
-    io.setvelocity(Rpm);
+  public void setVelocity(AngularVelocity Velocity){
+    io.setvelocity(Velocity);
   }
-  public Command setVelocityCommand(double Rpm){
-    return Commands.runOnce(()-> setVelocity(Rpm));
+  public Command setVelocityCommand(AngularVelocity velocity){
+    return Commands.runOnce(()-> setVelocity(velocity));
   }
 }

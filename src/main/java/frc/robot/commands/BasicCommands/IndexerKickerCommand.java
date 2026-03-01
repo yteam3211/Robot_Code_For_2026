@@ -19,7 +19,7 @@ public class IndexerKickerCommand extends Command {
   /** Creates a new IndexerKickerCommand. */
   public IndexerKickerCommand() {
     // Use addRequirements() here to declare subsystem dependencies.
-    // addRequirements(Kicker.getInstance(),Indexer.getInstance());
+    addRequirements(Kicker.getInstance(),Indexer.getInstance());
   }
 
   // Called when the command is initially scheduled.

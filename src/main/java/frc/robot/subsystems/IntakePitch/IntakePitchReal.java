@@ -4,43 +4,31 @@
 
 package frc.robot.subsystems.IntakePitch;
 
-import static edu.wpi.first.units.Units.Degree;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Rotation;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-
-import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.configs.HardwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.ForwardLimitSourceValue;
-import com.ctre.phoenix6.signals.ForwardLimitTypeValue;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.lib.Loggers.TalonFXLogger;
-import frc.robot.subsystems.Shooter.ShooterConstants;
 
 /** Add your docs here. */
 public class IntakePitchReal implements IntakePitchIO{
     private TalonFXLogger m_intakePitch = new TalonFXLogger(IntakePitchConstants.m_MotorId, new CANBus(IntakePitchConstants.m_CanBusName),"IntakePitch");
-    private DigitalInput m_beambreak_Front = new DigitalInput(IntakePitchConstants.m_beambreak_Front_Id);
-    private DigitalInput m_beambreak_Back = new DigitalInput(IntakePitchConstants.m_beambreak_back_Id);
+    private DigitalInput m_limtMax = new DigitalInput(IntakePitchConstants.m_limitSwitch_max);
+    private DigitalInput m_limtMin = new DigitalInput(IntakePitchConstants.m_limitSwitch_min);
     private MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(true);
     public IntakePitchReal(){
         m_intakePitch.setPosition(0);
@@ -50,14 +38,11 @@ public class IntakePitchReal implements IntakePitchIO{
         MotorOutputConfigs motorOutputConfigs = talonFXConfiguration.MotorOutput;
         motorOutputConfigs.NeutralMode = IntakePitchConstants.NeutralMode;
         motorOutputConfigs.Inverted = IntakePitchConstants.Invetrted;
-        VoltageConfigs voltageConfigs = talonFXConfiguration.Voltage;
-        voltageConfigs.PeakForwardVoltage = 4;
-        voltageConfigs.PeakReverseVoltage = -4;
         SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = talonFXConfiguration.SoftwareLimitSwitch;
-        softwareLimitSwitchConfigs.ForwardSoftLimitEnable = true;
-        softwareLimitSwitchConfigs.ReverseSoftLimitEnable = true;
-        softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = IntakePitchConstants.maxAngleDegree / 360;
-        softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = IntakePitchConstants.minAngleDegree / 360;
+        softwareLimitSwitchConfigs.ForwardSoftLimitEnable = false;
+        softwareLimitSwitchConfigs.ReverseSoftLimitEnable = false;
+        softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = IntakePitchConstants.maxAngleDegree.in(Rotation);
+        softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = IntakePitchConstants.minAngleDegree.in(Rotation);
         MotionMagicConfigs motionMagicConfigs = talonFXConfiguration.MotionMagic;
         motionMagicConfigs.MotionMagicCruiseVelocity =
                 IntakePitchConstants.MotionMagicConstants.MOTION_MAGIC_VELOCITY;
@@ -86,15 +71,11 @@ public class IntakePitchReal implements IntakePitchIO{
         m_intakePitch.setPosition(0);
     }
     @Override
-    public void setSpeed(double dutyCycle){
-        m_intakePitch.set(dutyCycle);
-    }
-    @Override
-    public void goToRotation(double rotation){
+    public void goToRotation(Angle rotation){
         m_intakePitch.setControl(motionMagicVoltage.withPosition(rotation).withSlot(0).withEnableFOC(true));
     }
     @Override
-    public void setPos(double pos){
+    public void setPos(Angle pos){
         m_intakePitch.setPosition(pos);
     }
     @Override
@@ -104,7 +85,8 @@ public class IntakePitchReal implements IntakePitchIO{
         inputs.velocity = m_intakePitch.getVelocity().getValue();
         inputs.acc = m_intakePitch.getAcceleration().getValue();
         inputs.voltage = m_intakePitch.getMotorVoltage().getValue();
-        inputs.fuel90 = m_beambreak_Back.get() || m_beambreak_Front.get();
+        inputs.FullyClosed = !m_limtMin.get();
+        inputs.FullyOpen = !m_limtMax.get();
     }
     @Override
     public void apliePIDF(){
@@ -123,7 +105,7 @@ public class IntakePitchReal implements IntakePitchIO{
         );
     }
     @Override
-    public void setVoltage(double volts){
-        m_intakePitch.setVoltage(volts);
+    public void setVoltage(Voltage volts){
+        m_intakePitch.setControl(new VoltageOut(volts).withEnableFOC(false));
     };
 }

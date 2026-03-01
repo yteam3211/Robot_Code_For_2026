@@ -4,16 +4,7 @@
 
 package frc.robot.subsystems.Shooter;
 
-import static edu.wpi.first.units.Units.Minute;
-import static edu.wpi.first.units.Units.Rotation;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Volts;
-
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -24,11 +15,11 @@ import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GainSchedKpBehaviorValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import edu.wpi.first.math.controller.BangBangController;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.lib.Loggers.TalonFXLogger;
 
@@ -117,11 +108,11 @@ public class ShooterIOReal implements ShooterIO{
         inputs.haveFuel = m_Beam.get();
     }
     @Override
-    public void setVelocity(double velRPM) {
-        m_master.setControl(velocityVoltage.withVelocity(velRPM/60));
+    public void setVelocity(AngularVelocity velRPM) {
+        m_master.setControl(velocityVoltage.withVelocity(velRPM));
     }
     @Override
-    public void setVoltage(double Voltage) {
+    public void setVoltage(Voltage Voltage) {
         m_master.setControl(new VoltageOut(Voltage).withEnableFOC(true));
     }
     @Override

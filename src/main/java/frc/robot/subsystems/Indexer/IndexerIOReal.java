@@ -4,8 +4,7 @@
 
 package frc.robot.subsystems.Indexer;
 
-import static edu.wpi.first.units.Units.Minute;
-import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -17,10 +16,10 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.controls.VoltageOut;
 
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.units.measure.Voltage;
 import frc.lib.Loggers.TalonFXLogger;
 
 /** Add your docs here. */
@@ -67,23 +66,23 @@ public class IndexerIOReal implements IndexerIO{
     @Override
     public void updateInputs(IndexerIOInputs inputs) {
         inputs.isConnected = m_indexer.isConnected();
+        inputs.pos = m_indexer.getPosition().getValue();
         inputs.velocity = m_indexer.getVelocity().getValue();
         inputs.volts = m_indexer.getMotorVoltage().getValue();
-        inputs.pos = m_indexer.getPosition().getValue();
     }
 
     @Override
-    public void setVoltage(double voltage) {
-        m_indexer.setVoltage(voltage);
+    public void setVoltage(Voltage voltage) {
+        m_indexer.setControl(new VoltageOut(voltage).withEnableFOC(true));
     }
     @Override
-    public void setvelocity(double velocity){
-    if (velocity == 0) {
+    public void setvelocity(AngularVelocity velocity){
+    if (velocity.isEquivalent(RotationsPerSecond.of(0))) {
       m_indexer.setVoltage(0);
     }
     else{
-    m_indexer.setControl(motionMagicVelocityVoltage.withVelocity(velocity / 60).withSlot(0));
-    AngularVelocity req = Rotation.per(Minute).of(velocity);
+    m_indexer.setControl(motionMagicVelocityVoltage.withVelocity(velocity).withSlot(0));
+    AngularVelocity req = velocity;
     Logger.recordOutput("Indexer/RPMreq", req);
         }
     }

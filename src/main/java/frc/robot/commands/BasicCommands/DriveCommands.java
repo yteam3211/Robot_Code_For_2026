@@ -14,6 +14,7 @@
 package frc.robot.commands.BasicCommands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -39,9 +40,7 @@ import java.util.function.Supplier;
 public class DriveCommands {
     private static final double DEADBAND = 0.1;
     private static final double ANGLE_KP = 10.0;
-    private static final double ANGLE_KD = 2;
-    private static final double ANGLE_MAX_VELOCITY = 8.0;
-    private static final double ANGLE_MAX_ACCELERATION = 20.0;
+    private static final double ANGLE_KD = 0.8;
     private static final double FF_START_DELAY = 2.0; // Secs
     private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
     private static final double WHEEL_RADIUS_MAX_VELOCITY = 8; // Rad/Sec
@@ -89,7 +88,7 @@ public class DriveCommands {
                             speeds,
                             isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
                 },
-                drive);
+                drive).withName("joystickDrive");
     }
     public static Command joystickDriveRobotReletive(Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier , DoubleSupplier omegaSupplier){
         return Commands.run(
@@ -115,7 +114,7 @@ public class DriveCommands {
                             speeds,
                             isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
                 },
-                drive);
+                drive).withName("joystickDriveRobotRelitive");
     }
 
     /**
@@ -123,12 +122,14 @@ public class DriveCommands {
      * include snapping to an angle, aiming at a vision target, or controlling absolute rotation with a joystick.
      */
     public static Command joystickDriveAtAngle(
-            Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Rotation2d> rotationSupplier) {
+                Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Rotation2d> rotationSupplier) {
 
         // Create PID controller
-        ProfiledPIDController angleController = new ProfiledPIDController(
-                ANGLE_KP, 0.0, ANGLE_KD, new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
+        PIDController angleController = new PIDController(
+                ANGLE_KP, 0, ANGLE_KD,0.02);
         angleController.enableContinuousInput(-Math.PI, Math.PI);
+        angleController.setTolerance(0.00174532);
+        angleController.close();
 
         // Construct command
         return Commands.run(
@@ -155,10 +156,7 @@ public class DriveCommands {
                                             ? drive.getRotation().plus(new Rotation2d(Math.PI))
                                             : drive.getRotation()));
                         },
-                        drive)
-
-                // Reset PID controller when command starts
-                .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+                        drive).withName("joyStickAngle");
     }
 
     /**

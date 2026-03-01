@@ -4,6 +4,12 @@
 
 package frc.robot.Button;
 
+import static edu.wpi.first.units.Units.Minute;
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import org.ejml.equation.MatrixConstructor;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -25,11 +31,11 @@ import frc.robot.subsystems.kicker.Kicker;
 public class defualtCommand {
     public static void loadButton(Controler controller) {
         swerveDefualt(controller);
-        // IntakePitchDefualt(controller);
-        // ShooterDefualt(controller);
-        // IndexerDefualt(controller);
-        // KickerDefualt(controller);
-        // IntakeRollerDefualt(controller);
+        IntakePitchDefualt(controller);
+        ShooterDefualt(controller);
+        IndexerDefualt(controller);
+        KickerDefualt(controller);
+        IntakeRollerDefualt(controller);
         }
     private static void IntakeRollerDefualt(Controler controller) {
         Runnable RollerRunnable = new Runnable() {
@@ -65,7 +71,7 @@ public class defualtCommand {
         Indexer.getInstance().setDefaultCommand(indexerCommand);
     }
     private static void ShooterDefualt(Controler controller) {
-        LoggedNetworkNumber RPM = new LoggedNetworkNumber("/Tuning/RPM",0);
+        LoggedNetworkNumber RPMTun = new LoggedNetworkNumber("/Tuning/RPM",0);
         Runnable shooterRunnable = new Runnable() {
             @Override
             public void run() {
@@ -74,14 +80,14 @@ public class defualtCommand {
                         Shooter.getInstance().setVelocity(Shooter.getInstance().CalcRPMToShoot());
                     break;
                     case stop:
-                        Shooter.getInstance().setVelocity(0);
+                        Shooter.getInstance().setVelocity(RotationsPerSecond.of(0));
                     break;
                     case shootAtPlace:
-                         Shooter.getInstance().setVelocity(RPM.get());
+                         Shooter.getInstance().setVelocity(RPM.of(RPMTun.get()));
                     break;
                 
                     default:
-                         Shooter.getInstance().setVelocity(0);
+                         Shooter.getInstance().setVelocity(RotationsPerSecond.of(0));
                     break;
                 }
             }

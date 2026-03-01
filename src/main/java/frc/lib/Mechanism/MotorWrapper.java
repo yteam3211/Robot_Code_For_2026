@@ -20,7 +20,7 @@ public class MotorWrapper {
     private ControlRequest controlRequest;
     private String MotorName;
     public MotorWrapper(MotorConfig config){
-        this.Motor = new TalonFX(config.getId(),config.getCanBusName());
+        this.Motor = new TalonFX(config.getId(),config.getCanBus());
         this.MotorName = config.getMotorName();
         TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
         FeedbackConfigs feedbackConfigs = talonFXConfiguration.Feedback;

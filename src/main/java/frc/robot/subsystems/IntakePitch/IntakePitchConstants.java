@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.IntakePitch;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Inch;
 import static edu.wpi.first.units.Units.Meter;
 
@@ -14,30 +15,29 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import frc.robot.Robot;
+import edu.wpi.first.units.measure.Angle;
 
 /** Add your docs here. */
 public class IntakePitchConstants {
         /** the DC motor that is used */
-    public static final DCMotor dcMotor = DCMotor.getKrakenX60(1);
+    public static final DCMotor dcMotor = DCMotor.getKrakenX44Foc(1);
     /** the id of the motor subsystem */
     public static final int m_MotorId = 55;
     /** the id of the beam break at the front*/
-    public static final int m_beambreak_Front_Id = 5;
+    public static final int m_limitSwitch_max = 1;
     /** the id of the beam break at the back*/
-    public static final int m_beambreak_back_Id = 6;
+    public static final int m_limitSwitch_min = 0;
     /** the can bus name defualt is rio */
     public static final String m_CanBusName = "subsystems";
     /** what mod dose the motor be in when idel */
     public static final NeutralModeValue NeutralMode = NeutralModeValue.Coast;
     /** inverted or not */
-    public static final InvertedValue Invetrted = InvertedValue.Clockwise_Positive;
+    public static final InvertedValue Invetrted = InvertedValue.CounterClockwise_Positive;
     /** gear ratio of the mechanism */
     public static final double gearRatio = 40.26;
     /** Min and Max angle in radians */
-    public static final double minAngleDegree = 0;
-    public static final double maxAngleDegree = 75;
+    public static final Angle minAngleDegree = Degree.of(90);
+    public static final Angle maxAngleDegree = Degree.of(90 + 34.453125);
     /** the start position of the motor (arm should start at 90 if are facing up) */
     public static final double startingAngle = 90;
     /** the length of the mechanism */

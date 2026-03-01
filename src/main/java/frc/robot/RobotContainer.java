@@ -13,6 +13,9 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -31,9 +34,6 @@ import frc.robot.subsystems.IntakeRoller.IntakeRoller;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
-
-import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -86,7 +86,7 @@ public class RobotContainer {
         // Default command, normal field-relative drive
         defualtCommand.loadButton(controler);
         devButoon.loadButton(controler);
-        // AutoCommands.loadCommands();
+        AutoCommands.loadCommands();
     }
 
     /**

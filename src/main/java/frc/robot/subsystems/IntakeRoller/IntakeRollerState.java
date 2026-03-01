@@ -4,19 +4,25 @@
 
 package frc.robot.subsystems.IntakeRoller;
 
+import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.units.measure.Voltage;
 import frc.lib.util.ITarget;
 
 /** Add your docs here. */
-public enum IntakeRollerState implements ITarget{
+public enum IntakeRollerState implements ITarget<Voltage>{
     move(8),
     stop(0);
-    private double voltage;
-    private IntakeRollerState(double voltage){
+    private Voltage voltage;
+    private IntakeRollerState(Voltage voltage){
         this.voltage = voltage;
+    }
+    private IntakeRollerState(double volts){
+        this(Volts.of(volts));
     }
 
     @Override
-    public double getTarget() {
+    public Voltage getTarget() {
         return voltage;
     }
 }

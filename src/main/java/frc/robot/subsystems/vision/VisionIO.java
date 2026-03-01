@@ -13,32 +13,19 @@
 
 package frc.robot.subsystems.vision;
 
+import org.littletonrobotics.junction.AutoLog;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public interface VisionIO {
-    class VisionIOInputs implements LoggableInputs{
+    @AutoLog
+    class VisionIOInputs{
         public boolean connected = false;
         public TargetObservation latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
         public PoseObservation[] poseObservations = new PoseObservation[0];
         public int[] tagIds = new int[0];
-        @Override
-        public void toLog(LogTable table) {
-            table.put("connected",connected);
-            table.put("latestTargetObservation", latestTargetObservation);
-            table.put("poseObservations", poseObservations);
-            table.put("tagIds", tagIds);
-        }
-        @Override
-        public void fromLog(LogTable table) {
-            connected = table.get("connected", connected);
-            latestTargetObservation = table.get("latestTargetObservation",latestTargetObservation);
-            poseObservations = table.get("poseObservations",poseObservations);
-            tagIds = table.get("tagIds", tagIds);
 
-        }
     }
 
     /** Represents the angle to a simple target, not used for pose estimation. */
