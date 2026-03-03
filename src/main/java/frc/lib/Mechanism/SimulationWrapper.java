@@ -4,48 +4,74 @@
 
 package frc.lib.Mechanism;
 
+import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
+import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.simulation.LinearSystemSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
-import java.util.function.DoubleConsumer;
-import java.util.function.DoubleSupplier;
-
 
 /** Add your docs here. */
-public class SimulationWrapper {
-    private record SimData(
-        DoubleSupplier position,
-        DoubleSupplier velocity,
-        DoubleSupplier accelration,
-        DoubleSupplier voltage
-) {
+public class SimulationWrapper<P,V,A>{
+    private class SimData <P,V,A>{
+        Supplier<P> position;
+        Supplier<V> velocity;
+        Supplier<A> accelration;
+        Supplier<Voltage> voltage;
         
-        public double getPosition() {
-            return position.getAsDouble();
+        public SimData(        
+        Supplier<P> position,
+        Supplier<V> velocity,
+        Supplier<A> accelration,
+        Supplier<Voltage> voltage){
+            this.position = position;
+            this.velocity = velocity;
+            this.accelration = accelration;
+            this.voltage = voltage;
+        }
+        public P getPosition() {
+            return position.get();
         }
 
-        public double getVelocity() {
-            return velocity.getAsDouble();
+        public V getVelocity() {
+            return velocity.get();
         }
 
-        public double getAccelration() {
-            return accelration.getAsDouble();
+        public A getAccelration() {
+            return accelration.get();
         }
 
-        public double getVoltage() {
-            return voltage.getAsDouble();
+        public Voltage getVoltage() {
+            return voltage.get();
         }
     }
 
     private DoubleConsumer updateSim;
-    private DoubleConsumer voltageUpdate;
+    private Consumer<Voltage> voltageUpdate;
     private SimData data;
     private double missingData;
     private Runnable updateMissingData;
@@ -53,7 +79,11 @@ public class SimulationWrapper {
     public SimulationWrapper(SimulationConfig config) {
         try{
             if (config.mechanismType == null) {
+                for (int i = 0; i < 100; i++) {
+                    System.out.println("fuck you\n\n");
+                }
                 throw new Exception("the mechanismType is null and i dont know witch Simulation you want");
+                
             }
         switch (config.mechanismType) {
             case Arm:
@@ -67,16 +97,15 @@ public class SimulationWrapper {
                         config.simulateGravity,
                         config.startingPosition,
                         config.measurementStdDevs);
-                data = new SimData(
-                        () -> Units.radiansToDegrees(ArmSim.getAngleRads()),
-                        () -> Units.radiansToDegrees(ArmSim.getVelocityRadPerSec()),
-                        () -> missingData,
-                        () -> ArmSim.getInput(0));
+                data = new SimData<Angle,AngularVelocity,AngularAcceleration>(
+                        () -> Radian.of(ArmSim.getAngleRads()),
+                        () -> RadiansPerSecond.of(ArmSim.getVelocityRadPerSec()),
+                        () -> DegreesPerSecondPerSecond.of(missingData),
+                        () -> Volts.of(ArmSim.getInput(0)));
                 setUpdateSupplier(ArmSim);
                 setVoltageSupplier(ArmSim);
                 updateMissingData = new Runnable() {
                     double helper = 0;
-
                     @Override
                     public void run() {
                         missingData = Units.radiansToDegrees(ArmSim.getVelocityRadPerSec()) - helper;
@@ -95,16 +124,15 @@ public class SimulationWrapper {
                         config.simulateGravity,
                         config.startingPosition,
                         config.measurementStdDevs);
-                data = new SimData(
-                        () -> ElevatorSim.getPositionMeters() / 100,
-                        () -> ElevatorSim.getVelocityMetersPerSecond() / 100,
-                        () -> missingData,
-                        () -> ElevatorSim.getInput(0));
+                data = new SimData<Distance,LinearVelocity,LinearAcceleration>(
+                        () -> Meters.of(ElevatorSim.getPositionMeters()),
+                        () -> MetersPerSecond.of(ElevatorSim.getVelocityMetersPerSecond()),
+                        () -> MetersPerSecondPerSecond.of(missingData),
+                        () -> Volts.of(ElevatorSim.getInput(0)));
                 setUpdateSupplier(ElevatorSim);
                 setVoltageSupplier(ElevatorSim);
                 updateMissingData = new Runnable() {
                     double helper = 0;
-
                     @Override
                     public void run() {
                         missingData = ElevatorSim.getPositionMeters() / 100 - helper;
@@ -118,11 +146,11 @@ public class SimulationWrapper {
                                 config.dcMotor, config.JkMeterSquaerdOrDrum, config.gearRatio),
                         config.dcMotor,
                         config.measurementStdDevs);
-                data = new SimData(
-                        () -> missingData,
-                        () -> Flywheelsim.getAngularVelocityRPM(),
-                        () -> Flywheelsim.getAngularAcceleration().in(RotationsPerSecondPerSecond),
-                        () -> Flywheelsim.getInputVoltage());
+                data = new SimData<Angle,AngularVelocity,AngularAcceleration>(
+                        () -> Radian.of(missingData),
+                        () -> Flywheelsim.getAngularVelocity(),
+                        () -> Flywheelsim.getAngularAcceleration(),
+                        () -> Volts.of(Flywheelsim.getInputVoltage()));
                 setUpdateSupplier(Flywheelsim);
                 setVoltageSupplier(Flywheelsim);
                 updateMissingData = () -> {
@@ -135,11 +163,11 @@ public class SimulationWrapper {
                                 config.dcMotor, config.JkMeterSquaerdOrDrum, config.gearRatio),
                         config.dcMotor,
                         config.measurementStdDevs);
-                data = new SimData(
-                        () -> DcMotorSim.getAngularPositionRotations(),
-                        () -> DcMotorSim.getAngularVelocityRPM() / 60,
-                        () -> DcMotorSim.getAngularAcceleration().in(RotationsPerSecondPerSecond),
-                        () -> DcMotorSim.getInputVoltage());
+                data = new SimData<Angle,AngularVelocity,AngularAcceleration>(
+                        () -> DcMotorSim.getAngularPosition(),
+                        () -> DcMotorSim.getAngularVelocity(),
+                        () -> DcMotorSim.getAngularAcceleration(),
+                        () -> Volts.of(DcMotorSim.getInputVoltage()));
                 setUpdateSupplier(DcMotorSim);
                 setVoltageSupplier(DcMotorSim);
                 break;
@@ -165,28 +193,38 @@ public class SimulationWrapper {
         updateSim.accept(dtSeconds);
         updateMissingData.run();
     }
-
     private void setVoltageSupplier(LinearSystemSim Sim) {
-        voltageUpdate = (voltage) -> Sim.setInput(0, voltage);
+        voltageUpdate = (voltage) -> Sim.setInput(0, voltage.in(Volts));
     }
 
-    public void setVoltage(double voltage) {
+    public void setVoltage(Voltage voltage) {
         voltageUpdate.accept(voltage);
     }
-
+    public void setVoltage(double voltage){
+        setVoltage(Volts.of(voltage));
+    }
     public double getPosition() {
-        return data.getPosition();
+        if (data.position.get().getClass().equals(Angle.class)) {
+            return ((Angle)data.getPosition()).in(Rotation);
+        }
+        return ((Distance)data.getPosition()).in(Meters);
     }
 
     public double getVelocity() {
-        return data.getVelocity();
+        if (data.position.get().getClass().equals(AngularVelocity.class)) {
+            return ((AngularVelocity)data.getPosition()).in(RotationsPerSecond);
+        }
+        return ((LinearVelocity)data.getPosition()).in(MetersPerSecond);
     }
 
     public double getAccelration() {
-        return data.getAccelration();
+        if (data.position.get().getClass().equals(AngularAcceleration.class)) {
+            return ((AngularAcceleration)data.getPosition()).in(RotationsPerSecondPerSecond);
+        }
+        return ((LinearAcceleration)data.getPosition()).in(MetersPerSecondPerSecond);
     }
 
     public double getVoltage() {
-        return data.getVoltage();
+        return data.getVoltage().in(Volts);
     }
 }

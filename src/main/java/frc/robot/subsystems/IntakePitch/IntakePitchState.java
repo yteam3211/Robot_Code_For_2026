@@ -12,8 +12,8 @@ import frc.lib.util.ITarget;
 /** Add your docs here. */
 public enum IntakePitchState implements ITarget<Angle> {
     colse(0),
-    Open(70),
-    middle(45);
+    Open(90+70),
+    middle(90+45);
 
     private Angle angle;
     private IntakePitchState(Angle angle){

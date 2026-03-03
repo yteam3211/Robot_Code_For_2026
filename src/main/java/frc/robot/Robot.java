@@ -25,6 +25,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.lib.Loggers.MechanisemLogger;
 import frc.lib.Loggers.TalonFXLogger;
 import frc.lib.util.FieldConstants;
 import frc.robot.Button.devButoon;
@@ -95,9 +96,10 @@ public class Robot extends LoggedRobot {
     public void robotPeriodic() {
         SubsystemState.logState();
         TalonFXLogger.LogTalons();  
-        Logger.recordOutput("DistanceToHub", Drive.getInsatnce().getPose().getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
+        Logger.recordOutput("DistanceToHub", Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
         Logger.recordOutput("ErorrToHUBDegree", devButoon.findAngle().getDegrees() - Drive.getInsatnce().getRotation().getDegrees());
-        Logger.recordOutput("TrajectoryToHub", new Pose2d[]{Drive.getInsatnce().getPose(),new Pose2d(FieldConstants.Hub.innerCenterPoint.toTranslation2d(), new Rotation2d())});
+        Logger.recordOutput("TrajectoryToHub", new Pose2d[]{Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER),new Pose2d(FieldConstants.Hub.innerCenterPoint.toTranslation2d(), new Rotation2d())});
+        Logger.recordOutput("Shooter/Pose", Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER));
         // Switch thread to high priority to improve loop timing
         // Threads.setCurrentThreadPriority(true, 99);
 
@@ -178,5 +180,6 @@ public class Robot extends LoggedRobot {
         Logger.recordOutput("FieldSimulation/RobotPosition", Drive.getSwerveDriveSim().getSimulatedDriveTrainPose());
         Logger.recordOutput("FieldSimulation/FuelInInatke", IntakePitch.getIntakeSimulation().getGamePiecesAmount());
         Logger.recordOutput("FieldSimulation/IntakeRunning", IntakePitch.getIntakeSimulation().isRunning());
+        MechanisemLogger.getInstance().update();
     }
 }

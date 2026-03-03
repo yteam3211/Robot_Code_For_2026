@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.IntakePitch;
 
+import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Millimeter;
 import static edu.wpi.first.units.Units.Second;
@@ -64,7 +65,7 @@ public class IntakePitch extends SubsystemBase {
         Meters.of(TunerConstants.FrontLeft.LocationY), 
         Millimeter.of(269.11), 
         IntakeSide.FRONT, 
-        67);
+        80);
       intakeSimulation.register();
     }
     return intakeSimulation;

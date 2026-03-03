@@ -5,9 +5,13 @@
 package frc.robot.subsystems.IntakePitch;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radian;
 
 import org.ironmaple.simulation.IntakeSimulation;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
@@ -21,7 +25,8 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import frc.lib.Loggers.MechanisemLogger;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.lib.Loggers.TalonFXLogger;
 
 /** Add your docs here. */
@@ -36,7 +41,7 @@ public class IntakePitchSim implements IntakePitchIO{
         IntakePitchConstants.JKgMeterSqured, IntakePitchConstants.lengthMeters, 
         IntakePitchConstants.minAngleDegree.in(Radian), 
         IntakePitchConstants.maxAngleDegree.in(Radian), true, 
-        Units.degreesToRadians(IntakePitchConstants.startingAngle));
+        IntakePitchConstants.startingAngle.in(Radian));
         TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
         FeedbackConfigs feedbackConfigsspin = talonFXConfiguration.Feedback;
         feedbackConfigsspin.SensorToMechanismRatio = IntakePitchConstants.POSITION_CONVERSION_FACTOR;
@@ -81,7 +86,6 @@ public class IntakePitchSim implements IntakePitchIO{
         inputs.acc =m_intakePitch.getAcceleration().getValue();
     }
     private void updateSim(){
-        MechanisemLogger.updateIntakeLigmatSim();
         ArmSim.setInputVoltage(m_intakePitch.getSimState().getMotorVoltage());
         ArmSim.update(0.02);
         m_intakePitch.getSimState().setRawRotorPosition(Units.radiansToRotations(ArmSim.getAngleRads()) * IntakePitchConstants.POSITION_CONVERSION_FACTOR);

@@ -21,10 +21,12 @@ public class AutoCommands {
     private static boolean isAtOriantetion(){
         double x = FieldConstants.Hub.innerCenterPoint.getX() - Drive.getInsatnce().getPose().getX();
         double y = FieldConstants.Hub.innerCenterPoint.getY() - Drive.getInsatnce().getPose().getY();
-        return Math.max(Drive.getInsatnce().getRotation().getDegrees(), 
+        boolean isAtOriantetion = Math.max(Drive.getInsatnce().getRotation().getDegrees(), 
         Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg).getDegrees()) - 
         Math.min(Drive.getInsatnce().getRotation().getDegrees(), 
-        Rotation2d.fromRadians(Math.atan2(y, x)).plus(Rotation2d.k180deg).getDegrees()) < 5;
+        Rotation2d.fromRadians(Math.atan2(y, x)).plus(Rotation2d.k180deg).getDegrees()) < 2;
+        Logger.recordOutput("isAtOriantetion", isAtOriantetion);
+        return isAtOriantetion;
     }
     private static void kickerIndexerAuto() {
         Trigger isAtOriantetion = new Trigger(AutoCommands::isAtOriantetion);

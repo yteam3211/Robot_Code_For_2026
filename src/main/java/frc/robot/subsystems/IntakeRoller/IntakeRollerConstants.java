@@ -5,6 +5,7 @@
 package frc.robot.subsystems.IntakeRoller;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;  
 
 /** Add your docs here. */
@@ -15,5 +16,6 @@ public class IntakeRollerConstants {
     /** what mod dose the motor be in when idel */
     public static final NeutralModeValue NeutralMode = NeutralModeValue.Brake;
     public static final double gearRatio = 1.777777777777;
+    public static final InvertedValue invertedValue = InvertedValue.Clockwise_Positive;
  
 }

@@ -53,12 +53,10 @@ public class Shooter extends SubsystemBase {
       updateMAP();
   }
   private void updateMAP(){
-    RpmFromDistance.put(3.278, 3600.0);
-    RpmFromDistance.put(1.993, 3200.0);
-    RpmFromDistance.put(3.014, 3400.0);
+    // RpmFromDistance.put(1.76, null);
     // RpmFromDistance.put(null, null);
     // RpmFromDistance.put(null, null);
-
+    // RpmFromDistance.put(null, null);
   }
 
   public static Shooter getInstance(){
@@ -88,6 +86,7 @@ public class Shooter extends SubsystemBase {
     // This method will be called once per scheduler run
   }
   public void setVelocity(AngularVelocity velRPM){
+    requireVelRPM = velRPM.in(RPM);
     if (velRPM.isEquivalent(RotationsPerSecond.of(0))) {
       Logger.recordOutput("Shooter/what", "stop");
       setVoltage(Volts.of(0.5));
@@ -129,7 +128,7 @@ public class Shooter extends SubsystemBase {
     return Commands.run(()-> setState(state));
   }
   public boolean isAtVel(){ 
-    return Math.abs(inputs.velocity.in(Rotation.per(Minute)) - requireVelRPM) < 40;
+    return Math.abs(inputs.velocity.in(Rotation.per(Minute)) - requireVelRPM) < 40 && requireVelRPM != 0;
   }
   public Command appliePIDF(){
     return this.runOnce(()->{
@@ -139,9 +138,7 @@ public class Shooter extends SubsystemBase {
   public Command Stop(){
     return setVotlageCommand(Volts.of(0));
   }
-  private LoggedNetworkNumber RPMTun = new LoggedNetworkNumber("/Tuning/RPM",0);
   public AngularVelocity CalcRPMToShoot(){
-
     double value = Drive.getInsatnce().getPose().getTranslation().getDistance(AllianceFlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
     return RPM.of(RpmFromDistance.get(value));    
   }

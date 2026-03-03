@@ -5,11 +5,13 @@
 package frc.robot.subsystems.Shooter;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Millimeter;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnFly;
+import org.littletonrobotics.junction.ConsoleSource;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.StatusCode;
@@ -22,6 +24,7 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -108,27 +111,13 @@ public class ShooterIOSim implements ShooterIO{
     }
     private void shootSim(){
         if (SubsystemState.shooterState != ShooterState.stop && Math.abs(devButoon.findAngle().getDegrees() - Drive.getInsatnce().getRotation().getDegrees()) < 5) {
-            RebuiltFuelOnFly rebuiltFuelOnFlyLeft = (RebuiltFuelOnFly)new RebuiltFuelOnFly(
-                    Drive.getSwerveDriveSim().getSimulatedDriveTrainPose().getTranslation(),
-                    Constants.OFF_SET_SHOOTER.toTranslation2d(), // shooter offet from center
-                    Drive.getSwerveDriveSim().getDriveTrainSimulatedChassisSpeedsFieldRelative(),
-                    Drive.getSwerveDriveSim().getSimulatedDriveTrainPose().getRotation().plus(Rotation2d.k180deg),
-                    Constants.OFF_SET_SHOOTER.getMeasureZ(), // initial height of the ball, in meters
-                    Shooter.getInstance().ToLinearVelocity(Shooter.getInstance().getVelocity()), // initial velocity, in m/s
-                    Degrees.of(62)); // shooter angle
-                    // .withProjectileTrajectoryDisplayCallBack(
-                    //     (poses) -> Logger.recordOutput("successfulShotsTrajectory", poses.toArray(Pose3d[]::new)),
-                    //     (poses) -> Logger.recordOutput("missedShotsTrajectory", poses.toArray(Pose3d[]::new)));
-            rebuiltFuelOnFlyLeft.setHitTargetCallBack(() -> Logger.recordOutput("HitAt/Left", rebuiltFuelOnFlyLeft.getPose3d()));
-            SimulatedArena.getInstance()
-                .addGamePieceProjectile(rebuiltFuelOnFlyLeft);
 
             RebuiltFuelOnFly rebuiltFuelOnFlyRight = (RebuiltFuelOnFly)new RebuiltFuelOnFly(
                     Drive.getSwerveDriveSim().getSimulatedDriveTrainPose().getTranslation(),
-                    Constants.OFF_SET_SHOOTER.toTranslation2d(), // shooter offet from center
+                    new Translation2d(Constants.OFF_SET_SHOOTER.getMeasureX(), Constants.OFF_SET_SHOOTER.getMeasureY()), // shooter offet from center
                     Drive.getSwerveDriveSim().getDriveTrainSimulatedChassisSpeedsFieldRelative(),
                     Drive.getSwerveDriveSim().getSimulatedDriveTrainPose().getRotation().plus(Rotation2d.k180deg),
-                    Constants.OFF_SET_SHOOTER.getMeasureZ(), // initial height of the ball, in meters
+                    Millimeter.of(546), // initial height of the ball, in meters
                     Shooter.getInstance().ToLinearVelocity(Shooter.getInstance().getVelocity()), // initial velocity, in m/s
                     Degrees.of(62)); // shooter angle
             rebuiltFuelOnFlyRight.setHitTargetCallBack(()->Logger.recordOutput("HitAt/Right", rebuiltFuelOnFlyRight.getPose3d()));

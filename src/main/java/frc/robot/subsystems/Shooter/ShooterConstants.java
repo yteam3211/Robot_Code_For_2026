@@ -33,7 +33,7 @@ public class ShooterConstants {
     public static final double POSITION_CONVERSION_FACTOR = gearRatio;
 
     public static final Pose2d shooterPose = new Pose2d();
-    public static final InvertedValue Inverted = InvertedValue.Clockwise_Positive;
+    public static final InvertedValue Inverted = InvertedValue.CounterClockwise_Positive;
 
     
     public final class MotionMagicConstants {
@@ -41,13 +41,13 @@ public class ShooterConstants {
         public static final double MOTION_MAGIC_ACCELERATION = 24000;
         public static final double MOTION_MAGIC_JERK = 0;
 
-        public static final double Slot0_MOTOR_KS = 0.5;//0.5
-        public static final double Slot0_MOTOR_KA = 0.016;//0.016
-        public static final double Slot0_MOTOR_KV = 0.124;//0.124
+        public static final double Slot0_MOTOR_KS = 0.4;//0.4
+        public static final double Slot0_MOTOR_KA = 0;
+        public static final double Slot0_MOTOR_KV = 0.127;//0.127
         public static final double Slot0_MOTOR_KG = 0;
-        public static final double Slot0_MOTOR_KP = 0.7;//0.7
+        public static final double Slot0_MOTOR_KP = 0;//0.7
         public static final double Slot0_MOTOR_KI = 0;
-        public static final double Slot0_MOTOR_KD = 0.001;//0.001
+        public static final double Slot0_MOTOR_KD = 0;//0.001
         
         public static final GravityTypeValue GravityType = GravityTypeValue.Arm_Cosine;
         public static final StaticFeedforwardSignValue staticFeedForward = StaticFeedforwardSignValue.UseVelocitySign;

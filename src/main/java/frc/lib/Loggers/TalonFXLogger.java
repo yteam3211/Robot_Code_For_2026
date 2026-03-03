@@ -4,9 +4,6 @@
 
 package frc.lib.Loggers;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Volts;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,10 +12,8 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
-import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
+
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 
@@ -35,7 +30,7 @@ public class TalonFXLogger extends TalonFX implements LoggableInputs{
     @Override
     public void toLog(LogTable table){
         try {
-            logAlert.set(false);
+            logAlert.set(false); 
             table.put(name + "/Velocity", super.getVelocity().getValue());
             table.put(name + "/Acceleration", super.getAcceleration().getValue());
             table.put(name + "/Voltage", super.getMotorVoltage().getValue());

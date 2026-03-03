@@ -11,7 +11,7 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 /** Add your docs here. */
 public class MotorConfig {
-        private static CANBus CANBus = null;
+        private CANBus CANBus = null;
         private final int id;
         private final String MotorName;
         private double Kp;

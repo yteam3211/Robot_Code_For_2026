@@ -4,12 +4,14 @@
 
 package frc.robot.subsystems.IntakeRoller;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -21,4 +23,5 @@ public class IntakeRollerInputs{
     public Voltage voltage = Volts.of(0);
     public AngularAcceleration acceleration = RotationsPerSecondPerSecond.of(0);
     public boolean isConnected = false;
+    public Angle position = Degree.of(0);
 }

@@ -98,7 +98,7 @@ public class RobotContainer {
         return autoChooser.get();
     }
 
-    public static void getInstnce(){
+    private static void getInstnce(){
         Drive.getInsatnce();
         Vision.getInstance();
         Shooter.getInstance();

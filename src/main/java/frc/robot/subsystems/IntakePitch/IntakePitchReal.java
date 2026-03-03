@@ -4,18 +4,23 @@
 
 package frc.robot.subsystems.IntakePitch;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Rotation;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.signals.GainSchedBehaviorValue;
+import com.ctre.phoenix6.signals.GainSchedKpBehaviorValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
@@ -31,7 +36,6 @@ public class IntakePitchReal implements IntakePitchIO{
     private DigitalInput m_limtMin = new DigitalInput(IntakePitchConstants.m_limitSwitch_min);
     private MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(true);
     public IntakePitchReal(){
-        m_intakePitch.setPosition(0);
         TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
         FeedbackConfigs feedbackConfigs = talonFXConfiguration.Feedback;
         feedbackConfigs.SensorToMechanismRatio = IntakePitchConstants.POSITION_CONVERSION_FACTOR;
@@ -41,8 +45,11 @@ public class IntakePitchReal implements IntakePitchIO{
         SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = talonFXConfiguration.SoftwareLimitSwitch;
         softwareLimitSwitchConfigs.ForwardSoftLimitEnable = false;
         softwareLimitSwitchConfigs.ReverseSoftLimitEnable = false;
-        softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = IntakePitchConstants.maxAngleDegree.in(Rotation);
-        softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = IntakePitchConstants.minAngleDegree.in(Rotation);
+        // softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = IntakePitchConstants.maxAngleDegree.plus(Degree.of(10)).in(Rotation);
+        // softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = IntakePitchConstants.minAngleDegree.plus(Degree.of(-10)).in(Rotation);
+        VoltageConfigs voltageConfigs = talonFXConfiguration.Voltage;
+        voltageConfigs.PeakForwardVoltage = 4;
+        voltageConfigs.PeakReverseVoltage = -4;
         MotionMagicConfigs motionMagicConfigs = talonFXConfiguration.MotionMagic;
         motionMagicConfigs.MotionMagicCruiseVelocity =
                 IntakePitchConstants.MotionMagicConstants.MOTION_MAGIC_VELOCITY;
@@ -68,7 +75,7 @@ public class IntakePitchReal implements IntakePitchIO{
         if (!status.isOK()) {
             System.out.println("Could not configure device. Error: " + status.toString());
         }
-        m_intakePitch.setPosition(0);
+        m_intakePitch.setPosition(IntakePitchConstants.startingAngle);
     }
     @Override
     public void goToRotation(Angle rotation){
@@ -85,8 +92,8 @@ public class IntakePitchReal implements IntakePitchIO{
         inputs.velocity = m_intakePitch.getVelocity().getValue();
         inputs.acc = m_intakePitch.getAcceleration().getValue();
         inputs.voltage = m_intakePitch.getMotorVoltage().getValue();
-        inputs.FullyClosed = !m_limtMin.get();
-        inputs.FullyOpen = !m_limtMax.get();
+        inputs.FullyClosed = m_limtMin.get();
+        inputs.FullyOpen = m_limtMax.get();
     }
     @Override
     public void apliePIDF(){

@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.controls.VoltageOut;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -22,7 +23,8 @@ public class IntakeRoller extends SubsystemBase {
   /** Creates a new IntakeRoller. */
   public IntakeRoller() {
     m_Roller.getConfigurator().apply(new MotorOutputConfigs()
-    .withNeutralMode(IntakeRollerConstants.NeutralMode));
+    .withNeutralMode(IntakeRollerConstants.NeutralMode)
+    .withInverted(IntakeRollerConstants.invertedValue));
   }
 
   private static IntakeRoller Instance;
@@ -44,6 +46,7 @@ public class IntakeRoller extends SubsystemBase {
     inputs.velocity = m_Roller.getVelocity().getValue();
     inputs.isConnected = m_Roller.isConnected();
     inputs.voltage = m_Roller.getMotorVoltage().getValue();
+    inputs.position = m_Roller.getPosition().getValue();
   }
   public void SetVoltage(Voltage voltage){
     m_Roller.setControl(new VoltageOut(voltage).withEnableFOC(true));
@@ -53,5 +56,8 @@ public class IntakeRoller extends SubsystemBase {
   }
   public Command setStateCommand(IntakeRollerState state){
     return Commands.runOnce(()-> setState(state));
+  }
+  public Angle getAngle(){
+    return inputs.position;
   }
 }

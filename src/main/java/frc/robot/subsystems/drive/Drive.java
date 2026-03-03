@@ -13,6 +13,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -73,7 +74,7 @@ public class Drive extends SubsystemBase implements VisionConsumer {
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
 
   // PathPlanner config constants
-  private static final double ROBOT_MASS_KG = 74.088;
+  private static final double ROBOT_MASS_KG = 51.0;
   private static final double ROBOT_MOI = 6.883;
   private static final double WHEEL_COF = 1.2;
   private static final RobotConfig PP_CONFIG =
@@ -121,6 +122,7 @@ public class Drive extends SubsystemBase implements VisionConsumer {
         .withKP(100).withKI(0).withKD(0.5)
         .withKS(0.1).withKV(2.66).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+  private final Consumer<Pose2d> poseReset;
   // private SwerveDrivePoseEstimator3d poseEstimator3d =
   //     new SwerveDrivePoseEstimator3d(
   //         kinematics, new Rotation3d(), lastModulePositions, new Pose3d());
@@ -133,7 +135,9 @@ public class Drive extends SubsystemBase implements VisionConsumer {
       ModuleIO flModuleIO,
       ModuleIO frModuleIO,
       ModuleIO blModuleIO,
-      ModuleIO brModuleIO) {
+      ModuleIO brModuleIO,
+      Consumer<Pose2d> poseReset) {
+    this.poseReset = poseReset;
     this.gyroIO = gyroIO;
     modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
     modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
@@ -191,7 +195,8 @@ public class Drive extends SubsystemBase implements VisionConsumer {
                 new ModuleIOTalonFX(TunerConstants.FrontLeft),
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
-                new ModuleIOTalonFX(TunerConstants.BackRight));
+                new ModuleIOTalonFX(TunerConstants.BackRight),
+                (psoe)->{});
         break;
 
       case SIM:
@@ -201,7 +206,8 @@ public class Drive extends SubsystemBase implements VisionConsumer {
                 new ModuleIOSim(TunerConstants.FrontLeft,getSwerveDriveSim().getModules()[0]),
                 new ModuleIOSim(TunerConstants.FrontRight,getSwerveDriveSim().getModules()[1]),
                 new ModuleIOSim(TunerConstants.BackLeft,getSwerveDriveSim().getModules()[2]),
-                new ModuleIOSim(TunerConstants.BackRight,getSwerveDriveSim().getModules()[3]));
+                new ModuleIOSim(TunerConstants.BackRight,getSwerveDriveSim().getModules()[3]),
+                getSwerveDriveSim()::setSimulationWorldPose);
         break;
 
       default:
@@ -211,7 +217,8 @@ public class Drive extends SubsystemBase implements VisionConsumer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
-                new ModuleIO() {});
+                new ModuleIO() {},
+                (pose)->{});
         break;
       }
     }
@@ -230,9 +237,7 @@ public class Drive extends SubsystemBase implements VisionConsumer {
 
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
-      for (var module : modules) {
-        module.stop();
-      }
+      stopWithX();
     }
     Logger.recordOutput("Odometry/Robot", getPose());
     // Log empty setpoint states when disabled
@@ -398,11 +403,7 @@ public class Drive extends SubsystemBase implements VisionConsumer {
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawYawGyroRotation, getModulePositions(), pose);
-    getSwerveDriveSim().setSimulationWorldPose(pose);
-    // poseEstimator3d.resetPosition(
-    //     new Rotation3d(rawRollGyroRotaion, rawPitchGyroRotaion, rawYawGyroRotation.getRadians()),
-    //     lastModulePositions,
-    //     new Pose3d(pose));
+    poseReset.accept(pose);
   }
 
   @Override

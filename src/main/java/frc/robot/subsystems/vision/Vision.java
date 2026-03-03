@@ -75,7 +75,7 @@ public class Vision extends SubsystemBase {
                 case REAL:
                     instnce = new Vision(Drive.getInsatnce(), 
                         new VisionIOLimelight("limelight-3G", Drive.getInsatnce()::getRotation),
-                        new VisionIOLimelight("limelight-4", Drive.getInsatnce()::getRotation));
+                        new VisionIOLimelight("limelight-gg", Drive.getInsatnce()::getRotation));
                     break;
                 case SIM:
                     instnce = new Vision(Drive.getInsatnce(), 
@@ -83,8 +83,8 @@ public class Vision extends SubsystemBase {
                         new Transform3d(-0.1808,-0.23073,0.44788,
                         new Rotation3d(Degree.of(0),Degree.of(0),Degree.of(180))), 
                         Drive.getSwerveDriveSim()::getSimulatedDriveTrainPose),
-                    new VisionIOPhotonVisionSim("limelight-4", 
-                        new Transform3d(Constants.LIME_LIGHT_4_POSE.getTranslation(),Constants.LIME_LIGHT_4_POSE.getRotation()), 
+                    new VisionIOPhotonVisionSim("limelight-gg", 
+                        new Transform3d(Constants.LIME_LIGHT_3G_POSE.getTranslation(),Constants.LIME_LIGHT_3G_POSE.getRotation()), 
                         Drive.getSwerveDriveSim()::getSimulatedDriveTrainPose));
                 break;
             

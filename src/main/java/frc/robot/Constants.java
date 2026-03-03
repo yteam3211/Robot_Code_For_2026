@@ -17,7 +17,10 @@ import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Millimeter;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -45,10 +48,10 @@ public final class Constants {
     public void disableHAL(){
         disableHAL = true;
     }
-    public static final Translation3d OFF_SET_SHOOTER = 
-    new Translation3d(Millimeter.of(-162.22), Millimeter.of(-11.44), Millimeter.of(546.3));
+    public static final Transform2d OFF_SET_SHOOTER = 
+    new Transform2d(Millimeter.of(-162.22), Millimeter.of(-9.44),new Rotation2d(Degree.of(180)));
     public static final Angle SHOOTER_ANGLE = Degree.of(62);
-    public static final Pose3d LIME_LIGHT_4_POSE = 
-        new Pose3d(-0.1808,-0.23073,0.44788,
+    public static final Pose3d LIME_LIGHT_3G_POSE = 
+        new Pose3d(-0.1808,-0.023073,0.44788,
             new Rotation3d(Degree.of(0),Degree.of(0),Degree.of(90)));
 }

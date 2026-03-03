@@ -31,11 +31,11 @@ import frc.robot.subsystems.kicker.Kicker;
 public class defualtCommand {
     public static void loadButton(Controler controller) {
         swerveDefualt(controller);
-        IntakePitchDefualt(controller);
+        // IntakePitchDefualt(controller);
+        // IntakeRollerDefualt(controller);
         ShooterDefualt(controller);
         IndexerDefualt(controller);
         KickerDefualt(controller);
-        IntakeRollerDefualt(controller);
         }
     private static void IntakeRollerDefualt(Controler controller) {
         Runnable RollerRunnable = new Runnable() {
@@ -82,7 +82,7 @@ public class defualtCommand {
                     case stop:
                         Shooter.getInstance().setVelocity(RotationsPerSecond.of(0));
                     break;
-                    case shootAtPlace:
+                    case shootAtPlace:  
                          Shooter.getInstance().setVelocity(RPM.of(RPMTun.get()));
                     break;
                 
