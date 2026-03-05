@@ -72,6 +72,7 @@ public class Robot extends LoggedRobot {
             case SIM:
                 // Running a physics simulator, log to NT   
                 Logger.addDataReceiver(new NT4Publisher());
+                Logger.addDataReceiver(new WPILOGWriter());
                 break;
 
             case REPLAY:
@@ -94,12 +95,10 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during all modes. */
     @Override
     public void robotPeriodic() {
-        SubsystemState.logState();
-        TalonFXLogger.LogTalons();  
+        TalonFXLogger.LogTalons();
+        Robotstate.logState();
         Logger.recordOutput("DistanceToHub", Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
         Logger.recordOutput("ErorrToHUBDegree", devButoon.findAngle().getDegrees() - Drive.getInsatnce().getRotation().getDegrees());
-        Logger.recordOutput("TrajectoryToHub", new Pose2d[]{Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER),new Pose2d(FieldConstants.Hub.innerCenterPoint.toTranslation2d(), new Rotation2d())});
-        Logger.recordOutput("Shooter/Pose", Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER));
         // Switch thread to high priority to improve loop timing
         // Threads.setCurrentThreadPriority(true, 99);
 
@@ -116,7 +115,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is disabled. */
     @Override
     public void disabledInit() {
-        SubsystemState.resetState();
+        Robotstate.resetState();
         if (Constants.currentMode != Constants.Mode.SIM) return;
         Drive.getInsatnce().setPose(new Pose2d(2,2, new Rotation2d()));
         SimulatedArena.getInstance().resetFieldForAuto();

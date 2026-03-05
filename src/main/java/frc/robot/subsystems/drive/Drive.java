@@ -227,6 +227,9 @@ public class Drive extends SubsystemBase implements VisionConsumer {
 
   @Override
   public void periodic() {
+    if (getCurrentCommand() != null) {
+      Logger.recordOutput("Drive/CurrentCommand", getCurrentCommand().getName());
+    }
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);

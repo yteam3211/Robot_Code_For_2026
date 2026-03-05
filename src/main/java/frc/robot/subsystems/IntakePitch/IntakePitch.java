@@ -14,20 +14,24 @@ import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.IntakeSimulation.IntakeSide;
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.signals.StatusLedWhenActiveValue;
+
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
-import frc.robot.SubsystemState;
+import frc.robot.Robotstate;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 
 public class IntakePitch extends SubsystemBase {
   private final IntakePitchIO io;
   private IntakePitchIOInputsAutoLogged inputs = new IntakePitchIOInputsAutoLogged();
-  private SysIdRoutine sysid;
+  private SysIdRoutine 
+  sysid;
   private static IntakePitch instance;
   private static IntakeSimulation intakeSimulation;
   /** Creates a new IntakePitch. */
@@ -35,7 +39,8 @@ public class IntakePitch extends SubsystemBase {
     super("IntakePitch");
     this.io = io;
     sysid = new SysIdRoutine( 
-      new SysIdRoutine.Config(Volts.of(-8).per(Second), Volts.of(12), Second.of(2), (state)-> Logger.recordOutput("intakePitch",state.toString())),
+      new SysIdRoutine.Config(Volts.of(3).per(Second), Volts.of(8), Second.of(2), 
+      (state)-> Logger.recordOutput("intakePitch/sydid",state.toString())),
       new SysIdRoutine.Mechanism((volts)-> io.setVoltage(volts), null, this, "intakePitch/sysid"));
   }
 
@@ -75,13 +80,9 @@ public class IntakePitch extends SubsystemBase {
   public void periodic() {
     io.UpdateInputs(inputs);
     Logger.processInputs("IntakePitch", inputs);
-    // resetPosViaLimit();
-  }
-  private void setState(IntakePitchState state){
-      SubsystemState.intakePitchState = state;
-  }
-  public Command setStateCommand(IntakePitchState state){
-    return Commands.runOnce(()-> setState(state));
+    if (inputs.FullyOpen) {
+      io.setPos(IntakePitchConstants.maxAngleDegree);
+    }
   }
   public void goToAnlge(Angle angle){
     Logger.recordOutput("IntakePitch/AngleToGo", angle);
@@ -99,6 +100,12 @@ public class IntakePitch extends SubsystemBase {
   public Command setVoltage(double volts){
     return Commands.runOnce(()-> io.setVoltage(Volts.of(volts)));
   }
+  public void setState(IntakePitchState state){
+    Robotstate.intakePitchState = state;
+  }
+  public Command setStateCommand(IntakePitchState state){
+    return Commands.runOnce(()-> setState(state));
+  }
   public Angle getAngle(){
     return inputs.position; 
   }
@@ -110,13 +117,5 @@ public class IntakePitch extends SubsystemBase {
   }
   public Command sysidDynamic(SysIdRoutine.Direction direction){
     return sysid.dynamic(direction);
-  }
-  public void resetPosViaLimit(){
-    if (inputs.FullyClosed) {
-      io.setPos(IntakePitchConstants.minAngleDegree);
-    }
-    if (inputs.FullyOpen) {
-      io.setPos(IntakePitchConstants.maxAngleDegree);
-    }
   }
 }

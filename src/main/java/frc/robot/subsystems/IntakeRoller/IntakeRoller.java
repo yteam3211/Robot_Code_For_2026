@@ -4,8 +4,11 @@
 
 package frc.robot.subsystems.IntakeRoller;
 
+import static edu.wpi.first.units.Units.Amps;
+
 import org.littletonrobotics.junction.Logger;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.controls.VoltageOut;
 
@@ -15,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.Loggers.TalonFXLogger;
-import frc.robot.SubsystemState;
+import frc.robot.Robotstate;
 
 public class IntakeRoller extends SubsystemBase {
   private TalonFXLogger m_Roller = new TalonFXLogger(IntakeRollerConstants.m_masterID, IntakeRollerConstants.m_canbus,"IntakeRoller");
@@ -25,6 +28,9 @@ public class IntakeRoller extends SubsystemBase {
     m_Roller.getConfigurator().apply(new MotorOutputConfigs()
     .withNeutralMode(IntakeRollerConstants.NeutralMode)
     .withInverted(IntakeRollerConstants.invertedValue));
+    m_Roller.getConfigurator().apply(new CurrentLimitsConfigs()
+    .withSupplyCurrentLimit(Amps.of(30)).withSupplyCurrentLimitEnable(true)
+    .withStatorCurrentLimit(Amps.of(40)).withStatorCurrentLimitEnable(true));
   }
 
   private static IntakeRoller Instance;
@@ -52,7 +58,7 @@ public class IntakeRoller extends SubsystemBase {
     m_Roller.setControl(new VoltageOut(voltage).withEnableFOC(true));
   }
   public void setState(IntakeRollerState state){
-    SubsystemState.rollerState = state;
+    Robotstate.rollerState = state;
   }
   public Command setStateCommand(IntakeRollerState state){
     return Commands.runOnce(()-> setState(state));

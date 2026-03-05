@@ -4,11 +4,25 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 
 /** Add your docs here. */
-public final class Controler {
+public final class Controller {
     public CommandPS5Controller swerveController = new CommandPS5Controller(0);
     public CommandPS5Controller subController = new CommandPS5Controller(1);
     // public CommandXboxController SimController = new CommandXboxController(0);
+    private static Controller instance = null;
+    public static Controller getInstance(){
+        if (instance == null) {
+            instance = new Controller();
+        }
+        return instance;
+    }
+    public static CommandPS5Controller getSwerve(){
+        return getInstance().swerveController;
+    }
+    public static CommandPS5Controller getSub(){
+        return getInstance().subController;
+    }
 }

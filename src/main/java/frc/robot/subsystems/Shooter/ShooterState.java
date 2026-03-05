@@ -8,5 +8,6 @@ package frc.robot.subsystems.Shooter;
 public enum ShooterState {
     shoot,
     shootAtPlace,
-    stop;
+    stop,
+    pass;
 }

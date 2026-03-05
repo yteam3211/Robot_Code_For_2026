@@ -31,7 +31,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.lib.Loggers.TalonFXLogger;
 import frc.robot.Constants;
-import frc.robot.SubsystemState;
+import frc.robot.Robotstate;
 import frc.robot.Button.devButoon;
 import frc.robot.subsystems.drive.Drive;
 
@@ -110,7 +110,7 @@ public class ShooterIOSim implements ShooterIO{
         m_master.getConfigurator().apply(slot0);
     }
     private void shootSim(){
-        if (SubsystemState.shooterState != ShooterState.stop && Math.abs(devButoon.findAngle().getDegrees() - Drive.getInsatnce().getRotation().getDegrees()) < 5) {
+        if (Math.abs(devButoon.findAngle().getDegrees() - Drive.getInsatnce().getRotation().getDegrees()) < 5) {
 
             RebuiltFuelOnFly rebuiltFuelOnFlyRight = (RebuiltFuelOnFly)new RebuiltFuelOnFly(
                     Drive.getSwerveDriveSim().getSimulatedDriveTrainPose().getTranslation(),

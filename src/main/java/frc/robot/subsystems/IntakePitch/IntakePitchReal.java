@@ -34,7 +34,7 @@ public class IntakePitchReal implements IntakePitchIO{
     private TalonFXLogger m_intakePitch = new TalonFXLogger(IntakePitchConstants.m_MotorId, new CANBus(IntakePitchConstants.m_CanBusName),"IntakePitch");
     private DigitalInput m_limtMax = new DigitalInput(IntakePitchConstants.m_limitSwitch_max);
     private DigitalInput m_limtMin = new DigitalInput(IntakePitchConstants.m_limitSwitch_min);
-    private MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(true);
+    private MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(false);
     public IntakePitchReal(){
         TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
         FeedbackConfigs feedbackConfigs = talonFXConfiguration.Feedback;
@@ -48,8 +48,8 @@ public class IntakePitchReal implements IntakePitchIO{
         // softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = IntakePitchConstants.maxAngleDegree.plus(Degree.of(10)).in(Rotation);
         // softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = IntakePitchConstants.minAngleDegree.plus(Degree.of(-10)).in(Rotation);
         VoltageConfigs voltageConfigs = talonFXConfiguration.Voltage;
-        voltageConfigs.PeakForwardVoltage = 4;
-        voltageConfigs.PeakReverseVoltage = -4;
+        voltageConfigs.PeakForwardVoltage = 12;
+        voltageConfigs.PeakReverseVoltage = -12;
         MotionMagicConfigs motionMagicConfigs = talonFXConfiguration.MotionMagic;
         motionMagicConfigs.MotionMagicCruiseVelocity =
                 IntakePitchConstants.MotionMagicConstants.MOTION_MAGIC_VELOCITY;
@@ -79,7 +79,7 @@ public class IntakePitchReal implements IntakePitchIO{
     }
     @Override
     public void goToRotation(Angle rotation){
-        m_intakePitch.setControl(motionMagicVoltage.withPosition(rotation).withSlot(0).withEnableFOC(true));
+        m_intakePitch.setControl(motionMagicVoltage.withPosition(rotation).withSlot(0).withEnableFOC(false));
     }
     @Override
     public void setPos(Angle pos){

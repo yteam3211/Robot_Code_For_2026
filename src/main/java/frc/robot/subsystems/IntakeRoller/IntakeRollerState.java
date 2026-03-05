@@ -11,7 +11,7 @@ import frc.lib.util.ITarget;
 
 /** Add your docs here. */
 public enum IntakeRollerState implements ITarget<Voltage>{
-    move(8),
+    move(10),
     stop(0);
     private Voltage voltage;
     private IntakeRollerState(Voltage voltage){

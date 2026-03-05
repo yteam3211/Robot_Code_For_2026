@@ -30,7 +30,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.Loggers.TalonFXLogger;
-import frc.robot.SubsystemState;
+import frc.robot.Robotstate;
 
 public class Kicker extends SubsystemBase {
   private TalonFXLogger m_kicker = new TalonFXLogger(kickerConstants.m_kickerID, kickerConstants.m_canbus,"Kicker");
@@ -117,16 +117,16 @@ public class Kicker extends SubsystemBase {
     Logger.recordOutput("kicker/RPMreq", req);
     }
   }
-  public void setState(KickerState state){
-    SubsystemState.kickerState = state;
-  }
-  public Command setStateCommand(KickerState state){
-    return Commands.runOnce(()-> setState(state));
-  }
   public Command sysidDynamic(SysIdRoutine.Direction direction){
     return sysid.dynamic(direction);
   }
   public Command sysidQuasistatic(SysIdRoutine.Direction direction){
     return sysid.quasistatic(direction);
+  }
+  public void setState(KickerState state){
+    Robotstate.kickerState = state;
+  }
+  public Command setStateCommand(KickerState state){
+    return Commands.runOnce(()->setState(state));
   }
 }

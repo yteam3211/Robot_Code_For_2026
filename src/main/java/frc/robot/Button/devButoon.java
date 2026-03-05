@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.Millimeter;
 import static edu.wpi.first.units.Units.RPM;
 
 import java.lang.invoke.ConstantBootstraps;
+import java.util.Set;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnFly;
@@ -21,11 +22,12 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.FieldConstants;
 import frc.robot.Constants;
-import frc.robot.Controler;
+import frc.robot.Controller;
 import frc.robot.commands.BasicCommands.DriveCommands;
 import frc.robot.subsystems.IntakePitch.IntakePitch;
 import frc.robot.subsystems.IntakePitch.IntakePitchState;
@@ -37,10 +39,10 @@ import frc.robot.subsystems.drive.Drive;
 
 /** Add your docs here. */
 public class devButoon {
-    public static void loadButton(Controler controller) {
+    public static void loadButton() {
         // IntakePitchButton(controller);
         // shooterButton(controller);
-        sysidAll(controller);
+        sysidAll();
     }
     public static Rotation2d findAngle(){
         Pose2d shooterPose = Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER);
@@ -49,28 +51,7 @@ public class devButoon {
         return Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg);
     }
 
-    private static void sysidAll(Controler controller) {
-        controller.swerveController.triangle().whileTrue(DriveCommands.joystickDriveAtAngle(Drive.getInsatnce(), ()-> 0, ()-> 0, ()->findAngle())
-        .alongWith(Shooter.getInstance().setStateCommand(ShooterState.shootAtPlace)));
-        controller.swerveController.triangle().whileFalse(Shooter.getInstance().setStateCommand(ShooterState.stop));
-        // controller.swerveController.square().whileTrue(IntakePitch.getInstance().setStateCommand(IntakePitchState.Open).alongWith(IntakeRoller.getInstance().setStateCommand(IntakeRollerState.move)));
-        // controller.swerveController.square().whileFalse(IntakePitch.getInstance().setStateCommand(IntakePitchState.colse).alongWith(IntakeRoller.getInstance().setStateCommand(IntakeRollerState.stop)));
-
-        // controller.swerveController.triangle().onTrue(Shooter.getInstance().setVelocityCommand(RPM.of(4000)));
-        // controller.swerveController.circle().onTrue(Shooter.getInstance().setVelocityCommand(RPM.of(3000)));
-        // controller.swerveController.cross().onTrue(Shooter.getInstance().setVelocityCommand(RPM.of(0)));
-        // controller.swerveController.square().onTrue(Shooter.getInstance().setVelocityCommand(RPM.of(2000)));
-
-        // controller.swerveController.triangle().onTrue(Shooter.getInstance().sysidQuasistatic(Direction.kForward));
-        // controller.swerveController.square().onTrue(Shooter.getInstance().sysidQuasistatic(Direction.kReverse));
-        // controller.swerveController.circle().onTrue(Shooter.getInstance().sysidDynamic(Direction.kForward));
-        // controller.swerveController.cross().onTrue(Shooter.getInstance().sysidDynamic(Direction.kReverse));
-        // controller.swerveController.triangle().onTrue(IntakePitch.getInstance().goToAnlgeCommand(Degree.of(90 + 15)));
-        // controller.swerveController.square().onTrue(IntakePitch.getInstance().goToAnlgeCommand(Degree.of(90)));
-    }
-
-    private static void shooterButton( Controler controller) {
-
+    private static void sysidAll(  ) {
     }
     static LoggedNetworkNumber AngVel = new LoggedNetworkNumber("/Tuning/RPM",0);
     private static void spwanFuel() {
@@ -88,11 +69,5 @@ public class devButoon {
             rebuiltFuelOnFly.setHitTargetCallBack(() -> System.out.println("FUEL hits HUB!"));
             SimulatedArena.getInstance()
                 .addGamePieceProjectile(rebuiltFuelOnFly);
-    }
-    private static void IntakePitchButton(Controler controller) {
-        controller.swerveController.triangle().onTrue(IntakePitch.getInstance().setStateCommand(IntakePitchState.Open)
-        .alongWith(IntakeRoller.getInstance().setStateCommand(IntakeRollerState.move)));
-        controller.swerveController.triangle().onFalse(IntakePitch.getInstance().setStateCommand(IntakePitchState.colse)
-        .alongWith(IntakeRoller.getInstance().setStateCommand(IntakeRollerState.stop)));
     }
 }

@@ -17,8 +17,10 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,7 +31,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.FieldConstants;
 import frc.robot.Constants;
-import frc.robot.SubsystemState;
+import frc.robot.Robotstate;
+import frc.robot.StateSyp.robotState;
 import frc.robot.subsystems.drive.Drive;
 
 public class Shooter extends SubsystemBase {
@@ -53,10 +56,14 @@ public class Shooter extends SubsystemBase {
       updateMAP();
   }
   private void updateMAP(){
-    // RpmFromDistance.put(1.76, null);
-    // RpmFromDistance.put(null, null);
-    // RpmFromDistance.put(null, null);
-    // RpmFromDistance.put(null, null);
+    RpmFromDistance.put(2.0, 2100.0);
+    RpmFromDistance.put(2.3, 2150.0);
+    RpmFromDistance.put(2.5, 2175.0);
+    RpmFromDistance.put(2.75, 2200.0);
+    RpmFromDistance.put(3.0, 2300.0);
+    RpmFromDistance.put(3.25, 2400.0);
+    RpmFromDistance.put(3.5, 2500.0);
+    RpmFromDistance.put(3.75, 2600.0);
   }
 
   public static Shooter getInstance(){
@@ -118,15 +125,6 @@ public class Shooter extends SubsystemBase {
   public Command setVotlageCommand(Voltage voltage){
     return Commands.runOnce(()-> setVoltage(voltage));
   }
-  public void setState(ShooterState state){
-      SubsystemState.shooterState = state;
-  }
-  public Command setStateCommand(ShooterState state){
-    return Commands.runOnce(()-> setState(state));
-  }
-  public Command setStateCommandUntil(ShooterState state){
-    return Commands.run(()-> setState(state));
-  }
   public boolean isAtVel(){ 
     return Math.abs(inputs.velocity.in(Rotation.per(Minute)) - requireVelRPM) < 40 && requireVelRPM != 0;
   }
@@ -140,8 +138,8 @@ public class Shooter extends SubsystemBase {
   }
   public AngularVelocity CalcRPMToShoot(){
     double value = Drive.getInsatnce().getPose().getTranslation().getDistance(AllianceFlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
-    return RPM.of(RpmFromDistance.get(value));    
-  }
+    return RPM.of(RpmFromDistance.get(value));
+    }
   public Command sysidQuasistatic(Direction direction){
     return sysid.quasistatic(direction);
   }
@@ -154,5 +152,11 @@ public class Shooter extends SubsystemBase {
   private final double ShooterRadius = 1.5;
   public LinearVelocity ToLinearVelocity(AngularVelocity velocity){
     return InchesPerSecond.of((ShooterRadius * velocity.in(RadiansPerSecond))/2);
+  }
+  public void setState(ShooterState state){
+    Robotstate.shooterState = state;
+  }
+  public Command setStateCommand(ShooterState state){
+    return Commands.runOnce(()-> setState(state));
   }
 }

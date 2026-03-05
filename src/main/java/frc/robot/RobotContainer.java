@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Button.AutoCommands;
 import frc.robot.Button.defualtCommand;
 import frc.robot.Button.devButoon;
+import frc.robot.Button.subsystemOperitor;
 import frc.robot.commands.BasicCommands.DriveCommands;
 import frc.robot.subsystems.Indexer.Indexer;
 import frc.robot.subsystems.IntakePitch.IntakePitch;
@@ -42,7 +43,7 @@ import frc.robot.subsystems.vision.Vision;
  */
 public class RobotContainer {
     // Controller
-    Controler controler;
+    Controller controler;
     public static LoggedMechanism2d Mechanism2d = new LoggedMechanism2d(10, 10, new Color8Bit(Color.kBlack));
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
@@ -50,7 +51,7 @@ public class RobotContainer {
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         getInstnce();
-        controler = new Controler();
+        controler = new Controller();
         // NamedCommands.registerCommand("collect", new WaitCommand(5));
 
         // Set up auto routines
@@ -84,9 +85,10 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
-        defualtCommand.loadButton(controler);
-        devButoon.loadButton(controler);
+        // devButoon.loadButton();
+        defualtCommand.loadButton();
         AutoCommands.loadCommands();
+        subsystemOperitor.loadButoons();
     }
 
     /**

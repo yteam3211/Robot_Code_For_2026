@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.SubsystemState;
+import frc.robot.Robotstate;
 
 public class Indexer extends SubsystemBase {
   private IndexerIO io;
@@ -53,7 +53,7 @@ public class Indexer extends SubsystemBase {
     return Commands.runOnce(()-> setVoltage(voltage));
   }
   public void setState(IndexerState state){
-    SubsystemState.indexerState = state;
+    Robotstate.indexerState = state;
   }
   public Command setStaetCommand(IndexerState state){
     return Commands.runOnce(()-> setState(state));

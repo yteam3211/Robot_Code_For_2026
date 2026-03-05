@@ -5,8 +5,10 @@
 package frc.robot.subsystems.IntakePitch;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import org.ironmaple.simulation.IntakeSimulation;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
@@ -21,9 +23,11 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -32,13 +36,13 @@ import frc.lib.Loggers.TalonFXLogger;
 /** Add your docs here. */
 public class IntakePitchSim implements IntakePitchIO{
     private TalonFXLogger m_intakePitch = new TalonFXLogger(IntakePitchConstants.m_MotorId, new CANBus(IntakePitchConstants.m_CanBusName),"IntakePitch");
-    private MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(true);
+    private MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(false);
     private SingleJointedArmSim ArmSim;
     private IntakeSimulation intakeSimulation;
     public IntakePitchSim(IntakeSimulation intakeSimulation){
         this.intakeSimulation = intakeSimulation;
         ArmSim = new SingleJointedArmSim(IntakePitchConstants.dcMotor, IntakePitchConstants.gearRatio, 
-        IntakePitchConstants.JKgMeterSqured, IntakePitchConstants.lengthMeters, 
+        IntakePitchConstants.INERTIA.in(KilogramSquareMeters), IntakePitchConstants.lengthMeters, 
         IntakePitchConstants.minAngleDegree.in(Radian), 
         IntakePitchConstants.maxAngleDegree.in(Radian), true, 
         IntakePitchConstants.startingAngle.in(Radian));
@@ -81,15 +85,14 @@ public class IntakePitchSim implements IntakePitchIO{
     public void UpdateInputs(IntakePitchIOInputs inputs){
         updateSim();
         inputs.isConncted = true;
-        inputs.position = m_intakePitch.getPosition().getValue();
-        inputs.velocity = m_intakePitch.getVelocity().getValue();
-        inputs.acc =m_intakePitch.getAcceleration().getValue();
+        inputs.position = Radian.of(ArmSim.getAngleRads());
+        inputs.velocity = RadiansPerSecond.of(ArmSim.getVelocityRadPerSec());
+        inputs.voltage = m_intakePitch.getSimState().getMotorVoltageMeasure();
     }
     private void updateSim(){
         ArmSim.setInputVoltage(m_intakePitch.getSimState().getMotorVoltage());
         ArmSim.update(0.02);
         m_intakePitch.getSimState().setRawRotorPosition(Units.radiansToRotations(ArmSim.getAngleRads()) * IntakePitchConstants.POSITION_CONVERSION_FACTOR);
-        m_intakePitch.getSimState().setRotorVelocity(Units.radiansToRotations(ArmSim.getVelocityRadPerSec()) * IntakePitchConstants.POSITION_CONVERSION_FACTOR);
         if (m_intakePitch.getPosition().getValue().gte(IntakePitchConstants.maxAngleDegree.minus(Degree.of(10)))) {
             intakeSimulation.startIntake();
         }
@@ -101,4 +104,8 @@ public class IntakePitchSim implements IntakePitchIO{
     public void setPos(Angle pos) {
         m_intakePitch.setPosition(pos);
     }
+    @Override
+    public void setVoltage(Voltage volts){
+        m_intakePitch.setControl(new VoltageOut(volts).withEnableFOC(false));
+    };
 }

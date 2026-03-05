@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.util.FieldConstants;
+import frc.robot.Constants;
 import frc.robot.commands.BasicCommands.IndexerKickerCommand;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.drive.Drive;
@@ -19,18 +20,17 @@ public class AutoCommands {
         kickerIndexerAuto();
     }
     private static boolean isAtOriantetion(){
-        double x = FieldConstants.Hub.innerCenterPoint.getX() - Drive.getInsatnce().getPose().getX();
-        double y = FieldConstants.Hub.innerCenterPoint.getY() - Drive.getInsatnce().getPose().getY();
-        boolean isAtOriantetion = Math.max(Drive.getInsatnce().getRotation().getDegrees(), 
-        Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg).getDegrees()) - 
-        Math.min(Drive.getInsatnce().getRotation().getDegrees(), 
-        Rotation2d.fromRadians(Math.atan2(y, x)).plus(Rotation2d.k180deg).getDegrees()) < 2;
+        double x = FieldConstants.Hub.innerCenterPoint.getX() - Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getX();
+        double y = FieldConstants.Hub.innerCenterPoint.getY() - Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getY();
+        Rotation2d RotTarget = Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg);
+        boolean isAtOriantetion = Math.abs(RotTarget.getDegrees() - Drive.getInsatnce().getRotation().getDegrees())<4;
         Logger.recordOutput("isAtOriantetion", isAtOriantetion);
         return isAtOriantetion;
     }
     private static void kickerIndexerAuto() {
-        Trigger isAtOriantetion = new Trigger(AutoCommands::isAtOriantetion);
+        // Trigger isAtOriantetion = new Trigger(AutoCommands::isAtOriantetion);
         Trigger isAtSpeed = new Trigger(Shooter.getInstance()::isAtVel);
-        isAtOriantetion.and(isAtSpeed).onTrue(new IndexerKickerCommand());
+        // isAtOriantetion.and(isAtSpeed).onTrue(new IndexerKickerCommand());
+        isAtSpeed.onTrue(new IndexerKickerCommand());
     }
 }

@@ -10,7 +10,7 @@ import frc.robot.subsystems.IntakeRoller.IntakeRollerState;
 import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.kicker.KickerState;
 
-public class SubsystemState {
+public class Robotstate {
     public static IntakePitchState intakePitchState = IntakePitchState.colse;
     public static ShooterState shooterState = ShooterState.stop;
     public static KickerState kickerState = KickerState.stop;
@@ -18,11 +18,11 @@ public class SubsystemState {
     public static IntakeRollerState rollerState = IntakeRollerState.stop;
     private static Alert ShooterAlert = new Alert("shooter active", AlertType.kError);
     public static void resetState() {
-        intakePitchState = IntakePitchState.colse;
+        intakePitchState = IntakePitchState.Open;
         shooterState = ShooterState.stop;
         kickerState = KickerState.stop;
         indexerState = IndexerState.Stop;
-        rollerState = IntakeRollerState.stop;
+        rollerState = IntakeRollerState.move;
     }
     public static void logState(){
         if (shooterState != ShooterState.stop) {

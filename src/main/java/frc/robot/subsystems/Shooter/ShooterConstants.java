@@ -45,7 +45,7 @@ public class ShooterConstants {
         public static final double Slot0_MOTOR_KA = 0;
         public static final double Slot0_MOTOR_KV = 0.127;//0.127
         public static final double Slot0_MOTOR_KG = 0;
-        public static final double Slot0_MOTOR_KP = 0;//0.7
+        public static final double Slot0_MOTOR_KP = 0.7;//0.7
         public static final double Slot0_MOTOR_KI = 0;
         public static final double Slot0_MOTOR_KD = 0;//0.001
         

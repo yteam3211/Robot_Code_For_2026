@@ -4,12 +4,9 @@
 
 package frc.robot.Button;
 
-import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import org.ejml.equation.MatrixConstructor;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -17,8 +14,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.lib.util.SetSubsystemTargetCommand;
-import frc.robot.Controler;
-import frc.robot.SubsystemState;
+import frc.robot.Controller;
+import frc.robot.Robotstate;
 import frc.robot.commands.BasicCommands.DriveCommands;
 import frc.robot.subsystems.Indexer.Indexer;
 import frc.robot.subsystems.IntakePitch.IntakePitch;
@@ -29,53 +26,53 @@ import frc.robot.subsystems.kicker.Kicker;
 
 /** Add your docs here. */
 public class defualtCommand {
-    public static void loadButton(Controler controller) {
-        swerveDefualt(controller);
-        // IntakePitchDefualt(controller);
-        // IntakeRollerDefualt(controller);
-        ShooterDefualt(controller);
-        IndexerDefualt(controller);
-        KickerDefualt(controller);
+    public static void loadButton( ) {
+        swerveDefualt();
+        IntakePitchDefualt();
+        IntakeRollerDefualt();
+        ShooterDefualt();
+        IndexerDefualt();
+        KickerDefualt();
         }
-    private static void IntakeRollerDefualt(Controler controller) {
+    private static void IntakeRollerDefualt( ) {
         Runnable RollerRunnable = new Runnable() {
             @Override
             public void run() {
-                IntakeRoller.getInstance().SetVoltage(SubsystemState.rollerState.getTarget());
+                IntakeRoller.getInstance().SetVoltage(Robotstate.rollerState.getTarget());
             }
             
         };
         Command RollerCommand = new SetSubsystemTargetCommand(IntakeRoller.getInstance(), RollerRunnable);
         IntakeRoller.getInstance().setDefaultCommand(RollerCommand);
     }
-        private static void KickerDefualt(Controler controller) {
+        private static void KickerDefualt( ) {
             Runnable kickerRunnable = new Runnable() {
             @Override
             public void run() {
-                Kicker.getInstance().setVelocity(SubsystemState.kickerState.getTarget());
+                Kicker.getInstance().setVelocity(Robotstate.kickerState.getTarget());
             }
             
         };
         Command kickerCommand = new SetSubsystemTargetCommand(Kicker.getInstance(), kickerRunnable);
         Kicker.getInstance().setDefaultCommand(kickerCommand);
     }
-    private static void IndexerDefualt(Controler controller) {
+    private static void IndexerDefualt( ) {
         Runnable indexerRunnable = new Runnable() {
             @Override
             public void run() {
-                Indexer.getInstance().setVelocity(SubsystemState.indexerState.getTarget());
+                Indexer.getInstance().setVelocity(Robotstate.indexerState.getTarget());
             }
             
         };
         Command indexerCommand = new SetSubsystemTargetCommand(Indexer.getInstance(), indexerRunnable);
         Indexer.getInstance().setDefaultCommand(indexerCommand);
     }
-    private static void ShooterDefualt(Controler controller) {
+    private static void ShooterDefualt( ) {
         LoggedNetworkNumber RPMTun = new LoggedNetworkNumber("/Tuning/RPM",0);
         Runnable shooterRunnable = new Runnable() {
             @Override
             public void run() {
-                switch (SubsystemState.shooterState) {
+                switch (Robotstate.shooterState) {
                     case shoot:
                         Shooter.getInstance().setVelocity(Shooter.getInstance().CalcRPMToShoot());
                     break;
@@ -96,23 +93,23 @@ public class defualtCommand {
         Command shooterComm = new SetSubsystemTargetCommand( Shooter.getInstance(), shooterRunnable);
          Shooter.getInstance().setDefaultCommand(shooterComm);
     }
-    private static void swerveDefualt(Controler controller) {
+    private static void swerveDefualt( ) {
         Drive.getInsatnce().setDefaultCommand(
-            DriveCommands.joystickDrive(Drive.getInsatnce(), ()->-controller.swerveController.getLeftY(), 
-            ()-> -controller.swerveController.getLeftX(), ()-> -controller.swerveController.getRightX())
+            DriveCommands.joystickDrive(Drive.getInsatnce(), ()->-Controller.getSwerve().getLeftY(), 
+            ()-> -Controller.getSwerve().getLeftX(), ()-> -Controller.getSwerve().getRightX())
         );
-        controller.swerveController.touchpad().onTrue(
+        Controller.getSwerve().touchpad().onTrue(
             Commands.runOnce(
                     () ->
                         Drive.getInsatnce().setPose(
                             new Pose2d(Drive.getInsatnce().getPose().getTranslation(), Rotation2d.kZero)),
                     Drive.getInsatnce()));
     }
-    private static void IntakePitchDefualt(Controler controller) {
+    private static void IntakePitchDefualt( ) {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                IntakePitch.getInstance().goToAnlge(SubsystemState.intakePitchState.getTarget());
+                IntakePitch.getInstance().goToAnlge(Robotstate.intakePitchState.getTarget());
             }
         };
         Command defuatCommand = new SetSubsystemTargetCommand(IntakePitch.getInstance(), runnable);
