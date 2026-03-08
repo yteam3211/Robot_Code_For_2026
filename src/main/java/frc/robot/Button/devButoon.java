@@ -51,7 +51,7 @@ public class devButoon {
         return Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg);
     }
 
-    private static void sysidAll(  ) {
+    private static void sysidAll() {
     }
     static LoggedNetworkNumber AngVel = new LoggedNetworkNumber("/Tuning/RPM",0);
     private static void spwanFuel() {

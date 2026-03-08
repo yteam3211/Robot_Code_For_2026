@@ -29,8 +29,8 @@ public class IntakeRoller extends SubsystemBase {
     .withNeutralMode(IntakeRollerConstants.NeutralMode)
     .withInverted(IntakeRollerConstants.invertedValue));
     m_Roller.getConfigurator().apply(new CurrentLimitsConfigs()
-    .withSupplyCurrentLimit(Amps.of(30)).withSupplyCurrentLimitEnable(true)
-    .withStatorCurrentLimit(Amps.of(40)).withStatorCurrentLimitEnable(true));
+    .withSupplyCurrentLimit(Amps.of(10)).withSupplyCurrentLimitEnable(true)
+    .withStatorCurrentLimit(Amps.of(15)).withStatorCurrentLimitEnable(true));
   }
 
   private static IntakeRoller Instance;

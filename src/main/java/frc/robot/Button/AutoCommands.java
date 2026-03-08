@@ -28,9 +28,9 @@ public class AutoCommands {
         return isAtOriantetion;
     }
     private static void kickerIndexerAuto() {
-        // Trigger isAtOriantetion = new Trigger(AutoCommands::isAtOriantetion);
+        Trigger isAtOriantetion = new Trigger(AutoCommands::isAtOriantetion);
         Trigger isAtSpeed = new Trigger(Shooter.getInstance()::isAtVel);
-        // isAtOriantetion.and(isAtSpeed).onTrue(new IndexerKickerCommand());
-        isAtSpeed.onTrue(new IndexerKickerCommand());
+        isAtOriantetion.and(isAtSpeed).onTrue(new IndexerKickerCommand());
+        // isAtSpeed.onTrue(new IndexerKickerCommand());
     }
 }

@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.BasicCommands.DriveCommands;
 import frc.robot.subsystems.IntakePitch.IntakePitch;
+import frc.robot.subsystems.IntakePitch.IntakePitchConstants;
 import frc.robot.subsystems.IntakeRoller.IntakeRoller;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.drive.Drive;
@@ -54,7 +55,7 @@ public class StateSyp {
     private static Command getCommandPrivate(robotState... states){
         Command com = new InstantCommand();
         for (robotState state : states) {
-            com = com.andThen(getCommandSwitch(state));
+            com = com.alongWith(getCommandSwitch(state));
         }
         return com;
     }
@@ -63,7 +64,7 @@ public class StateSyp {
                 case OpenIntake:
                     return Commands.runOnce(()->{
                         IntakePitch.getInstance().goToAnlge(Degree.of(140));
-                        IntakeRoller.getInstance().SetVoltage(Volts.of(8));
+                        if(IntakePitch.getInstance().getAngle().gte(IntakePitchConstants.maxAngleDegree.minus(Degree.of(10)))){IntakeRoller.getInstance().SetVoltage(Volts.of(8));}
                         },
                         IntakePitch.getInstance(),IntakeRoller.getInstance()
                     );
@@ -86,7 +87,7 @@ public class StateSyp {
                     );
                 case pass:
                     return Commands.runOnce(
-                        ()->Shooter.getInstance().setVelocity(null),
+                        ()->Shooter.getInstance().setVelocity(RPM.of(1000)),
                         Shooter.getInstance());
                 case keepFuel:
                     return Commands.runOnce(
@@ -95,9 +96,9 @@ public class StateSyp {
                 case AlignToHub:
                     return
                         new DeferredCommand(DriveCommands::GoToRotationHub, DriveCommands.GoToRotationHub().getRequirements());
-                // case AlignToPass:
-                //     return
-                //         DriveCommands.GoToRotationPass();
+                case AlignToPass:
+                    return
+                        DriveCommands.GoToRotationPass();
                 case moveSwerve:
                     return 
                         DriveCommands.joystickDrive(Drive.getInsatnce(), 

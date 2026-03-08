@@ -33,7 +33,8 @@ public class ShooterConstants {
     public static final double POSITION_CONVERSION_FACTOR = gearRatio;
 
     public static final Pose2d shooterPose = new Pose2d();
-    public static final InvertedValue Inverted = InvertedValue.CounterClockwise_Positive;
+    public static final InvertedValue Right_Inverted = InvertedValue.CounterClockwise_Positive;
+    public static final InvertedValue Left_Inverted = InvertedValue.Clockwise_Positive;
 
     
     public final class MotionMagicConstants {

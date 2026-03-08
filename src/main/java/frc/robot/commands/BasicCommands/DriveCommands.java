@@ -293,7 +293,7 @@ public class DriveCommands {
         double gyroDelta = 0.0;
     }
         public static Command GoToRotationHub(){
-        PIDController rotController = new PIDController(0.4, 0,0);
+        PIDController rotController = new PIDController(0.1, 0,0);
         rotController.enableContinuousInput(-180, 180);
         rotController.setTolerance(1);
         return Drive.getInsatnce().run(()-> {
@@ -301,7 +301,7 @@ public class DriveCommands {
                 double y = FieldConstants.Hub.innerCenterPoint.getY() - Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getY();
                 Rotation2d RotTarget = Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg);
                 Logger.recordOutput("moveToRot/Rot", RotTarget);
-                if (Math.abs(RotTarget.getDegrees() - Drive.getInsatnce().getRotation().getDegrees())<2) {
+                if (Math.abs(RotTarget.getDegrees() - Drive.getInsatnce().getRotation().getDegrees())>2) {
                         double rotOut = rotController.calculate(Drive.getInsatnce().getRotation().getDegrees(), RotTarget.getDegrees());
                         ChassisSpeeds speeds = new ChassisSpeeds(
                         0,
@@ -313,6 +313,30 @@ public class DriveCommands {
                         Drive.getInsatnce().stopWithX();
                 }
                 })
-        .withName("GoToRotation");
+        .withName("GoToRotationHub");
     }
+
+        public static Command GoToRotationPass() {
+                PIDController rotController = new PIDController(0.1, 0,0);
+                rotController.enableContinuousInput(-180, 180);
+                rotController.setTolerance(1);
+                return Drive.getInsatnce().run(()-> {
+                        double x = FieldConstants.Hub.innerCenterPoint.getX() - Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getX();
+                        double y = FieldConstants.Hub.innerCenterPoint.getY() - Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getY();
+                        Rotation2d RotTarget = Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg);
+                        Logger.recordOutput("moveToRot/Rot", RotTarget);
+                        if (Math.abs(RotTarget.getDegrees() - Drive.getInsatnce().getRotation().getDegrees())>2) {
+                                double rotOut = rotController.calculate(Drive.getInsatnce().getRotation().getDegrees(), RotTarget.getDegrees());
+                                ChassisSpeeds speeds = new ChassisSpeeds(
+                                0,
+                                0,
+                                rotOut);
+                                Logger.recordOutput("moveToRot/RotOut", rotOut);
+                                Drive.getInsatnce().runVelocity(speeds);        
+                        } else{
+                                Drive.getInsatnce().stopWithX();
+                        }
+                })
+        .withName("GoToRotationHub");
+        }
 }

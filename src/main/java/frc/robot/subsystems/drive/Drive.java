@@ -9,6 +9,7 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Kilogram;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.concurrent.locks.Lock;
@@ -178,8 +179,8 @@ public class Drive extends SubsystemBase implements VisionConsumer {
         new SysIdRoutine(
             new SysIdRoutine.Config(
                 null,
-                null,
-                null,
+                Volts.of(5),
+                Second.of(5),
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));

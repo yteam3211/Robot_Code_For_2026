@@ -42,17 +42,12 @@ import frc.robot.subsystems.vision.Vision;
  * Instead, the structure of the robot (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    // Controller
-    Controller controler;
-    public static LoggedMechanism2d Mechanism2d = new LoggedMechanism2d(10, 10, new Color8Bit(Color.kBlack));
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         getInstnce();
-        controler = new Controller();
-        // NamedCommands.registerCommand("collect", new WaitCommand(5));
 
         // Set up auto routines
         CommandForAuto.loadCommand();
@@ -74,19 +69,12 @@ public class RobotContainer {
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", Drive.getInsatnce().sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-        // Configure the button bindings
         configureButtonBindings();
     }
-
-    /**
-     * Use this method to define your button->command mappings. Buttons can be created by instantiating a
-     * {@link GenericHID} or one of its subclasses ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}),
-     * and then passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-     */
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
         // devButoon.loadButton();
-        defualtCommand.loadButton();
+        // defualtCommand.loadButton();
         AutoCommands.loadCommands();
         subsystemOperitor.loadButoons();
     }

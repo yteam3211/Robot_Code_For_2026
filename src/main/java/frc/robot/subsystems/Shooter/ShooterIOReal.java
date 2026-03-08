@@ -13,6 +13,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -38,12 +39,14 @@ public class ShooterIOReal implements ShooterIO{
         feedbackConfigsspin.SensorToMechanismRatio = ShooterConstants.POSITION_CONVERSION_FACTOR;
         MotorOutputConfigs motorOutputConfigs = talonFXConfiguration.MotorOutput;
         motorOutputConfigs.NeutralMode = ShooterConstants.NeutralMode;
-        motorOutputConfigs.Inverted = ShooterConstants.Inverted;
+        motorOutputConfigs.Inverted = ShooterConstants.Right_Inverted;
         CurrentLimitsConfigs currentLimitsConfigs = talonFXConfiguration.CurrentLimits;
         currentLimitsConfigs.StatorCurrentLimitEnable = true;
-        currentLimitsConfigs.StatorCurrentLimit = 80;
+        currentLimitsConfigs.StatorCurrentLimit = 60;
         currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-        currentLimitsConfigs.SupplyCurrentLimit = 40; 
+        currentLimitsConfigs.SupplyCurrentLimit = 40;
+        currentLimitsConfigs.SupplyCurrentLowerLimit = 50;
+        currentLimitsConfigs.SupplyCurrentLowerTime = 0.1; 
         VoltageConfigs voltageConfigs = talonFXConfiguration.Voltage;
         voltageConfigs.PeakForwardVoltage = 12;
         voltageConfigs.PeakReverseVoltage = -12; 
@@ -79,6 +82,7 @@ public class ShooterIOReal implements ShooterIO{
         if (!status.isOK()) {
             System.out.println("Could not configure device. Error: " + status.toString());
         }
+        motorOutputConfigs.Inverted = ShooterConstants.Left_Inverted;
         status = StatusCode.StatusCodeNotInitialized;
         for (int i = 0; i < 5; ++i) {
             status = m_SlaveL1.getConfigurator().apply(talonFXConfiguration);
@@ -96,9 +100,9 @@ public class ShooterIOReal implements ShooterIO{
             System.out.println("Could not configure device. Error: " + status.toString());
         }
         m_master.setControl(velocityVoltage);
-        m_SlaveR.setControl(new Follower(m_master.getDeviceID(), MotorAlignmentValue.Aligned));
-        m_SlaveL1.setControl(new Follower(m_master.getDeviceID(), MotorAlignmentValue.Opposed));
-        m_SlaveL2.setControl(new Follower(m_master.getDeviceID(), MotorAlignmentValue.Opposed));
+        m_SlaveR.setControl(new StrictFollower(m_master.getDeviceID()));
+        m_SlaveL1.setControl(new StrictFollower(m_master.getDeviceID()));
+        m_SlaveL2.setControl(new StrictFollower(m_master.getDeviceID()));
     }   
     @Override
     public void updateInputs(ShooterIOInputs inputs) {

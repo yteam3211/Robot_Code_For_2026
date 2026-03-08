@@ -14,7 +14,7 @@ public class IntakeRollerConstants {
     /** the canbus of the subsystem */
     public static final CANBus m_canbus = new CANBus("subsystems");
     /** what mod dose the motor be in when idel */
-    public static final NeutralModeValue NeutralMode = NeutralModeValue.Brake;
+    public static final NeutralModeValue NeutralMode = NeutralModeValue.Coast;
     public static final double gearRatio = 1.777777777777;
     public static final InvertedValue invertedValue = InvertedValue.Clockwise_Positive;
  
