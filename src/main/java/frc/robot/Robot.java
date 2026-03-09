@@ -23,10 +23,14 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.Loggers.MechanisemLogger;
 import frc.lib.Loggers.TalonFXLogger;
+import frc.lib.util.Elastic;
 import frc.lib.util.FieldConstants;
 import frc.robot.Button.devButoon;
 import frc.robot.subsystems.IntakePitch.IntakePitch;
@@ -86,7 +90,6 @@ public class Robot extends LoggedRobot {
 
         // Start AdvantageKit logger
         Logger.start();
-
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
         robotContainer = new RobotContainer();
@@ -95,6 +98,14 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during all modes. */
     @Override
     public void robotPeriodic() {
+        String gamedata = DriverStation.getGameSpecificMessage();
+        if (gamedata.length() > 0) {
+            if (gamedata.charAt(0) == (DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get().name().charAt(0) : 'B')) {
+                Logger.recordOutput("is Active First", true);
+                }else{
+                    Logger.recordOutput("is Active First", false);
+                }
+            }
         TalonFXLogger.LogTalons();
         Robotstate.logState();
         Logger.recordOutput("DistanceToHub", Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
@@ -127,6 +138,7 @@ public class Robot extends LoggedRobot {
     /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
     @Override
     public void autonomousInit() {
+        Elastic.selectTab("Autonomous");
 
         autonomousCommand = robotContainer.getAutonomousCommand();
 
@@ -143,6 +155,7 @@ public class Robot extends LoggedRobot {
     /** This function is called once when teleop is enabled. */
     @Override
     public void teleopInit() {
+        Elastic.selectTab("TEleop");
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove

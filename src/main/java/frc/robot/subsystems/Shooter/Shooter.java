@@ -14,13 +14,10 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,14 +29,13 @@ import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.FieldConstants;
 import frc.robot.Constants;
 import frc.robot.Robotstate;
-import frc.robot.StateSyp.robotState;
 import frc.robot.subsystems.drive.Drive;
 
 public class Shooter extends SubsystemBase {
   /** Creates a new Shooter. */
   private ShooterIO io;
   private ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
-  private double requireVelRPM;
+  private AngularVelocity requireVelRPM;
   private Timer Fuel_Timer = new Timer();
   private boolean haveFuel;
   private SysIdRoutine sysid;
@@ -87,13 +83,13 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     TimerCheckFuel();
-    Logger.recordOutput("Shooter/requireVelRPM", requireVelRPM);
-    Logger.recordOutput("Shooter/isAtVel", isAtVel());
+    Logger.recordOutput("Shooter/require Velocity RPM", requireVelRPM);
+    Logger.recordOutput("Shooter/is At Velocity", isAtVel());
     Logger.processInputs("Shooter", inputs);
     // This method will be called once per scheduler run
   }
   public void setVelocity(AngularVelocity velRPM){
-    requireVelRPM = velRPM.in(RPM);
+    requireVelRPM = velRPM;
     if (velRPM.isEquivalent(RotationsPerSecond.of(0))) {
       Logger.recordOutput("Shooter/what", "stop");
       setVoltage(Volts.of(0.5));
@@ -126,7 +122,7 @@ public class Shooter extends SubsystemBase {
     return Commands.runOnce(()-> setVoltage(voltage));
   }
   public boolean isAtVel(){ 
-    return Math.abs(inputs.velocity.in(Rotation.per(Minute)) - requireVelRPM) < 40 && requireVelRPM != 0;
+    return Math.abs(inputs.velocity.minus(requireVelRPM).in(RPM)) < 40 && requireVelRPM.in(RotationsPerSecond) != 0;
   }
   public Command appliePIDF(){
     return this.runOnce(()->{

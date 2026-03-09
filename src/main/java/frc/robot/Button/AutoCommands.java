@@ -10,8 +10,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.util.FieldConstants;
 import frc.robot.Constants;
+import frc.robot.Robotstate;
 import frc.robot.commands.BasicCommands.IndexerKickerCommand;
 import frc.robot.subsystems.Shooter.Shooter;
+import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.drive.Drive;
 
 /** Add your docs here. */
@@ -24,13 +26,13 @@ public class AutoCommands {
         double y = FieldConstants.Hub.innerCenterPoint.getY() - Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getY();
         Rotation2d RotTarget = Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg);
         boolean isAtOriantetion = Math.abs(RotTarget.getDegrees() - Drive.getInsatnce().getRotation().getDegrees())<4;
-        Logger.recordOutput("isAtOriantetion", isAtOriantetion);
+        Logger.recordOutput("is At Oriantetion", isAtOriantetion);
         return isAtOriantetion;
     }
     private static void kickerIndexerAuto() {
         Trigger isAtOriantetion = new Trigger(AutoCommands::isAtOriantetion);
         Trigger isAtSpeed = new Trigger(Shooter.getInstance()::isAtVel);
-        isAtOriantetion.and(isAtSpeed).onTrue(new IndexerKickerCommand());
+        isAtSpeed.and((isAtOriantetion.and(()->Robotstate.shooterState == ShooterState.shoot)).or(()->Robotstate.shooterState == ShooterState.shootAtPlace)).onTrue(new IndexerKickerCommand());
         // isAtSpeed.onTrue(new IndexerKickerCommand());
     }
 }

@@ -4,10 +4,7 @@
 
 package frc.robot.Button;
 
-import java.util.Set;
-
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.Controller;
 import frc.robot.commands.BasicCommands.DriveCommands;
 import frc.robot.subsystems.IntakePitch.IntakePitch;
@@ -16,10 +13,9 @@ import frc.robot.subsystems.IntakeRoller.IntakeRoller;
 import frc.robot.subsystems.IntakeRoller.IntakeRollerState;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.ShooterState;
-import frc.robot.subsystems.drive.Drive;
 
 /** Add your docs here. */
-public class subsystemOperitor {
+public class subsystemOp {
     public static void loadButoons(){
         /** מסירה */
         Controller.getSub().L1().whileTrue(DriveCommands.GoToRotationHub().alongWith(Shooter.getInstance().setStateCommand(ShooterState.pass)));
