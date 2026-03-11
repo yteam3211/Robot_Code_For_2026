@@ -69,7 +69,7 @@ public class IntakePitch extends SubsystemBase {
         Drive.getSwerveDriveSim(), 
         Meters.of(TunerConstants.FrontLeft.LocationY), 
         Millimeter.of(269.11), 
-        IntakeSide.FRONT, 
+        IntakeSide.FRONT,
         80);
       intakeSimulation.register();
     }

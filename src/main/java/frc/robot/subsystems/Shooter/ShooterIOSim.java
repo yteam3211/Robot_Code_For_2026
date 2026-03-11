@@ -110,8 +110,7 @@ public class ShooterIOSim implements ShooterIO{
         m_master.getConfigurator().apply(slot0);
     }
     private void shootSim(){
-        if (Math.abs(devButoon.findAngle().getDegrees() - Drive.getInsatnce().getRotation().getDegrees()) < 5) {
-
+        if (Math.abs(devButoon.findAngle().getDegrees() - Drive.getInsatnce().getRotation().getDegrees()) < 5) { 
             RebuiltFuelOnFly rebuiltFuelOnFlyRight = (RebuiltFuelOnFly)new RebuiltFuelOnFly(
                     Drive.getSwerveDriveSim().getSimulatedDriveTrainPose().getTranslation(),
                     new Translation2d(Constants.OFF_SET_SHOOTER.getMeasureX(), Constants.OFF_SET_SHOOTER.getMeasureY()), // shooter offet from center

@@ -5,10 +5,8 @@
 package frc.robot.subsystems.Shooter;
 
 import static edu.wpi.first.units.Units.InchesPerSecond;
-import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
@@ -35,13 +33,12 @@ public class Shooter extends SubsystemBase {
   /** Creates a new Shooter. */
   private ShooterIO io;
   private ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
-  private AngularVelocity requireVelRPM;
+  private AngularVelocity requireVelRPM = RPM.of(0);
   private Timer Fuel_Timer = new Timer();
   private boolean haveFuel;
   private SysIdRoutine sysid;
   private static Shooter instance;
   private InterpolatingDoubleTreeMap RpmFromDistance = new InterpolatingDoubleTreeMap();
-  private InterpolatingDoubleTreeMap TOF = new InterpolatingDoubleTreeMap();
   public Shooter(ShooterIO io) {
     this.io = io;
     io.updateInputs(inputs);
@@ -133,8 +130,8 @@ public class Shooter extends SubsystemBase {
     return setVotlageCommand(Volts.of(0));
   }
   public AngularVelocity CalcRPMToShoot(){
-    double value = Drive.getInsatnce().getPose().getTranslation().getDistance(AllianceFlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
-    return RPM.of(RpmFromDistance.get(value));
+    double Distance = Drive.getInsatnce().getPose().getTranslation().getDistance(AllianceFlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
+    return RPM.of(RpmFromDistance.get(Distance));
     }
   public Command sysidQuasistatic(Direction direction){
     return sysid.quasistatic(direction);

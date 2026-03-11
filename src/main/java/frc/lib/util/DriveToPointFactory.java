@@ -35,13 +35,15 @@ public class DriveToPointFactory {
         // if (DriverStation.getAlliance().get() == Alliance.Red) {
         //   Target = Target.div(-1);
         // }
-        PIDController xPID = new PIDController(5, 0, 0);
-        PIDController yPID = new PIDController(5, 0, 0);
-        PIDController rotPID = new PIDController(5, 0, 0);
+        final PIDController xPID = new PIDController(5, 0, 0);
+        final PIDController yPID = new PIDController(5, 0, 0);
+        final PIDController rotPID = new PIDController(5, 0, 0);
         rotPID.enableContinuousInput(-Math.PI, Math.PI);
         yPID.setTolerance(0.01);
         xPID.setTolerance(0.01);
-
+        rotPID.close();
+        xPID.close();
+        yPID.close();
         return drive.run(() -> {
                     Pose2d current = drive.getPose();
                     double xOut = xPID.calculate(current.getX(), Target.getY());
