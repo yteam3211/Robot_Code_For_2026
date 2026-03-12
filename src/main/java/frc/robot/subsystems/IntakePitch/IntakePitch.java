@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems.IntakePitch;
 
-import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Millimeter;
 import static edu.wpi.first.units.Units.Second;
@@ -14,10 +13,7 @@ import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.IntakeSimulation.IntakeSide;
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.signals.StatusLedWhenActiveValue;
-
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -30,8 +26,7 @@ import frc.robot.subsystems.drive.Drive;
 public class IntakePitch extends SubsystemBase {
   private final IntakePitchIO io;
   private IntakePitchIOInputsAutoLogged inputs = new IntakePitchIOInputsAutoLogged();
-  private SysIdRoutine 
-  sysid;
+  private SysIdRoutine sysid;
   private static IntakePitch instance;
   private static IntakeSimulation intakeSimulation;
   /** Creates a new IntakePitch. */
@@ -39,7 +34,7 @@ public class IntakePitch extends SubsystemBase {
     super("IntakePitch");
     this.io = io;
     sysid = new SysIdRoutine( 
-      new SysIdRoutine.Config(Volts.of(3).per(Second), Volts.of(8), Second.of(2), 
+      new SysIdRoutine.Config(Volts.of(3).per(Second), Volts.of(5), Second.of(2), 
       (state)-> Logger.recordOutput("intakePitch/sydid",state.toString())),
       new SysIdRoutine.Mechanism((volts)-> io.setVoltage(volts), null, this, "intakePitch/sysid"));
   }

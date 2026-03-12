@@ -23,12 +23,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.FieldConstants;
 import frc.robot.Constants;
 import frc.robot.Controller;
 import frc.robot.commands.BasicCommands.DriveCommands;
+import frc.robot.subsystems.Indexer.Indexer;
+import frc.robot.subsystems.Indexer.IndexerState;
 import frc.robot.subsystems.IntakePitch.IntakePitch;
 import frc.robot.subsystems.IntakePitch.IntakePitchState;
 import frc.robot.subsystems.IntakeRoller.IntakeRoller;
@@ -36,6 +39,8 @@ import frc.robot.subsystems.IntakeRoller.IntakeRollerState;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.kicker.Kicker;
+import frc.robot.subsystems.kicker.KickerState;
 
 /** Add your docs here. */
 public class devButoon {
@@ -52,6 +57,10 @@ public class devButoon {
     }
 
     private static void sysidAll() {
+        Controller.getSwerve().triangle().whileTrue(Shooter.getInstance().setStateCommand(ShooterState.shootAtPlace));
+        Controller.getSwerve().triangle().onFalse(Shooter.getInstance().setStateCommand(ShooterState.stop));
+        Controller.getSwerve().square().whileTrue(DriveCommands.GoToRotationHub().alongWith(Shooter.getInstance().setStateCommand(ShooterState.shoot)));
+        Controller.getSwerve().square().onFalse(Shooter.getInstance().setStateCommand(ShooterState.stop));
     }
     static LoggedNetworkNumber AngVel = new LoggedNetworkNumber("/Tuning/RPM",0);
     private static void spwanFuel() {

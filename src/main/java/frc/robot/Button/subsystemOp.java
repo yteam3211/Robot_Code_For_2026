@@ -32,7 +32,7 @@ public class subsystemOp {
         /** ירי מימקום ספציפי*/
 
         Controller.getSub().R2().whileTrue(Shooter.getInstance().setStateCommand(ShooterState.shootAtPlace));
-        Controller.getSub().L1().onFalse(Shooter.getInstance().setStateCommand(ShooterState.stop));
+        Controller.getSub().R2().onFalse(Shooter.getInstance().setStateCommand(ShooterState.stop));
         /** ירי עם מרחק בלי סיבוב*/
         Controller.getSub().circle().whileTrue(Shooter.getInstance().setStateCommand(ShooterState.shoot));
         Controller.getSub().circle().onFalse(Shooter.getInstance().setStateCommand(ShooterState.stop));

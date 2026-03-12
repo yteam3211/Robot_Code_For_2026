@@ -4,6 +4,8 @@
 
 package frc.lib.Loggers;
 
+import static edu.wpi.first.units.Units.Hertz;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +28,7 @@ public class TalonFXLogger extends TalonFX implements LoggableInputs{
         super(ID, canbus);
         this.name = name;
         listLog.add(this);
+        this.optimizeBusUtilization(Hertz.of(50));
     }
     @Override
     public void toLog(LogTable table){
@@ -45,9 +48,9 @@ public class TalonFXLogger extends TalonFX implements LoggableInputs{
         }
     }
     public static void LogTalons(){
-        for (TalonFXLogger talonFXLogger : listLog) {
-            Logger.processInputs("TalonFX", talonFXLogger);
-        }
+        // for (TalonFXLogger talonFXLogger : listLog) {
+        //     Logger.processInputs("TalonFX", talonFXLogger);
+        // }
     }
     @Override
     public void fromLog(LogTable table) {

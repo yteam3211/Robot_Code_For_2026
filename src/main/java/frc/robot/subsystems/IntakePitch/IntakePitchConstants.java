@@ -36,7 +36,7 @@ public class IntakePitchConstants {
     /** inverted or not */
     public static final InvertedValue Invetrted = InvertedValue.Clockwise_Positive;
     /** gear ratio of the mechanism */
-    public static final double gearRatio = 64.8;
+    public static final double gearRatio = 81.0;
     /** Min and Max angle in radians */
     public static final Angle minAngleDegree = Degree.of(90);
     public static final Angle maxAngleDegree = Degree.of(90 + 50);
@@ -50,17 +50,17 @@ public class IntakePitchConstants {
     public static final double POSITION_CONVERSION_FACTOR = gearRatio;
 
     public final class MotionMagicConstants {
-        public static final double MOTION_MAGIC_VELOCITY = 0.9;
-        public static final double MOTION_MAGIC_ACCELERATION = 4.25;
+        public static final double MOTION_MAGIC_VELOCITY = 0.25;
+        public static final double MOTION_MAGIC_ACCELERATION = 0.3;
         public static final double MOTION_MAGIC_JERK = 0;
 
-        public static final LoggedNetworkNumber MOTOR_KS = new LoggedNetworkNumber("/Tuning/IntakePitch/S",2.8511);//0.05075
-        public static final LoggedNetworkNumber MOTOR_KA = new LoggedNetworkNumber("/Tuning/IntakePitch/A",0.29545);//0.028344
-        public static final LoggedNetworkNumber MOTOR_KV = new LoggedNetworkNumber("/Tuning/IntakePitch/V",6.17);//0.94438
-        public static final LoggedNetworkNumber MOTOR_KG = new LoggedNetworkNumber("/Tuning/IntakePitch/G",0.41111);//0.41111
-        public static final LoggedNetworkNumber MOTOR_KP = new LoggedNetworkNumber("/Tuning/IntakePitch/P",133.77);//133.77
+        public static final LoggedNetworkNumber MOTOR_KS = new LoggedNetworkNumber("/Tuning/IntakePitch/S",0.40619);//0.05075
+        public static final LoggedNetworkNumber MOTOR_KA = new LoggedNetworkNumber("/Tuning/IntakePitch/A",0);//0.028344
+        public static final LoggedNetworkNumber MOTOR_KV = new LoggedNetworkNumber("/Tuning/IntakePitch/V",9.72);//0.972
+        public static final LoggedNetworkNumber MOTOR_KG = new LoggedNetworkNumber("/Tuning/IntakePitch/G",0);//0.41111
+        public static final LoggedNetworkNumber MOTOR_KP = new LoggedNetworkNumber("/Tuning/IntakePitch/P",3.596);//133.77
         public static final LoggedNetworkNumber MOTOR_KI = new LoggedNetworkNumber("/Tuning/IntakePitch/I",0);
-        public static final LoggedNetworkNumber MOTOR_KD = new LoggedNetworkNumber("/Tuning/IntakePitch/D",4.0737);//4.0737
+        public static final LoggedNetworkNumber MOTOR_KD = new LoggedNetworkNumber("/Tuning/IntakePitch/D",0);//4.0737
         public static final GravityTypeValue GravityType = GravityTypeValue.Arm_Cosine;
     }
 }

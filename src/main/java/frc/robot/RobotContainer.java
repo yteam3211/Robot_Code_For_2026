@@ -13,21 +13,15 @@
 
 package frc.robot;
 
-import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.lib.Loggers.CanBusLogger;
 import frc.robot.Button.AutoCommands;
 import frc.robot.Button.defualtCommand;
-import frc.robot.Button.devButoon;
 import frc.robot.Button.subsystemOp;
 import frc.robot.Button.swerveOp;
 import frc.robot.commands.BasicCommands.DriveCommands;
@@ -50,7 +44,7 @@ public class RobotContainer {
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         getInstnce();
-
+        new LEDSubsystem();
         // Set up auto routines
         CommandForAuto.loadCommand();
         autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -74,10 +68,9 @@ public class RobotContainer {
         configureButtonBindings();
     }
     private void configureButtonBindings() {
-        // Default command, normal field-relative drive
         // devButoon.loadButton();
-        defualtCommand.loadButton();
         AutoCommands.loadCommands();
+        defualtCommand.loadButton();
         subsystemOp.loadButoons();
         swerveOp.loadButton();
     }

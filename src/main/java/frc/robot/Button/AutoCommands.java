@@ -4,6 +4,8 @@
 
 package frc.robot.Button;
 
+import java.util.function.BooleanSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,9 +32,13 @@ public class AutoCommands {
         return isAtOriantetion;
     }
     private static void kickerIndexerAuto() {
-        Trigger isAtOriantetion = new Trigger(AutoCommands::isAtOriantetion);
         Trigger isAtSpeed = new Trigger(Shooter.getInstance()::isAtVel);
-        isAtSpeed.and((isAtOriantetion.and(()->Robotstate.shooterState == ShooterState.shoot)).or(()->Robotstate.shooterState == ShooterState.shootAtPlace)).onTrue(new IndexerKickerCommand());
+        isAtSpeed.and(new BooleanSupplier() {
+            @Override
+            public boolean getAsBoolean() {
+                return Robotstate.shooterState == ShooterState.shoot && isAtOriantetion() || Robotstate.shooterState == ShooterState.shootAtPlace;
+            }
+        }).onTrue(new IndexerKickerCommand());
         // isAtSpeed.onTrue(new IndexerKickerCommand());
     }
 }

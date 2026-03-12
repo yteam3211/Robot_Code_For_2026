@@ -25,6 +25,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter.AdvantageScopeOpenBeha
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -46,7 +47,6 @@ public class Robot extends LoggedRobot {
     // check for git
     private Command autonomousCommand;
     private RobotContainer robotContainer;
-
     public Robot() {
         // Record metadata
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -70,7 +70,7 @@ public class Robot extends LoggedRobot {
         switch (Constants.currentMode) {
             case REAL:
                 // Running on a real robot, log to a USB stick ("/U/logs")
-                Logger.addDataReceiver(new WPILOGWriter("U/logs/" + BuildConstants.BUILD_DATE,AdvantageScopeOpenBehavior.ALWAYS));
+                Logger.addDataReceiver(new WPILOGWriter());
                 Logger.addDataReceiver(new NT4Publisher());
                 break;
 

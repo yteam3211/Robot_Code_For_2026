@@ -15,7 +15,7 @@ public class Robotstate {
     public static ShooterState shooterState = ShooterState.stop;
     public static KickerState kickerState = KickerState.stop;
     public static IndexerState indexerState = IndexerState.Stop;
-    public static IntakeRollerState rollerState = IntakeRollerState.stop;
+    public static IntakeRollerState rollerState = IntakeRollerState.move;
     private static Alert ShooterAlert = new Alert("shooter active", AlertType.kError);
     public static void resetState() {
         intakePitchState = IntakePitchState.Open;

@@ -6,6 +6,7 @@ package frc.robot.subsystems.IntakePitch;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -15,6 +16,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
@@ -36,14 +38,11 @@ public class IntakePitchReal implements IntakePitchIO{
         MotorOutputConfigs motorOutputConfigs = talonFXConfiguration.MotorOutput;
         motorOutputConfigs.NeutralMode = IntakePitchConstants.NeutralMode;
         motorOutputConfigs.Inverted = IntakePitchConstants.Invetrted;
-        SoftwareLimitSwitchConfigs softwareLimitSwitchConfigs = talonFXConfiguration.SoftwareLimitSwitch;
-        softwareLimitSwitchConfigs.ForwardSoftLimitEnable = false;
-        softwareLimitSwitchConfigs.ReverseSoftLimitEnable = false;
-        // softwareLimitSwitchConfigs.ForwardSoftLimitThreshold = IntakePitchConstants.maxAngleDegree.plus(Degree.of(10)).in(Rotation);
-        // softwareLimitSwitchConfigs.ReverseSoftLimitThreshold = IntakePitchConstants.minAngleDegree.plus(Degree.of(-10)).in(Rotation);
-        VoltageConfigs voltageConfigs = talonFXConfiguration.Voltage;
-        voltageConfigs.PeakForwardVoltage = 12;
-        voltageConfigs.PeakReverseVoltage = -12;
+        CurrentLimitsConfigs currentLimitsConfigs = talonFXConfiguration.CurrentLimits;
+        currentLimitsConfigs.StatorCurrentLimitEnable = true;
+        currentLimitsConfigs.StatorCurrentLimit = 40;
+        currentLimitsConfigs.SupplyCurrentLimitEnable = true;
+        currentLimitsConfigs.SupplyCurrentLimit = 20;
         MotionMagicConfigs motionMagicConfigs = talonFXConfiguration.MotionMagic;
         motionMagicConfigs.MotionMagicCruiseVelocity =
                 IntakePitchConstants.MotionMagicConstants.MOTION_MAGIC_VELOCITY;

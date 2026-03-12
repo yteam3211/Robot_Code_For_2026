@@ -50,8 +50,8 @@ public class Shooter extends SubsystemBase {
   }
   private void updateMAP(){
     RpmFromDistance.put(2.0, 2100.0);
-    RpmFromDistance.put(2.3, 2150.0);
-    RpmFromDistance.put(2.5, 2175.0);
+    RpmFromDistance.put(2.25, 2100.0);
+    RpmFromDistance.put(2.5, 2150.0);
     RpmFromDistance.put(2.75, 2200.0);
     RpmFromDistance.put(3.0, 2300.0);
     RpmFromDistance.put(3.25, 2400.0);
@@ -89,7 +89,7 @@ public class Shooter extends SubsystemBase {
     requireVelRPM = velRPM;
     if (velRPM.isEquivalent(RotationsPerSecond.of(0))) {
       Logger.recordOutput("Shooter/what", "stop");
-      setVoltage(Volts.of(0.5));
+      setVoltage(Volts.of(0));
     } 
     else{
       io.setVelocity(velRPM);

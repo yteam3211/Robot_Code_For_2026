@@ -6,6 +6,9 @@ package frc.robot.Button;
 
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
+import javax.lang.model.util.ElementScanner14;
 
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
@@ -77,10 +80,15 @@ public class defualtCommand {
                         Shooter.getInstance().setVelocity(Shooter.getInstance().CalcRPMToShoot());
                     break;
                     case stop:
-                        Shooter.getInstance().setVelocity(RotationsPerSecond.of(0));
+                        if (Shooter.getInstance().getVelocity().in(RPM)< 500) {
+                            Shooter.getInstance().setVoltage(Volts.of(0));                            
+                        }else{
+                            Shooter.getInstance().setVoltage(Volts.of(0.4));
+                        }
+
                     break;
                     case shootAtPlace:  
-                         Shooter.getInstance().setVelocity(RPM.of(RPMTun.get()));
+                         Shooter.getInstance().setVelocity(RPM.of(2450));
                     break;
                 
                     default:
