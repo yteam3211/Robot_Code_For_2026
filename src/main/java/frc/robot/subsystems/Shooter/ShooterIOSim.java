@@ -108,17 +108,6 @@ public class ShooterIOSim implements ShooterIO{
         m_master.getConfigurator().apply(slot0);
     }
     private void shootSim(){
-        if (Math.abs(devButoon.findAngle().getDegrees() - Drive.getInsatnce().getRotation().getDegrees()) < 5) { 
-            RebuiltFuelOnFly rebuiltFuelOnFlyRight = (RebuiltFuelOnFly)new RebuiltFuelOnFly(
-                    Drive.getSwerveDriveSim().getSimulatedDriveTrainPose().getTranslation(),
-                    new Translation2d(Constants.OFF_SET_SHOOTER.getMeasureX(), Constants.OFF_SET_SHOOTER.getMeasureY()), // shooter offet from center
-                    Drive.getSwerveDriveSim().getDriveTrainSimulatedChassisSpeedsFieldRelative(),
-                    Drive.getSwerveDriveSim().getSimulatedDriveTrainPose().getRotation().plus(Rotation2d.k180deg),
-                    Millimeter.of(546), // initial height of the ball, in meters
-                    Shooter.getInstance().ToLinearVelocity(Shooter.getInstance().getVelocity()), // initial velocity, in m/s
-                    Degrees.of(62)); // shooter angle
-            rebuiltFuelOnFlyRight.setHitTargetCallBack(()->Logger.recordOutput("HitAt/Right", rebuiltFuelOnFlyRight.getPose3d()));
-            SimulatedArena.getInstance().addGamePieceProjectile(rebuiltFuelOnFlyRight);
-        }
+        
     }
 }

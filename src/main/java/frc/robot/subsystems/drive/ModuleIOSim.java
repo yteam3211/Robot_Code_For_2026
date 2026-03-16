@@ -22,7 +22,6 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -37,7 +36,6 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -51,18 +49,6 @@ import frc.robot.generated.TunerConstants;
  * constants from Phoenix. Simulation is always based on voltage control.
  */
 public class ModuleIOSim implements ModuleIO {
-  // TunerConstants doesn't support separate sim constants, so they are declared
-  // locally
-  private static final double DRIVE_KP = 0.05;
-  private static final double DRIVE_KD = 0.0;
-  private static final double DRIVE_KS = 0.0;
-  private static final double DRIVE_KV_ROT =
-      0.91035; // Same units as TunerConstants: (volt * secs) / rotation
-  private static final double DRIVE_KV = 1.0 / Units.rotationsToRadians(1.0 / DRIVE_KV_ROT);
-  private static final double TURN_KP = 8.0;
-  private static final double TURN_KD = 0.0;
-  private static final DCMotor DRIVE_GEARBOX = DCMotor.getKrakenX60Foc(1);
-  private static final DCMotor TURN_GEARBOX = DCMotor.getKrakenX60Foc(1);
 
   private final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
@@ -80,10 +66,7 @@ public class ModuleIOSim implements ModuleIO {
       new PositionVoltage(0.0).withEnableFOC(true);
   private final VelocityVoltage velocityVoltageRequest =
       new VelocityVoltage(0.0).withEnableFOC(true);
-  ;
 
-  // Torque-current control requests
-  private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0);
   private final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
       new PositionTorqueCurrentFOC(0.0);
   private final VelocityTorqueCurrentFOC velocityTorqueCurrentRequest =
@@ -109,7 +92,6 @@ public class ModuleIOSim implements ModuleIO {
       new Debouncer(0.5, Debouncer.DebounceType.kFalling);
   private final Debouncer turnEncoderConnectedDebounce =
       new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-    private String Name = "";
 
   public ModuleIOSim(
       SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>

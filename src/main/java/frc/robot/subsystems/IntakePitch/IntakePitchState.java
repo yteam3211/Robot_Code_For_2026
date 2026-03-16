@@ -4,11 +4,6 @@
 
 package frc.robot.subsystems.IntakePitch;
 
-import static edu.wpi.first.units.Units.Degree;
-
-import edu.wpi.first.units.measure.Angle;
-import frc.lib.util.ITarget;
-
 /** Add your docs here. */
 public enum IntakePitchState{
     colse(),

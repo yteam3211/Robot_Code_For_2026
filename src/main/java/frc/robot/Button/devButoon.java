@@ -4,13 +4,9 @@
 
 package frc.robot.Button;
 
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Millimeter;
 import static edu.wpi.first.units.Units.RPM;
-
-import java.lang.invoke.ConstantBootstraps;
-import java.util.Set;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnFly;
@@ -21,26 +17,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.FieldConstants;
 import frc.robot.Constants;
 import frc.robot.Controller;
 import frc.robot.commands.BasicCommands.DriveCommands;
-import frc.robot.subsystems.Indexer.Indexer;
-import frc.robot.subsystems.Indexer.IndexerState;
-import frc.robot.subsystems.IntakePitch.IntakePitch;
-import frc.robot.subsystems.IntakePitch.IntakePitchState;
-import frc.robot.subsystems.IntakeRoller.IntakeRoller;
-import frc.robot.subsystems.IntakeRoller.IntakeRollerState;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.ShooterState;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.kicker.Kicker;
-import frc.robot.subsystems.kicker.KickerState;
 
 /** Add your docs here. */
 public class devButoon {

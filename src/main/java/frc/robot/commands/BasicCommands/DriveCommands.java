@@ -21,7 +21,6 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -296,6 +295,7 @@ public class DriveCommands {
         PIDController rotController = new PIDController(0.1, 0,0);
         rotController.enableContinuousInput(-180, 180);
         rotController.setTolerance(1);
+        rotController.close();
         return Drive.getInsatnce().run(()-> {
                 double x = FieldConstants.Hub.innerCenterPoint.getX() - Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getX();
                 double y = FieldConstants.Hub.innerCenterPoint.getY() - Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getY();
@@ -320,6 +320,7 @@ public class DriveCommands {
                 PIDController rotController = new PIDController(0.1, 0,0);
                 rotController.enableContinuousInput(-180, 180);
                 rotController.setTolerance(1);
+                rotController.close();
                 return Drive.getInsatnce().run(()-> {
                         double x = FieldConstants.Hub.innerCenterPoint.getX() - Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getX();
                         double y = FieldConstants.Hub.innerCenterPoint.getY() - Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getY();

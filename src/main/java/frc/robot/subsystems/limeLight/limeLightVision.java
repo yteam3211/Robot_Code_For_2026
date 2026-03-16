@@ -17,8 +17,6 @@ public class limeLightVision extends SubsystemBase {
   // Multipliers to apply for MegaTag 2 observations
   private final double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
   private final double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY; // No rotation data available
-
-  private final double linearStdDevMegaTag1Factor = Double.POSITIVE_INFINITY;
   private String[] LimeLightName;
   public limeLightVision(String... LimelightName) {
     this.LimeLightName = LimelightName;

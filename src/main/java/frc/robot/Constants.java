@@ -24,7 +24,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj.CompressorConfigType;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.lib.FuelSimulation.ProjectileSimulator;
 import frc.lib.FuelSimulation.ShotCalculator;

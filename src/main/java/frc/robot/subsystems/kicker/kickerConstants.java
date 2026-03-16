@@ -4,15 +4,11 @@
 
 package frc.robot.subsystems.kicker;
 
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
-
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
-
-import edu.wpi.first.math.system.plant.DCMotor;
 
 /** Add your docs here. */
 public class kickerConstants {

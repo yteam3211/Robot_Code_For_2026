@@ -20,7 +20,6 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -67,7 +66,6 @@ public class ModuleIOTalonFX implements ModuleIO {
   ;
 
   // Torque-current control requests
-  private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0);
   private final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
       new PositionTorqueCurrentFOC(0.0);
   private final VelocityTorqueCurrentFOC velocityTorqueCurrentRequest =
@@ -98,24 +96,11 @@ public class ModuleIOTalonFX implements ModuleIO {
       new Debouncer(0.5, Debouncer.DebounceType.kFalling);
   private final Debouncer turnEncoderConnectedDebounce =
       new Debouncer(0.5, Debouncer.DebounceType.kFalling);
-    private String Name = "";
 
   public ModuleIOTalonFX(
       SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
           constants) {
     this.constants = constants;
-    if (constants.equals(TunerConstants.FrontLeft)) {
-        Name = "FrontLeft";
-    }
-    else if (constants.equals(TunerConstants.FrontRight)) {
-        Name = "FrontRight";
-    }
-    else if (constants.equals(TunerConstants.BackLeft)) {
-        Name = "BackLeft";
-    }
-    else if (constants.equals(TunerConstants.BackRight)) {
-        Name = "BackRight";
-    }
     driveTalon = new TalonFX(constants.DriveMotorId, TunerConstants.kCANBus);
     turnTalon = new TalonFX(constants.SteerMotorId, TunerConstants.kCANBus);
     cancoder = new CANcoder(constants.EncoderId, TunerConstants.kCANBus);

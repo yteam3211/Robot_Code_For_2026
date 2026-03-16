@@ -9,8 +9,6 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -70,7 +68,6 @@ public class defualtCommand {
         Indexer.getInstance().setDefaultCommand(indexerCommand);
     }
     private static void ShooterDefualt( ) {
-        LoggedNetworkNumber RPMTun = new LoggedNetworkNumber("/Tuning/RPM",0);
         Runnable shooterRunnable = new Runnable() {
             @Override
             public void run() {

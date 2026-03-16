@@ -14,7 +14,6 @@ import static edu.wpi.first.units.Units.Volts;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -24,14 +23,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.lib.FuelSimulation.ShotCalculator;
-import frc.lib.FuelSimulation.ShotCalculator.LaunchParameters;
-import frc.lib.FuelSimulation.ShotCalculator.ShotInputs;
-import frc.lib.util.AllianceFlipUtil;
-import frc.lib.util.FieldConstants;
 import frc.robot.Constants;
 import frc.robot.Robotstate;
-import frc.robot.subsystems.drive.Drive;
 
 public class Shooter extends SubsystemBase {
   /** Creates a new Shooter. */
