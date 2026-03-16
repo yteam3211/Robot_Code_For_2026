@@ -13,7 +13,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RPM;
 
 import org.ironmaple.simulation.SimulatedArena;
@@ -25,13 +24,16 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.FuelSimulation.FuelPhysicsSim;
+import frc.lib.FuelSimulation.ShotCalculator;
 import frc.lib.util.Elastic;
 import frc.lib.util.FieldConstants;
 import frc.robot.Button.devButoon;
@@ -201,12 +203,21 @@ public class Robot extends LoggedRobot {
         Logger.recordOutput("FieldSimulation/RobotPosition", Drive.getSwerveDriveSim().getSimulatedDriveTrainPose());
         fuelPhysicsSim.tick();
         if (Shooter.getInstance().isAtVel()) {
-            Pose2d ShooterPose = Drive.getInsatnce().getPose().transformBy(
-                new Transform2d(Constants.OFF_SET_SHOOTER.getTranslation().toTranslation2d(),
-                Constants.OFF_SET_SHOOTER.getRotation().toRotation2d()));
-            fuelPhysicsSim.launchBall(new Translation3d(ShooterPose.getX(),ShooterPose.getY(),Constants.OFF_SET_SHOOTER.getZ()), 
-            new Translation3d(Shooter.getInstance().ToLinearVelocity(Shooter.getInstance().getVelocity()).in(MetersPerSecond),0,0), 
-            Shooter.getInstance().getVelocity().in(RPM));
+            ShotCalculator.LaunchParameters shot = Constants.launchParameters();
+            double exitSpeed = 0.6  * shot.rpm() * Math.PI * Units.inchesToMeters(3) / 60.0;
+            double launchRad = Math.toRadians(62);
+
+            double vHorizontal = exitSpeed * Math.cos(launchRad);
+            double vVertical = exitSpeed * Math.sin(launchRad);
+
+            Rotation2d azimuth = shot.driveAngle(); // or robot yaw if you're not doing SOTM
+            double vx = vHorizontal * azimuth.getCos();
+            double vy = vHorizontal * azimuth.getSin();
+
+            Translation3d launchPos = new Pose3d(Drive.getInsatnce().getPose()).transformBy(Constants.OFF_SET_SHOOTER).getTranslation();
+            Translation3d launchVel = new Translation3d(-vx, -vy, vVertical);
+
+            fuelPhysicsSim.launchBall(launchPos, launchVel, Shooter.getInstance().getVelocity().in(RPM));   
         }
     }
 }

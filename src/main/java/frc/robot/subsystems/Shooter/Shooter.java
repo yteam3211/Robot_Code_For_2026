@@ -63,7 +63,7 @@ public class Shooter extends SubsystemBase {
           instance = new Shooter(new ShooterIOReal());
           break;
         case SIM:
-          instance = new Shooter(new ShooterIOSim());
+          instance = new Shooter(new ShooterIOSim());   
         break;
         default:
           instance = new Shooter(new ShooterIO() {});

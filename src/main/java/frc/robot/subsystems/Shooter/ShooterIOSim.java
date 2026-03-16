@@ -15,7 +15,8 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -28,7 +29,7 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 public class ShooterIOSim implements ShooterIO{
     private FlywheelSim flywheelSim;
     private TalonFX m_master = new TalonFX(ShooterConstants.m_MasterR_ID, ShooterConstants.m_canbus);
-    private MotionMagicVelocityTorqueCurrentFOC motionMagicVelocity = new MotionMagicVelocityTorqueCurrentFOC(0);
+    private VelocityVoltage VelocityVoltage = new VelocityVoltage(0).withSlot(0).withEnableFOC(true);
     public ShooterIOSim(){
         flywheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(ShooterConstants.dcMotor, ShooterConstants.JKgMeterSqured, 
         ShooterConstants.gearRatio), ShooterConstants.dcMotor);
@@ -76,7 +77,7 @@ public class ShooterIOSim implements ShooterIO{
     }
     @Override
     public void setVelocity(AngularVelocity vel) {
-        m_master.setControl(motionMagicVelocity.withVelocity(vel));
+        m_master.setControl(VelocityVoltage.withVelocity(vel));
     }
     @Override
     public void setVoltage(Voltage voltage){

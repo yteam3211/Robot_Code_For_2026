@@ -17,6 +17,8 @@ import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Millimeter;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -60,17 +62,32 @@ public final class Constants {
         new Pose3d(-0.1808,-0.023073,0.44788,
             new Rotation3d(Degree.of(0),Degree.of(0),Degree.of(90)));
     public final class ShooterLookUpTables {
+    // private static ProjectileSimulator.SimParameters params = new ProjectileSimulator.SimParameters(
+    //     0.215,   // ball mass kg
+    //     0.1501,  // ball diameter m
+    //     0.47,    // drag coeff (smooth sphere)
+    //     0.2,     // Magnus coeff
+    //     1.225,   // air density
+    //     Millimeter.of(546).in(Meter),// exit height (m), floor to where the ball leaves the shooter
+    //     Units.inchesToMeters(3),  // flywheel diameter (m), measure with calipers
+    //     1.83,    // target height (m), from game manual
+    //     0.6,     // slip factor (0=no grip, 1=perfect), tune this on the real robot
+    //     62,    // launch angle from horizontal, measure from CAD
+    //     0.001,   // sim timestep
+    //     1500, 6000, 25, 5.0  // RPM search range, iterations, max sim time
+    // );
+
     private static ProjectileSimulator.SimParameters params = new ProjectileSimulator.SimParameters(
         0.215,   // ball mass kg
         0.1501,  // ball diameter m
         0.47,    // drag coeff (smooth sphere)
         0.2,     // Magnus coeff
         1.225,   // air density
-        Millimeter.of(546).in(Meter),// exit height (m), floor to where the ball leaves the shooter
-        Units.inchesToMeters(3),  // flywheel diameter (m), measure with calipers
+        0.43,    // exit height (m), floor to where the ball leaves the shooter
+        0.1016,  // flywheel diameter (m), measure with calipers
         1.83,    // target height (m), from game manual
         0.6,     // slip factor (0=no grip, 1=perfect), tune this on the real robot
-        62,    // launch angle from horizontal, measure from CAD
+        45.0,    // launch angle from horizontal, measure from CAD
         0.001,   // sim timestep
         1500, 6000, 25, 5.0  // RPM search range, iterations, max sim time
     );
@@ -83,15 +100,11 @@ public final class Constants {
     static{
         config.launcherOffsetX = Constants.OFF_SET_SHOOTER.getX();
         config.launcherOffsetY = Constants.OFF_SET_SHOOTER.getY();
-        config.headingMaxErrorRad = Units.degreesToRadians(3);
-        config.phaseDelayMs = 20.0;
-        config.mechLatencyMs = 20.0;
-        config.maxTiltDeg = 3.0;
-        config.headingSpeedScalar = 1.0;
-        config.headingReferenceDistance = 2.0;
-        config.maxSOTMSpeed = 0.8;
-        config.minScoringDistance = 0.2;
-        config.maxScoringDistance = 10.0;
+        config.phaseDelayMs = 30.0;     // your vision pipeline latency
+        config.mechLatencyMs = 20.0;    // how long the mechanism takes to respond
+        config.maxTiltDeg = 5.0;        // suppress firing when chassis tilts past this (bumps/ramps)
+        config.headingSpeedScalar = 1.0; // heading tolerance tightens with robot speed (0 to disable)
+        config.headingReferenceDistance = 2.5; // heading tolerance scales with distance from hub
     }
     private static final ShotCalculator shot_Calc = new ShotCalculator(config);
         static{
@@ -104,10 +117,14 @@ public final class Constants {
     }
     public static LaunchParameters launchParameters(){
         ShotCalculator.ShotInputs shotInputs =
-        new ShotCalculator.ShotInputs(Drive.getInsatnce().getPose(), Drive.getInsatnce().getChassisSpeeds(),
-        ChassisSpeeds.fromFieldRelativeSpeeds(Drive.getInsatnce().getChassisSpeeds(),Drive.getInsatnce().getRotation()), 
+        new ShotCalculator.ShotInputs(Drive.getInsatnce().getPose(), ChassisSpeeds.fromRobotRelativeSpeeds(Drive.getInsatnce().getChassisSpeeds(), Drive.getInsatnce().getRotation()),
+        Drive.getInsatnce().getChassisSpeeds(), 
         FieldConstants.Hub.innerCenterPoint.toTranslation2d(), FieldConstants.Hub.nearFace.getTranslation(), 0.9);
         ShotCalculator.LaunchParameters launchParameters = Constants.ShooterLookUpTables.shot_Calc.calculate(shotInputs);
-        return launchParameters;
+        Logger.recordOutput("confidance", launchParameters.confidence());
+        if (launchParameters.isValid() && launchParameters.confidence() > 50){
+            return launchParameters;
+        }
+        return ShotCalculator.LaunchParameters.INVALID;
     }
 }

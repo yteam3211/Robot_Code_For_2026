@@ -305,7 +305,7 @@ public class DriveCommands {
                 //         new Transform2d(Constants.OFF_SET_SHOOTER.getTranslation().toTranslation2d(),
                 //         Constants.OFF_SET_SHOOTER.getRotation().toRotation2d())).getY();
                 // Rotation2d RotTarget = Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg);
-                Rotation2d RotTarget = Constants.launchParameters().driveAngle();
+                Rotation2d RotTarget = Constants.launchParameters().driveAngle().plus(Rotation2d.k180deg);
                 Logger.recordOutput("moveToRot/Rot", RotTarget);
                 Translation2d velocity = getLinearVelocityFromJoysticks(Controller.getSwerve().getLeftY(), Controller.getSwerve().getLeftX());
                 // if (Math.abs(RotTarget.getDegrees() - Drive.getInsatnce().getRotation().getDegrees())>2) {
