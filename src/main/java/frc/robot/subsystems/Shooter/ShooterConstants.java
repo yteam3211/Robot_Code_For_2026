@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.Shooter;
 
+import java.io.ObjectInputFilter.Config;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -12,6 +14,9 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import frc.lib.FuelSimulation.ShotCalculator;
+import frc.lib.FuelSimulation.ShotCalculator.LaunchParameters;
+import frc.robot.Constants;
 
 /** Add your docs here. */
 public class ShooterConstants {
@@ -53,4 +58,5 @@ public class ShooterConstants {
         public static final GravityTypeValue GravityType = GravityTypeValue.Arm_Cosine;
         public static final StaticFeedforwardSignValue staticFeedForward = StaticFeedforwardSignValue.UseVelocitySign;
     }
+
 }

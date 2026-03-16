@@ -11,9 +11,7 @@ import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -23,11 +21,10 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
-import frc.lib.Loggers.TalonFXLogger;
 
 /** Add your docs here. */
 public class IntakePitchReal implements IntakePitchIO{
-    private TalonFXLogger m_intakePitch = new TalonFXLogger(IntakePitchConstants.m_MotorId, new CANBus(IntakePitchConstants.m_CanBusName),"IntakePitch");
+    private TalonFX m_intakePitch = new TalonFX(IntakePitchConstants.m_MotorId, new CANBus(IntakePitchConstants.m_CanBusName));
     private DigitalInput m_limtMax = new DigitalInput(IntakePitchConstants.m_limitSwitch_max);
     private DigitalInput m_limtMin = new DigitalInput(IntakePitchConstants.m_limitSwitch_min);
     private MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(false);
@@ -39,10 +36,8 @@ public class IntakePitchReal implements IntakePitchIO{
         motorOutputConfigs.NeutralMode = IntakePitchConstants.NeutralMode;
         motorOutputConfigs.Inverted = IntakePitchConstants.Invetrted;
         CurrentLimitsConfigs currentLimitsConfigs = talonFXConfiguration.CurrentLimits;
-        currentLimitsConfigs.StatorCurrentLimitEnable = true;
-        currentLimitsConfigs.StatorCurrentLimit = 40;
-        currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-        currentLimitsConfigs.SupplyCurrentLimit = 20;
+        currentLimitsConfigs.StatorCurrentLimitEnable = false;
+        currentLimitsConfigs.SupplyCurrentLimitEnable = false;
         MotionMagicConfigs motionMagicConfigs = talonFXConfiguration.MotionMagic;
         motionMagicConfigs.MotionMagicCruiseVelocity =
                 IntakePitchConstants.MotionMagicConstants.MOTION_MAGIC_VELOCITY;

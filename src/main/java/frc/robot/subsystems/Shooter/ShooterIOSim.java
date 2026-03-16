@@ -11,7 +11,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnFly;
-import org.littletonrobotics.junction.ConsoleSource;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.StatusCode;
@@ -22,6 +21,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -29,16 +29,14 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-import frc.lib.Loggers.TalonFXLogger;
 import frc.robot.Constants;
-import frc.robot.Robotstate;
 import frc.robot.Button.devButoon;
 import frc.robot.subsystems.drive.Drive;
 
 /** Add your docs here. */
 public class ShooterIOSim implements ShooterIO{
     private FlywheelSim flywheelSim;
-    private TalonFXLogger m_master = new TalonFXLogger(ShooterConstants.m_MasterR_ID, ShooterConstants.m_canbus,"Shooter/MasterL");
+    private TalonFX m_master = new TalonFX(ShooterConstants.m_MasterR_ID, ShooterConstants.m_canbus);
     private MotionMagicVelocityTorqueCurrentFOC motionMagicVelocity = new MotionMagicVelocityTorqueCurrentFOC(0);
     public ShooterIOSim(){
         flywheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(ShooterConstants.dcMotor, ShooterConstants.JKgMeterSqured, 

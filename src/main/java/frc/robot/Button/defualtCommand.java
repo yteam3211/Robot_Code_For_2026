@@ -4,11 +4,10 @@
 
 package frc.robot.Button;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
-
-import javax.lang.model.util.ElementScanner14;
 
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
@@ -31,7 +30,7 @@ import frc.robot.subsystems.kicker.Kicker;
 public class defualtCommand {
     public static void loadButton( ) {
         swerveDefualt();
-        IntakePitchDefualt();
+        IntakePitchDefualt();   
         IntakeRollerDefualt();
         ShooterDefualt();
         IndexerDefualt();
@@ -85,7 +84,6 @@ public class defualtCommand {
                         }else{
                             Shooter.getInstance().setVoltage(Volts.of(0.4));
                         }
-
                     break;
                     case shootAtPlace:  
                          Shooter.getInstance().setVelocity(RPM.of(2450));
@@ -115,9 +113,27 @@ public class defualtCommand {
     }
     private static void IntakePitchDefualt( ) {
         Runnable runnable = new Runnable() {
+            int degree = 140;
             @Override
             public void run() {
-                IntakePitch.getInstance().goToAnlge(Robotstate.intakePitchState.getTarget());
+                switch (Robotstate.intakePitchState) {
+                    case Open:
+                        IntakePitch.getInstance().goToAnlge(Degree.of(90 + 50));
+                        break;
+                    case shoot:
+                        IntakePitch.getInstance().goToAnlge(Degree.of(degree));
+                        if (degree -5< IntakePitch.getInstance().getAngle().in(Degree)) {
+                            degree = degree - 10;
+                        }
+                        if (degree < 100) {
+                            degree = 140;
+                        }
+                        break;
+                    case colse:
+                        IntakePitch.getInstance().goToAnlge(Degree.of(90));
+                    default:
+                        break;
+                }
             }
         };
         Command defuatCommand = new SetSubsystemTargetCommand(IntakePitch.getInstance(), runnable);

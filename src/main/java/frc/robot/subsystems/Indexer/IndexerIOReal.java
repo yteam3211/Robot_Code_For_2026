@@ -17,17 +17,17 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
-import frc.lib.Loggers.TalonFXLogger;
 
 /** Add your docs here. */
 public class IndexerIOReal implements IndexerIO{
-    private TalonFXLogger m_indexer;
+    private TalonFX m_indexer;
     private MotionMagicVelocityVoltage motionMagicVelocityVoltage = new MotionMagicVelocityVoltage(0).withSlot(0).withEnableFOC(true);
     public IndexerIOReal(){
-        m_indexer = new TalonFXLogger(IndexerConstants.m_indexerID, IndexerConstants.m_canbus,"Indexer");
+        m_indexer = new TalonFX(IndexerConstants.m_indexerID, IndexerConstants.m_canbus);
             TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
         FeedbackConfigs feedbackConfigsspin = talonFXConfiguration.Feedback;
         feedbackConfigsspin.SensorToMechanismRatio = IndexerConstants.POSITION_CONVERSION_FACTOR;

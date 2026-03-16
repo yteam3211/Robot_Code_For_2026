@@ -4,12 +4,8 @@
 
 package frc.robot.subsystems.kicker;
 
-import static edu.wpi.first.units.Units.Minute;
-import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
-
-import java.time.Instant;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -21,7 +17,6 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -29,11 +24,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.lib.Loggers.TalonFXLogger;
 import frc.robot.Robotstate;
 
 public class Kicker extends SubsystemBase {
-  private TalonFXLogger m_kicker = new TalonFXLogger(kickerConstants.m_kickerID, kickerConstants.m_canbus,"Kicker");
+  private TalonFX m_kicker = new TalonFX(kickerConstants.m_kickerID, kickerConstants.m_canbus);
   private kickerIOinputsAutoLogged inputs = new kickerIOinputsAutoLogged();
   private MotionMagicVelocityVoltage motionMagicVelocityVoltage = new MotionMagicVelocityVoltage(0).withEnableFOC(true);
   private SysIdRoutine sysid = new SysIdRoutine(new SysIdRoutine.Config(null, null, null, (state)-> Logger.recordOutput("sysid/kicker", state.toString())), 

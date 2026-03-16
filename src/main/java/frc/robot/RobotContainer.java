@@ -19,18 +19,18 @@ import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.lib.Loggers.CanBusLogger;
 import frc.robot.Button.AutoCommands;
 import frc.robot.Button.defualtCommand;
 import frc.robot.Button.subsystemOp;
 import frc.robot.Button.swerveOp;
 import frc.robot.commands.BasicCommands.DriveCommands;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Indexer.Indexer;
 import frc.robot.subsystems.IntakePitch.IntakePitch;
 import frc.robot.subsystems.IntakeRoller.IntakeRoller;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.limeLight.limeLightVision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -86,12 +86,10 @@ public class RobotContainer {
 
     private static void getInstnce(){
         Drive.getInsatnce();
-        Vision.getInstance();
         Shooter.getInstance();
         IntakePitch.getInstance();
         Indexer.getInstance();
         IntakeRoller.getInstance();
-        new CanBusLogger("subsystems");
-        new CanBusLogger("swerve");
+        new limeLightVision("limelight-gg","limelight-3");
     }
 }

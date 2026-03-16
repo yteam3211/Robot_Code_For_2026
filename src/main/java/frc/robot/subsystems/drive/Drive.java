@@ -62,9 +62,8 @@ import frc.lib.util.LocalADStarAK;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.vision.Vision.VisionConsumer;
 
-public class Drive extends SubsystemBase implements VisionConsumer {
+public class Drive extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY = TunerConstants.kCANBus.isNetworkFD() ? 200.0 : 100.0;
   public static final double DRIVE_BASE_RADIUS =
@@ -412,14 +411,6 @@ public class Drive extends SubsystemBase implements VisionConsumer {
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawYawGyroRotation, getModulePositions(), pose);
     poseReset.accept(pose);
-  }
-
-  @Override
-  public void accept(
-      Pose2d visionRobotPoseMeters,
-      double timestampSeconds,
-      Matrix<N3, N1> visionMeasurementStdDevs) {
-    addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }
 
   /** Adds a new timestamped vision measurement. */

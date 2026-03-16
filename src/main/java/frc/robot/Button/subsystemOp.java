@@ -27,14 +27,13 @@ public class subsystemOp {
             .alongWith(IntakeRoller.getInstance().setStateCommand(IntakeRollerState.stop)), 
             ()->isActive()));
         /** ירי עם סיבוב ומרחק*/
-        Controller.getSub().R1().whileTrue(DriveCommands.GoToRotationHub().alongWith(Shooter.getInstance().setStateCommand(ShooterState.shoot)));
+        Controller.getSub().R1().whileTrue(DriveCommands.GoToRotationHub().alongWith(Shooter.getInstance().setStateCommand(ShooterState.shoot).alongWith(IntakePitch.getInstance().setStateCommand(IntakePitchState.shoot))));
         Controller.getSub().R1().onFalse(Shooter.getInstance().setStateCommand(ShooterState.stop));
         /** ירי מימקום ספציפי*/
-
-        Controller.getSub().R2().whileTrue(Shooter.getInstance().setStateCommand(ShooterState.shootAtPlace));
+        Controller.getSub().R2().whileTrue(Shooter.getInstance().setStateCommand(ShooterState.shootAtPlace).alongWith(IntakePitch.getInstance().setStateCommand(IntakePitchState.shoot)));
         Controller.getSub().R2().onFalse(Shooter.getInstance().setStateCommand(ShooterState.stop));
         /** ירי עם מרחק בלי סיבוב*/
-        Controller.getSub().circle().whileTrue(Shooter.getInstance().setStateCommand(ShooterState.shoot));
+        Controller.getSub().circle().whileTrue(Shooter.getInstance().setStateCommand(ShooterState.shoot).alongWith(IntakePitch.getInstance().setStateCommand(IntakePitchState.shoot)));
         Controller.getSub().circle().onFalse(Shooter.getInstance().setStateCommand(ShooterState.stop));
         /** */
     }

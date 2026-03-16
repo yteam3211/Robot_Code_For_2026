@@ -26,6 +26,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -39,7 +40,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.lib.Loggers.TalonFXLogger;
 import frc.robot.generated.TunerConstants;
 
 /**
@@ -54,8 +54,8 @@ public class ModuleIOTalonFX implements ModuleIO {
       constants;
 
   // Hardware objects
-  private final TalonFXLogger driveTalon;
-  private final TalonFXLogger turnTalon;
+  private final TalonFX driveTalon;
+  private final TalonFX turnTalon;
   private final CANcoder cancoder;
 
   // Voltage control requests
@@ -116,8 +116,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     else if (constants.equals(TunerConstants.BackRight)) {
         Name = "BackRight";
     }
-    driveTalon = new TalonFXLogger(constants.DriveMotorId, TunerConstants.kCANBus,"swerve/" + Name + "/drive");
-    turnTalon = new TalonFXLogger(constants.SteerMotorId, TunerConstants.kCANBus, "swerve/" + Name + "/turn");
+    driveTalon = new TalonFX(constants.DriveMotorId, TunerConstants.kCANBus);
+    turnTalon = new TalonFX(constants.SteerMotorId, TunerConstants.kCANBus);
     cancoder = new CANcoder(constants.EncoderId, TunerConstants.kCANBus);
 
     // Configure drive motor

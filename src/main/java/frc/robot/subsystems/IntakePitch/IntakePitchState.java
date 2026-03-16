@@ -10,20 +10,8 @@ import edu.wpi.first.units.measure.Angle;
 import frc.lib.util.ITarget;
 
 /** Add your docs here. */
-public enum IntakePitchState implements ITarget<Angle> {
-    colse(IntakePitchConstants.minAngleDegree),
-    Open(IntakePitchConstants.maxAngleDegree),
-    middle(90+45);
-
-    private Angle angle;
-    private IntakePitchState(Angle angle){
-        this.angle = angle;
-    }
-    private IntakePitchState(double degree){
-        this(Degree.of(degree));
-    }
-    @Override
-    public Angle getTarget() {
-        return angle;
-    }
+public enum IntakePitchState{
+    colse(),
+    Open(),
+    shoot();
 }

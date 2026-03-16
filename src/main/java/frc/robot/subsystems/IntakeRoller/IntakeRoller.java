@@ -11,17 +11,17 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.Loggers.TalonFXLogger;
 import frc.robot.Robotstate;
 
 public class IntakeRoller extends SubsystemBase {
-  private TalonFXLogger m_Roller = new TalonFXLogger(IntakeRollerConstants.m_masterID, IntakeRollerConstants.m_canbus,"IntakeRoller");
+  private TalonFX m_Roller = new TalonFX(IntakeRollerConstants.m_masterID, IntakeRollerConstants.m_canbus);
   private IntakeRollerInputsAutoLogged inputs = new IntakeRollerInputsAutoLogged();
   /** Creates a new IntakeRoller. */
   public IntakeRoller() {

@@ -12,24 +12,22 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
-import frc.lib.Loggers.TalonFXLogger;
 
 /** Add your docs here. */
 public class ShooterIOReal implements ShooterIO{
-    private TalonFXLogger m_master = new TalonFXLogger(ShooterConstants.m_MasterR_ID, ShooterConstants.m_canbus, "Shooter/MasterR");
-    private TalonFXLogger m_SlaveR = new TalonFXLogger(ShooterConstants.m_SlaveR_ID, ShooterConstants.m_canbus, "Shooter/SlaveR");
-    private TalonFXLogger m_SlaveL1 = new TalonFXLogger(ShooterConstants.m_SlaveL1_ID, ShooterConstants.m_canbus, "Shooter/SlaveL1");
-    private TalonFXLogger m_SlaveL2 = new TalonFXLogger(ShooterConstants.m_SlaveL2_ID, ShooterConstants.m_canbus, "Shooter/SlaveL2");
+    private TalonFX m_master = new TalonFX(ShooterConstants.m_MasterR_ID, ShooterConstants.m_canbus);
+    private TalonFX m_SlaveR = new TalonFX(ShooterConstants.m_SlaveR_ID, ShooterConstants.m_canbus);
+    private TalonFX m_SlaveL1 = new TalonFX(ShooterConstants.m_SlaveL1_ID, ShooterConstants.m_canbus);
+    private TalonFX m_SlaveL2 = new TalonFX(ShooterConstants.m_SlaveL2_ID, ShooterConstants.m_canbus);
     private DigitalInput m_Beam = new DigitalInput(9);
     private BangBangController bangbang = new BangBangController(20);
     private VelocityVoltage velocityVoltage = new VelocityVoltage(0).withSlot(0).withEnableFOC(true);

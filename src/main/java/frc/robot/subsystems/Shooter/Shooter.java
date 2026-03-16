@@ -14,6 +14,7 @@ import static edu.wpi.first.units.Units.Volts;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -23,6 +24,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.lib.FuelSimulation.ShotCalculator;
+import frc.lib.FuelSimulation.ShotCalculator.LaunchParameters;
+import frc.lib.FuelSimulation.ShotCalculator.ShotInputs;
 import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.FieldConstants;
 import frc.robot.Constants;
@@ -130,9 +134,10 @@ public class Shooter extends SubsystemBase {
     return setVotlageCommand(Volts.of(0));
   }
   public AngularVelocity CalcRPMToShoot(){
-    double Distance = Drive.getInsatnce().getPose().getTranslation().getDistance(AllianceFlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
-    return RPM.of(RpmFromDistance.get(Distance));
-    }
+    // double Distance = Drive.getInsatnce().getPose().getTranslation().getDistance(AllianceFlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
+    // return RPM.of(RpmFromDistance.get(Distance));
+    return RPM.of(Constants.launchParameters().rpm());
+  }
   public Command sysidQuasistatic(Direction direction){
     return sysid.quasistatic(direction);
   }

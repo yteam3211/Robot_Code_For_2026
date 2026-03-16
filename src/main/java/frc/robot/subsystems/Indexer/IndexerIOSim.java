@@ -5,21 +5,21 @@
 package frc.robot.subsystems.Indexer;
 
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-import frc.lib.Loggers.TalonFXLogger;
 
 /** Add your docs here. */
 public class IndexerIOSim implements IndexerIO{
-    private TalonFXLogger m_Indexer;
+    private TalonFX m_Indexer;
     private FlywheelSim flywheelSim;
     public IndexerIOSim(){
         this.flywheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(IndexerConstants.dcMotor, 
         IndexerConstants.JKgMeterSqured, IndexerConstants.gearRatio),
         IndexerConstants.dcMotor);
-        m_Indexer = new TalonFXLogger(IndexerConstants.m_indexerID, IndexerConstants.m_canbus,"Indexer");
+        m_Indexer = new TalonFX(IndexerConstants.m_indexerID, IndexerConstants.m_canbus);
     }
     @Override
     public void updateInputs(IndexerIOInputs inputs) {

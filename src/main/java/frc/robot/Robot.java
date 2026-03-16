@@ -20,18 +20,12 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-import org.littletonrobotics.junction.wpilog.WPILOGWriter.AdvantageScopeOpenBehavior;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.lib.Loggers.MechanisemLogger;
-import frc.lib.Loggers.TalonFXLogger;
 import frc.lib.util.Elastic;
 import frc.lib.util.FieldConstants;
 import frc.robot.Button.devButoon;
@@ -107,7 +101,6 @@ public class Robot extends LoggedRobot {
                     Logger.recordOutput("is Active First", false);
                 }
             }
-        TalonFXLogger.LogTalons();
         Robotstate.logState();
         Logger.recordOutput("DistanceToHub", Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
         Logger.recordOutput("ErorrToHUBDegree", devButoon.findAngle().getDegrees() - Drive.getInsatnce().getRotation().getDegrees());
@@ -194,6 +187,5 @@ public class Robot extends LoggedRobot {
         Logger.recordOutput("FieldSimulation/RobotPosition", Drive.getSwerveDriveSim().getSimulatedDriveTrainPose());
         Logger.recordOutput("FieldSimulation/FuelInInatke", IntakePitch.getIntakeSimulation().getGamePiecesAmount());
         Logger.recordOutput("FieldSimulation/IntakeRunning", IntakePitch.getIntakeSimulation().isRunning());
-        MechanisemLogger.getInstance().update();
     }
 }
