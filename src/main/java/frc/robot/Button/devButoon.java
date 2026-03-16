@@ -16,6 +16,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.lib.util.AllianceFlipUtil;
 import frc.lib.util.FieldConstants;
@@ -34,7 +35,8 @@ public class devButoon {
         sysidAll();
     }
     public static Rotation2d findAngle(){
-        Pose2d shooterPose = Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER);
+        Pose2d shooterPose = Drive.getInsatnce().getPose().transformBy(new Transform2d(Constants.OFF_SET_SHOOTER.getTranslation().toTranslation2d(),
+                Constants.OFF_SET_SHOOTER.getRotation().toRotation2d()));
         double x = AllianceFlipUtil.applyX(FieldConstants.Hub.innerCenterPoint.getX()) - shooterPose.getX();
         double y = AllianceFlipUtil.applyY(FieldConstants.Hub.innerCenterPoint.getY()) - shooterPose.getY();
         return Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg);

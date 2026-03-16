@@ -18,9 +18,8 @@ import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Millimeter;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -54,25 +53,24 @@ public final class Constants {
     public void disableHAL(){
         disableHAL = true;
     }
-    public static final Transform2d OFF_SET_SHOOTER = 
-    new Transform2d(Millimeter.of(-162.22), Millimeter.of(-9.44),new Rotation2d(Degree.of(180)));
+    public static final Transform3d OFF_SET_SHOOTER = 
+    new Transform3d(Millimeter.of(-162.22), Millimeter.of(-9.44), Millimeter.of(546),new Rotation3d(Degree.of(180),Degree.of(0),Degree.of(0)));
     public static final Angle SHOOTER_ANGLE = Degree.of(62);
     public static final Pose3d LIME_LIGHT_3G_POSE = 
         new Pose3d(-0.1808,-0.023073,0.44788,
             new Rotation3d(Degree.of(0),Degree.of(0),Degree.of(90)));
     public final class ShooterLookUpTables {
-
     private static ProjectileSimulator.SimParameters params = new ProjectileSimulator.SimParameters(
         0.215,   // ball mass kg
         0.1501,  // ball diameter m
         0.47,    // drag coeff (smooth sphere)
         0.2,     // Magnus coeff
         1.225,   // air density
-        Millimeter.of(546).in(Meter),    // exit height (m), floor to where the ball leaves the shooter
+        Millimeter.of(546).in(Meter),// exit height (m), floor to where the ball leaves the shooter
         Units.inchesToMeters(3),  // flywheel diameter (m), measure with calipers
         1.83,    // target height (m), from game manual
         0.6,     // slip factor (0=no grip, 1=perfect), tune this on the real robot
-        Constants.SHOOTER_ANGLE.in(Degree),    // launch angle from horizontal, measure from CAD
+        62,    // launch angle from horizontal, measure from CAD
         0.001,   // sim timestep
         1500, 6000, 25, 5.0  // RPM search range, iterations, max sim time
     );
@@ -92,7 +90,7 @@ public final class Constants {
         config.headingSpeedScalar = 1.0;
         config.headingReferenceDistance = 2.0;
         config.maxSOTMSpeed = 0.8;
-        config.minScoringDistance = 2.0;
+        config.minScoringDistance = 0.2;
         config.maxScoringDistance = 10.0;
     }
     private static final ShotCalculator shot_Calc = new ShotCalculator(config);

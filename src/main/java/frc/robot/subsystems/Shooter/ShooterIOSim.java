@@ -4,14 +4,10 @@
 
 package frc.robot.subsystems.Shooter;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Millimeter;
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnFly;
-import org.littletonrobotics.junction.Logger;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
@@ -23,15 +19,10 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-import frc.robot.Constants;
-import frc.robot.Button.devButoon;
-import frc.robot.subsystems.drive.Drive;
 
 /** Add your docs here. */
 public class ShooterIOSim implements ShooterIO{
@@ -48,7 +39,6 @@ public class ShooterIOSim implements ShooterIO{
         motorOutputConfigs.NeutralMode = ShooterConstants.NeutralMode;
         MotionMagicConfigs motionMagicConfigs = talonFXConfiguration.MotionMagic;
         motionMagicConfigs.MotionMagicJerk = ShooterConstants.MotionMagicConstants.MOTION_MAGIC_JERK;
-
 
         Slot0Configs slot0 = talonFXConfiguration.Slot0;
         slot0.kS = ShooterConstants.MotionMagicConstants.Slot0_MOTOR_KS;
@@ -71,10 +61,9 @@ public class ShooterIOSim implements ShooterIO{
     @Override
     public void updateInputs(ShooterIOInputs inputs) {
         updateSim();
-        shootSim();
-        inputs.Voltage = m_master.getMotorVoltage().getValue();
-        inputs.velocity = m_master.getVelocity().getValue();
-        inputs.position = m_master.getPosition().getValue();
+        inputs.Voltage = Volts.of(flywheelSim.getInputVoltage());
+        inputs.velocity = flywheelSim.getAngularVelocity();
+        inputs.position = Degree.of(0);
     }
     private void updateSim(){
         flywheelSim.setInputVoltage(m_master.getSimState().getMotorVoltage());
@@ -106,8 +95,5 @@ public class ShooterIOSim implements ShooterIO{
         slot0.kD = ShooterConstants.MotionMagicConstants.Slot0_MOTOR_KD;
         slot0.GravityType = ShooterConstants.MotionMagicConstants.GravityType;
         m_master.getConfigurator().apply(slot0);
-    }
-    private void shootSim(){
-        
     }
 }

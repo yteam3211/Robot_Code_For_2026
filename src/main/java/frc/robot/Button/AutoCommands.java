@@ -9,6 +9,7 @@ import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.lib.util.FieldConstants;
 import frc.robot.Constants;
@@ -24,8 +25,10 @@ public class AutoCommands {
         kickerIndexerAuto();
     }
     private static boolean isAtOriantetion(){
-        double x = FieldConstants.Hub.innerCenterPoint.getX() - Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getX();
-        double y = FieldConstants.Hub.innerCenterPoint.getY() - Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getY();
+        double x = FieldConstants.Hub.innerCenterPoint.getX() - Drive.getInsatnce().getPose().transformBy(new Transform2d(Constants.OFF_SET_SHOOTER.getTranslation().toTranslation2d(),
+                Constants.OFF_SET_SHOOTER.getRotation().toRotation2d())).getX();
+        double y = FieldConstants.Hub.innerCenterPoint.getY() - Drive.getInsatnce().getPose().transformBy(new Transform2d(Constants.OFF_SET_SHOOTER.getTranslation().toTranslation2d(),
+                Constants.OFF_SET_SHOOTER.getRotation().toRotation2d())).getY();
         Rotation2d RotTarget = Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg);
         boolean isAtOriantetion = Math.abs(RotTarget.getDegrees() - Drive.getInsatnce().getRotation().getDegrees())<4;
         Logger.recordOutput("is At Oriantetion", isAtOriantetion);
@@ -36,7 +39,7 @@ public class AutoCommands {
         isAtSpeed.and(new BooleanSupplier() {
             @Override
             public boolean getAsBoolean() {
-                return Robotstate.shooterState == ShooterState.shoot && isAtOriantetion() || Robotstate.shooterState == ShooterState.shootAtPlace;
+                return (Robotstate.shooterState == ShooterState.shoot && isAtOriantetion()) || Robotstate.shooterState == ShooterState.shootAtPlace;
             }
         }).onTrue(new IndexerKickerCommand());
         // isAtSpeed.onTrue(new IndexerKickerCommand());

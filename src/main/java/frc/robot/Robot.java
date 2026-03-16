@@ -13,6 +13,9 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RPM;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -23,13 +26,16 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.lib.FuelSimulation.FuelPhysicsSim;
 import frc.lib.util.Elastic;
 import frc.lib.util.FieldConstants;
 import frc.robot.Button.devButoon;
-import frc.robot.subsystems.IntakePitch.IntakePitch;
+import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.drive.Drive;
 
 /**
@@ -41,6 +47,7 @@ public class Robot extends LoggedRobot {
     // check for git
     private Command autonomousCommand;
     private RobotContainer robotContainer;
+    private FuelPhysicsSim fuelPhysicsSim;
     public Robot() {
         // Record metadata
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -102,7 +109,7 @@ public class Robot extends LoggedRobot {
                 }
             }
         Robotstate.logState();
-        Logger.recordOutput("DistanceToHub", Drive.getInsatnce().getPose().transformBy(Constants.OFF_SET_SHOOTER).getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
+        Logger.recordOutput("DistanceToHub", Drive.getInsatnce().getPose().transformBy(new Transform2d(Constants.OFF_SET_SHOOTER.getTranslation().toTranslation2d(), Constants.OFF_SET_SHOOTER.getRotation().toRotation2d())).getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
         Logger.recordOutput("ErorrToHUBDegree", devButoon.findAngle().getDegrees() - Drive.getInsatnce().getRotation().getDegrees());
         // Switch thread to high priority to improve loop timing
         // Threads.setCurrentThreadPriority(true, 99);
@@ -123,7 +130,9 @@ public class Robot extends LoggedRobot {
         Robotstate.resetState();
         if (Constants.currentMode != Constants.Mode.SIM) return;
         Drive.getInsatnce().setPose(new Pose2d(2,2, new Rotation2d()));
-        SimulatedArena.getInstance().resetFieldForAuto();
+        fuelPhysicsSim.clearBalls();
+        fuelPhysicsSim.placeFieldBalls();
+        // SimulatedArena.getInstance().resetFieldForAuto();
     }
     /** This function is called periodically when disabled. */
     @Override
@@ -176,16 +185,28 @@ public class Robot extends LoggedRobot {
 
     /** This function is called once when the robot is first started up. */
     @Override
-    public void simulationInit() {}
+    public void simulationInit() {
+        fuelPhysicsSim = new FuelPhysicsSim("Sim/Fuel");
+        fuelPhysicsSim.enable();
+
+        fuelPhysicsSim.configureRobot(
+            Drive.getModuleTranslations()[0].getY(), Drive.getModuleTranslations()[0].getX(), 0.2, 
+            Drive.getInsatnce()::getPose, Drive.getInsatnce()::getChassisSpeeds);
+    }
 
     /** This function is called periodically whilst in simulation. */
     @Override
     public void simulationPeriodic() {
         SimulatedArena.getInstance().simulationPeriodic();
-        Logger.recordOutput("FieldSimulation/Fuel", 
-        SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
         Logger.recordOutput("FieldSimulation/RobotPosition", Drive.getSwerveDriveSim().getSimulatedDriveTrainPose());
-        Logger.recordOutput("FieldSimulation/FuelInInatke", IntakePitch.getIntakeSimulation().getGamePiecesAmount());
-        Logger.recordOutput("FieldSimulation/IntakeRunning", IntakePitch.getIntakeSimulation().isRunning());
+        fuelPhysicsSim.tick();
+        if (Shooter.getInstance().isAtVel()) {
+            Pose2d ShooterPose = Drive.getInsatnce().getPose().transformBy(
+                new Transform2d(Constants.OFF_SET_SHOOTER.getTranslation().toTranslation2d(),
+                Constants.OFF_SET_SHOOTER.getRotation().toRotation2d()));
+            fuelPhysicsSim.launchBall(new Translation3d(ShooterPose.getX(),ShooterPose.getY(),Constants.OFF_SET_SHOOTER.getZ()), 
+            new Translation3d(Shooter.getInstance().ToLinearVelocity(Shooter.getInstance().getVelocity()).in(MetersPerSecond),0,0), 
+            Shooter.getInstance().getVelocity().in(RPM));
+        }
     }
 }

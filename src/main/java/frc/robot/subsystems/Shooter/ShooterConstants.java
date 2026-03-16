@@ -20,7 +20,7 @@ public class ShooterConstants {
     public static final int m_SlaveL1_ID = 42;
     public static final int m_SlaveL2_ID = 43;
     /** the DC motor that is used */
-    public static final DCMotor dcMotor = DCMotor.getKrakenX60Foc(2);
+    public static final DCMotor dcMotor = DCMotor.getKrakenX60Foc(4);
     /** the canbus of the subsystem */
     public static final CANBus m_canbus = new CANBus("subsystems");
     /** what mod dose the motor be in when idel */
@@ -28,7 +28,7 @@ public class ShooterConstants {
     /** gear ratio of the mechanism */
     public static final double gearRatio = 1;
     /** the MOI for the mechanism get is from CAD (אתה לוקח את זה מסרטוט) */
-    public static final double JKgMeterSqured = 0.00002454;
+    public static final double JKgMeterSqured = 0.03611823;
     /** position factor that cahnge from the sensor to the acual degree of the mechanism */
     public static final double POSITION_CONVERSION_FACTOR = gearRatio;
 
@@ -53,5 +53,4 @@ public class ShooterConstants {
         public static final GravityTypeValue GravityType = GravityTypeValue.Arm_Cosine;
         public static final StaticFeedforwardSignValue staticFeedForward = StaticFeedforwardSignValue.UseVelocitySign;
     }
-
 }
