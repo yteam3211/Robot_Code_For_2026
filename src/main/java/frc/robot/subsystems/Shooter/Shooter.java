@@ -13,6 +13,8 @@ import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -31,16 +33,15 @@ public class Shooter extends SubsystemBase {
   private ShooterIO io;
   private ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
   private AngularVelocity requireVelRPM = RPM.of(0);
-  private Timer Fuel_Timer = new Timer();
-  private boolean haveFuel;
   private SysIdRoutine sysid;
   private static Shooter instance;
   private InterpolatingDoubleTreeMap RpmFromDistance = new InterpolatingDoubleTreeMap();
+  private Debouncer debouncer = new Debouncer(0.3,DebounceType.kRising);
   public Shooter(ShooterIO io) {
     this.io = io;
     io.updateInputs(inputs);
     sysid = new SysIdRoutine(
-      new SysIdRoutine.Config(Volts.of(1.2).per(Second), Volts.of(8), Second.of(11), (state)-> Logger.recordOutput("sysid/shooter", state.toString())), 
+      new SysIdRoutine.Config(Volts.of(1).per(Second), Volts.of(12), Second.of(12), (state)-> Logger.recordOutput("sysid/shooter", state.toString())), 
       new SysIdRoutine.Mechanism(
         (volts)-> io.setVoltage(volts), null, this, "Shooter"));
       updateMAP();
@@ -65,6 +66,9 @@ public class Shooter extends SubsystemBase {
         case SIM:
           instance = new Shooter(new ShooterIOSim());   
         break;
+        case MapleSim:
+          instance = new Shooter(new ShooterIOSim());
+        break;
         default:
           instance = new Shooter(new ShooterIO() {});
           break;
@@ -76,7 +80,6 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     io.updateInputs(inputs);
-    TimerCheckFuel();
     Logger.recordOutput("Shooter/require Velocity RPM", requireVelRPM);
     Logger.recordOutput("Shooter/is At Velocity", isAtVel());
     Logger.processInputs("Shooter", inputs);
@@ -93,18 +96,8 @@ public class Shooter extends SubsystemBase {
     }
   }
 
-  public void TimerCheckFuel(){
-    if (inputs.haveFuel) {
-      Fuel_Timer.restart();
-      haveFuel = true;
-    }
-    else if (Fuel_Timer.get() > 0.4) {
-      haveFuel = false;
-    }
-  }
-
   public boolean haveFuel(){
-    return haveFuel;
+    return debouncer.calculate(inputs.haveFuel);
   }
   public Command setVelocityCommand(AngularVelocity velRPM){
     return Commands.runOnce(()-> setVelocity(velRPM));
@@ -116,7 +109,7 @@ public class Shooter extends SubsystemBase {
     return Commands.runOnce(()-> setVoltage(voltage));
   }
   public boolean isAtVel(){ 
-    return Math.abs(inputs.velocity.minus(requireVelRPM).in(RPM)) < 40 && requireVelRPM.in(RotationsPerSecond) != 0;
+    return Math.abs(inputs.velocity.minus(requireVelRPM).in(RPM)) < 50 && requireVelRPM.in(RotationsPerSecond) != 0;
   }
   public Command appliePIDF(){
     return this.runOnce(()->{
@@ -126,10 +119,15 @@ public class Shooter extends SubsystemBase {
   public Command Stop(){
     return setVotlageCommand(Volts.of(0));
   }
-  public AngularVelocity CalcRPMToShoot(){
+  public AngularVelocity CalcRPMToShootAtHub(){
     // double Distance = Drive.getInsatnce().getPose().getTranslation().getDistance(AllianceFlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
     // return RPM.of(RpmFromDistance.get(Distance));
-    return RPM.of(Constants.launchParameters().rpm());
+    return RPM.of(Constants.HubParameters().rpm());
+  }
+  public AngularVelocity CalcRPMToPass(){
+    // double Distance = Drive.getInsatnce().getPose().getTranslation().getDistance(AllianceFlipUtil.apply(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
+    // return RPM.of(RpmFromDistance.get(Distance));
+    return RPM.of(Constants.HubParameters().rpm());
   }
   public Command sysidQuasistatic(Direction direction){
     return sysid.quasistatic(direction);

@@ -14,24 +14,20 @@ public class Robotstate {
     public static IntakePitchState intakePitchState = IntakePitchState.colse;
     public static ShooterState shooterState = ShooterState.stop;
     public static KickerState kickerState = KickerState.stop;
-    public static IndexerState indexerState = IndexerState.Stop;
-    public static IntakeRollerState rollerState = IntakeRollerState.move;
-    private static Alert ShooterAlert = new Alert("shooter active", AlertType.kError);
+    public static IntakeRollerState rollerState = IntakeRollerState.stop;
+    public static IndexerState indexerState = IndexerState.stop;
     public static void resetState() {
-        intakePitchState = IntakePitchState.Open;
+        intakePitchState = IntakePitchState.colse;
         shooterState = ShooterState.stop;
         kickerState = KickerState.stop;
-        indexerState = IndexerState.Stop;
-        rollerState = IntakeRollerState.move;
+        rollerState = IntakeRollerState.stop;
+        indexerState = IndexerState.stop;
     }
     public static void logState(){
-        if (shooterState != ShooterState.stop) {
-            ShooterAlert.set(true);
-        }
         Logger.recordOutput("State/intakePitchState", intakePitchState);
         Logger.recordOutput("State/shooterState", shooterState);
         Logger.recordOutput("State/kickerState", kickerState);
-        Logger.recordOutput("State/IndexerState", kickerState);
         Logger.recordOutput("State/rollerState", rollerState);
+        Logger.recordOutput("State/indexerState", indexerState);
     }
 }

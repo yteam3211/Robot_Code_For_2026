@@ -21,11 +21,13 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -43,12 +45,14 @@ import frc.robot.subsystems.drive.Drive;
 
 public class DriveCommands {
     private static final double DEADBAND = 0.1;
-    private static final double ANGLE_KP = 10.0;
-    private static final double ANGLE_KD = 0.8;
+    private static final double ANGLE_KP = 7.8;
+    private static final double ANGLE_KD = 0;
     private static final double FF_START_DELAY = 2.0; // Secs
     private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
     private static final double WHEEL_RADIUS_MAX_VELOCITY = 8; // Rad/Sec
     private static final double WHEEL_RADIUS_RAMP_RATE = 0.5; // Rad/Sec^2
+    private static final LoggedNetworkNumber K_D = new LoggedNetworkNumber("/Tuning/DriveAngle/KD", ANGLE_KD);
+    private static final LoggedNetworkNumber K_P = new LoggedNetworkNumber("/Tuning/DriveAngle/KP", ANGLE_KP);
 
     private DriveCommands() {}
 
@@ -56,7 +60,7 @@ public class DriveCommands {
         // Apply deadband
         double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
         Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
-
+        
         // Square magnitude for more precise control
         linearMagnitude = linearMagnitude * linearMagnitude;
 
@@ -293,32 +297,32 @@ public class DriveCommands {
         double gyroDelta = 0.0;
     }
         public static Command GoToRotationHub(){
-        PIDController rotController = new PIDController(0.1, 0,0);
-        rotController.enableContinuousInput(-180, 180);
-        rotController.setTolerance(1);
+        PIDController rotController = new PIDController(ANGLE_KP, 0,ANGLE_KD);
+        rotController.enableContinuousInput(-Math.PI, Math.PI);
+        rotController.setTolerance(Units.degreesToRadians(3));
         rotController.close();
         return Drive.getInsatnce().run(()-> {
-                // double x = FieldConstants.Hub.innerCenterPoint.getX() - Drive.getInsatnce().getPose().transformBy(
-                //         new Transform2d(Constants.OFF_SET_SHOOTER.getTranslation().toTranslation2d(),
-                //         Constants.OFF_SET_SHOOTER.getRotation().toRotation2d())).getX();
-                // double y = FieldConstants.Hub.innerCenterPoint.getY() - Drive.getInsatnce().getPose().transformBy(
-                //         new Transform2d(Constants.OFF_SET_SHOOTER.getTranslation().toTranslation2d(),
-                //         Constants.OFF_SET_SHOOTER.getRotation().toRotation2d())).getY();
-                // Rotation2d RotTarget = Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg);
-                Rotation2d RotTarget = Constants.launchParameters().driveAngle().plus(Rotation2d.k180deg);
-                Logger.recordOutput("moveToRot/Rot", RotTarget);
-                Translation2d velocity = getLinearVelocityFromJoysticks(Controller.getSwerve().getLeftY(), Controller.getSwerve().getLeftX());
-                // if (Math.abs(RotTarget.getDegrees() - Drive.getInsatnce().getRotation().getDegrees())>2) {
-                        double rotOut = rotController.calculate(Drive.getInsatnce().getRotation().getDegrees(), RotTarget.getDegrees());
-                        ChassisSpeeds speeds = new ChassisSpeeds(
-                        Math.min(velocity.getX(),1),
-                        Math.min(velocity.getY(),1),
+                double x = FieldConstants.Hub.innerCenterPoint.getX() - Drive.getInsatnce().getPose().transformBy(
+                        new Transform2d(Constants.OFF_SET_SHOOTER.getTranslation().toTranslation2d(),
+                        Constants.OFF_SET_SHOOTER.getRotation().toRotation2d())).getX();
+                double y = FieldConstants.Hub.innerCenterPoint.getY() - Drive.getInsatnce().getPose().transformBy(
+                        new Transform2d(Constants.OFF_SET_SHOOTER.getTranslation().toTranslation2d(),
+                        Constants.OFF_SET_SHOOTER.getRotation().toRotation2d())).getY();
+                Rotation2d RotTarget = Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg);
+                // Translation2d linearVelocity = getLinearVelocityFromJoysticks(-Controller.getSwerve().getLeftY(), -Controller.getSwerve().getLeftX());
+                double rotOut = rotController.calculate(Drive.getInsatnce().getRotation().getRadians(), RotTarget.getRadians());
+                ChassisSpeeds speeds = new ChassisSpeeds(
+                        0,//linearVelocity.getX() * Drive.getInsatnce().getMaxLinearSpeedMetersPerSec()
+                        0,
                         rotOut);
-                        Logger.recordOutput("moveToRot/RotOut", rotOut);
-                        Drive.getInsatnce().runVelocity(speeds);        
-                // } else{
-                //         Drive.getInsatnce().stopWithX();
-                // }
+                boolean isFlipped = DriverStation.getAlliance().isPresent()
+                        && DriverStation.getAlliance().get() == Alliance.Red;
+                Logger.recordOutput("moveToRot/RotOut", rotOut);
+                Drive.getInsatnce().runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(
+                        speeds,
+                        isFlipped
+                                ? Drive.getInsatnce().getRotation().plus(new Rotation2d(Math.PI))
+                                : Drive.getInsatnce().getRotation()));
                 })
         .withName("GoToRotationHub");
     }

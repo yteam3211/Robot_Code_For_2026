@@ -21,6 +21,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.ForwardLimitSourceValue;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -32,9 +33,7 @@ public class IntakePitchSim implements IntakePitchIO{
     private TalonFX m_intakePitch = new TalonFX(IntakePitchConstants.m_MotorId, new CANBus(IntakePitchConstants.m_CanBusName));
     private MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(false);
     private SingleJointedArmSim ArmSim;
-    private IntakeSimulation intakeSimulation;
-    public IntakePitchSim(IntakeSimulation intakeSimulation){
-        this.intakeSimulation = intakeSimulation;
+    public IntakePitchSim(){
         ArmSim = new SingleJointedArmSim(IntakePitchConstants.dcMotor, IntakePitchConstants.gearRatio, 
         IntakePitchConstants.INERTIA.in(KilogramSquareMeters), IntakePitchConstants.lengthMeters, 
         IntakePitchConstants.minAngleDegree.in(Radian), 
@@ -51,15 +50,15 @@ public class IntakePitchSim implements IntakePitchIO{
         motionMagicConfigs.MotionMagicAcceleration =
                 IntakePitchConstants.MotionMagicConstants.MOTION_MAGIC_ACCELERATION;
         motionMagicConfigs.MotionMagicJerk = IntakePitchConstants.MotionMagicConstants.MOTION_MAGIC_JERK;
-
+        talonFXConfiguration.HardwareLimitSwitch.ForwardLimitSource = ForwardLimitSourceValue.LimitSwitchPin;
         Slot0Configs slot0 = talonFXConfiguration.Slot0;
-        slot0.kS = IntakePitchConstants.MotionMagicConstants.MOTOR_KS.get();
-        slot0.kG = IntakePitchConstants.MotionMagicConstants.MOTOR_KG.get();
-        slot0.kV = IntakePitchConstants.MotionMagicConstants.MOTOR_KV.get();
-        slot0.kA = IntakePitchConstants.MotionMagicConstants.MOTOR_KA.get();
-        slot0.kP = IntakePitchConstants.MotionMagicConstants.MOTOR_KP.get();
-        slot0.kI = IntakePitchConstants.MotionMagicConstants.MOTOR_KI.get();
-        slot0.kD = IntakePitchConstants.MotionMagicConstants.MOTOR_KD.get();
+        slot0.kS = IntakePitchConstants.MotionMagicConstants.MOTOR_KS;
+        slot0.kG = IntakePitchConstants.MotionMagicConstants.MOTOR_KG;
+        slot0.kV = IntakePitchConstants.MotionMagicConstants.MOTOR_KV;
+        slot0.kA = IntakePitchConstants.MotionMagicConstants.MOTOR_KA;
+        slot0.kP = IntakePitchConstants.MotionMagicConstants.MOTOR_KP;
+        slot0.kI = IntakePitchConstants.MotionMagicConstants.MOTOR_KI;
+        slot0.kD = IntakePitchConstants.MotionMagicConstants.MOTOR_KD;
         slot0.GravityType = IntakePitchConstants.MotionMagicConstants.GravityType;
 
         StatusCode status = StatusCode.StatusCodeNotInitialized;
@@ -87,12 +86,6 @@ public class IntakePitchSim implements IntakePitchIO{
         ArmSim.setInputVoltage(m_intakePitch.getSimState().getMotorVoltage());
         ArmSim.update(0.02);
         m_intakePitch.getSimState().setRawRotorPosition(Units.radiansToRotations(ArmSim.getAngleRads()) * IntakePitchConstants.POSITION_CONVERSION_FACTOR);
-        if (m_intakePitch.getPosition().getValue().gte(IntakePitchConstants.maxAngleDegree.minus(Degree.of(10)))) {
-            intakeSimulation.startIntake();
-        }
-        else{
-            intakeSimulation.stopIntake();
-        }
     }
     @Override
     public void setPos(Angle pos) {

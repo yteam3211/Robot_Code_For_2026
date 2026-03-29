@@ -9,6 +9,8 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,6 +21,7 @@ import frc.robot.Robotstate;
 import frc.robot.commands.BasicCommands.DriveCommands;
 import frc.robot.subsystems.Indexer.Indexer;
 import frc.robot.subsystems.IntakePitch.IntakePitch;
+import frc.robot.subsystems.IntakePitch.IntakePitchConstants;
 import frc.robot.subsystems.IntakeRoller.IntakeRoller;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.drive.Drive;
@@ -28,23 +31,32 @@ import frc.robot.subsystems.kicker.Kicker;
 public class defualtCommand {
     public static void loadButton( ) {
         swerveDefualt();
-        IntakePitchDefualt();   
+        IntakePitchDefualt();
         IntakeRollerDefualt();
         ShooterDefualt();
-        IndexerDefualt();
         KickerDefualt();
+        IndexerDefualt();
         }
-    private static void IntakeRollerDefualt( ) {
-        Runnable RollerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                IntakeRoller.getInstance().SetVoltage(Robotstate.rollerState.getTarget());
-            }
-            
-        };
-        Command RollerCommand = new SetSubsystemTargetCommand(IntakeRoller.getInstance(), RollerRunnable);
-        IntakeRoller.getInstance().setDefaultCommand(RollerCommand);
-    }
+        private static void IndexerDefualt() {
+            Runnable indexerRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    Indexer.getInstance().setVelocity(Robotstate.indexerState.getTarget());
+                }
+            };
+            Command indexerCommand = new SetSubsystemTargetCommand(Indexer.getInstance(), indexerRunnable);
+            Indexer.getInstance().setDefaultCommand(indexerCommand);
+        }
+        private static void IntakeRollerDefualt( ) {
+            Runnable RollerRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    IntakeRoller.getInstance().SetVoltage(Robotstate.rollerState.getTarget());//.times(Math.hypot(Drive.getInsatnce().getChassisSpeeds().vxMetersPerSecond, Drive.getInsatnce().getChassisSpeeds().vyMetersPerSecond)/Drive.getInsatnce().getMaxLinearSpeedMetersPerSec())
+                }
+            };
+            Command RollerCommand = new SetSubsystemTargetCommand(IntakeRoller.getInstance(), RollerRunnable);
+            IntakeRoller.getInstance().setDefaultCommand(RollerCommand);
+        }
         private static void KickerDefualt( ) {
             Runnable kickerRunnable = new Runnable() {
             @Override
@@ -56,24 +68,14 @@ public class defualtCommand {
         Command kickerCommand = new SetSubsystemTargetCommand(Kicker.getInstance(), kickerRunnable);
         Kicker.getInstance().setDefaultCommand(kickerCommand);
     }
-    private static void IndexerDefualt( ) {
-        Runnable indexerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                Indexer.getInstance().setVelocity(Robotstate.indexerState.getTarget());
-            }
-            
-        };
-        Command indexerCommand = new SetSubsystemTargetCommand(Indexer.getInstance(), indexerRunnable);
-        Indexer.getInstance().setDefaultCommand(indexerCommand);
-    }
     private static void ShooterDefualt( ) {
+        LoggedNetworkNumber RPm = new LoggedNetworkNumber("/Tuning/RPM", 0);
         Runnable shooterRunnable = new Runnable() {
             @Override
             public void run() {
                 switch (Robotstate.shooterState) {
                     case shoot:
-                        Shooter.getInstance().setVelocity(Shooter.getInstance().CalcRPMToShoot());
+                        Shooter.getInstance().setVelocity(RPM.of(RPm.get()));
                     break;
                     case stop:
                         if (Shooter.getInstance().getVelocity().in(RPM)< 500) {
@@ -84,6 +86,9 @@ public class defualtCommand {
                     break;
                     case shootAtPlace:  
                          Shooter.getInstance().setVelocity(RPM.of(2450));
+                    break;
+                    case pass:
+                        Shooter.getInstance().setVelocity(Shooter.getInstance().CalcRPMToShootAtHub());
                     break;
                 
                     default:
@@ -115,19 +120,19 @@ public class defualtCommand {
             public void run() {
                 switch (Robotstate.intakePitchState) {
                     case Open:
-                        IntakePitch.getInstance().goToAnlge(Degree.of(90 + 50));
+                        IntakePitch.getInstance().goToAnlge(IntakePitchConstants.maxAngleDegree);
                         break;
                     case shoot:
                         IntakePitch.getInstance().goToAnlge(Degree.of(degree));
                         if (degree -5< IntakePitch.getInstance().getAngle().in(Degree)) {
                             degree = degree - 10;
                         }
-                        if (degree < 100) {
+                        if (degree < 85) {
                             degree = 140;
                         }
                         break;
                     case colse:
-                        IntakePitch.getInstance().goToAnlge(Degree.of(90));
+                        IntakePitch.getInstance().goToAnlge(IntakePitchConstants.minAngleDegree);
                     default:
                         break;
                 }

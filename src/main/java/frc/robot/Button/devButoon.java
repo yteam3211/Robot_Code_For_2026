@@ -4,28 +4,22 @@
 
 package frc.robot.Button;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Millimeter;
 import static edu.wpi.first.units.Units.RPM;
 
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnFly;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import frc.lib.util.AllianceFlipUtil;
-import frc.lib.util.FieldConstants;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import frc.lib.FuelSimulation.ShotCalculator.LaunchParameters;
 import frc.robot.Constants;
 import frc.robot.Controller;
-import frc.robot.commands.BasicCommands.DriveCommands;
+import frc.robot.commands.BasicCommands.ShootCommands;
+import frc.robot.subsystems.Indexer.Indexer;
+import frc.robot.subsystems.Indexer.IndexerState;
+import frc.robot.subsystems.IntakePitch.IntakePitch;
+import frc.robot.subsystems.IntakePitch.IntakePitchState;
 import frc.robot.subsystems.Shooter.Shooter;
-import frc.robot.subsystems.Shooter.ShooterState;
-import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.kicker.Kicker;
+import frc.robot.subsystems.kicker.KickerState;
 
 /** Add your docs here. */
 public class devButoon {
@@ -34,35 +28,44 @@ public class devButoon {
         // shooterButton(controller);
         sysidAll();
     }
-    public static Rotation2d findAngle(){
-        Pose2d shooterPose = Drive.getInsatnce().getPose().transformBy(new Transform2d(Constants.OFF_SET_SHOOTER.getTranslation().toTranslation2d(),
-                Constants.OFF_SET_SHOOTER.getRotation().toRotation2d()));
-        double x = AllianceFlipUtil.applyX(FieldConstants.Hub.innerCenterPoint.getX()) - shooterPose.getX();
-        double y = AllianceFlipUtil.applyY(FieldConstants.Hub.innerCenterPoint.getY()) - shooterPose.getY();
-        return Rotation2d.fromRadians(Math.atan2(y,x)).plus(Rotation2d.k180deg);
-    }
-
     private static void sysidAll() {
-        Controller.getSwerve().triangle().whileTrue(Shooter.getInstance().setStateCommand(ShooterState.shootAtPlace));
-        Controller.getSwerve().triangle().onFalse(Shooter.getInstance().setStateCommand(ShooterState.stop));
-        Controller.getSwerve().square().whileTrue(DriveCommands.GoToRotationHub().alongWith(Shooter.getInstance().setStateCommand(ShooterState.shoot)));
-        Controller.getSwerve().square().onFalse(Shooter.getInstance().setStateCommand(ShooterState.stop));
+        Controller.getSub().R2().whileTrue(ShootCommands.ShotAndMoveCommand());
+        Controller.getSub().R2().onFalse(ShootCommands.StopShootCommand());
+        Controller.getSwerve
+        ().L2().onTrue(
+            new ConditionalCommand(IntakePitch.getInstance().setStateCommand(IntakePitchState.Open), 
+            IntakePitch.getInstance().setStateCommand(IntakePitchState.colse), 
+            ()->isActive()));
+        Controller.getSub().triangle().whileTrue(Indexer.getInstance().setStateCommand(IndexerState.Back).alongWith(Kicker.getInstance().setStateCommand(KickerState.moevFuelBack)));
+        Controller.getSub().triangle().onFalse(Indexer.getInstance().setStateCommand(IndexerState.stop).alongWith(Kicker.getInstance().setStateCommand(KickerState.stop)));
+        // Controller.getSwerve().triangle().onTrue(Shooter.getInstance().sysidDynamic(Direction.kForward));
+        // Controller.getSwerve().square().onTrue(Shooter.getInstance().sysidDynamic(Direction.kReverse));
+        // Controller.getSwerve().cross().onTrue(Shooter.getInstance().sysidQuasistatic(Direction.kForward));
+        // Controller.getSwerve().circle().onTrue(Shooter.getInstance().sysidQuasistatic(Direction.kReverse));
+        // Controller.getSwerve().triangle().onTrue(Shooter.getInstance().setVelocityCommand(RPM.of(3000)));
+        // Controller.getSwerve().square().onTrue(Shooter.getInstance().setVelocityCommand(RPM.of(2000)));
+        // Controller.getSwerve().cross().onTrue(Shooter.getInstance().setVelocityCommand(RPM.of(0)));
     }
-    static LoggedNetworkNumber AngVel = new LoggedNetworkNumber("/Tuning/RPM",0);
-    private static void spwanFuel() {
-        RebuiltFuelOnFly rebuiltFuelOnFly = (RebuiltFuelOnFly)new RebuiltFuelOnFly(
-                    Drive.getSwerveDriveSim().getSimulatedDriveTrainPose().getTranslation(),
-                    new Translation2d(Millimeter.of(-162.22), Millimeter.of(-11.44)), // shooter offet from center
-                    Drive.getSwerveDriveSim().getDriveTrainSimulatedChassisSpeedsFieldRelative(),
-                    Drive.getSwerveDriveSim().getSimulatedDriveTrainPose().getRotation().plus(Rotation2d.k180deg),
-                    Millimeter.of(546.3), // initial height of the ball, in meters
-                    Shooter.getInstance().ToLinearVelocity(RPM.of(AngVel.get())), // initial velocity, in m/s
-                    Degrees.of(62)) // shooter angle
-                    .withProjectileTrajectoryDisplayCallBack(
-                        (poses) -> Logger.recordOutput("successfulShotsTrajectory", poses.toArray(Pose3d[]::new)),
-                        (poses) -> Logger.recordOutput("missedShotsTrajectory", poses.toArray(Pose3d[]::new))); 
-            rebuiltFuelOnFly.setHitTargetCallBack(() -> System.out.println("FUEL hits HUB!"));
-            SimulatedArena.getInstance()
-                .addGamePieceProjectile(rebuiltFuelOnFly);
+    private static boolean isActive = true;
+    private static boolean isActive(){
+        isActive = !isActive;
+        return isActive;
+    }
+    private static void shootBall(){
+        LaunchParameters shot = Constants.HubParameters();
+        double exitSpeed = Constants.ShooterLookUpTables.Hubsim.exitVelocity(shot.rpm());
+        double launchRad = Math.toRadians(62);
+
+        double vHorizontal = exitSpeed * Math.cos(launchRad);
+        double vVertical = exitSpeed * Math.sin(launchRad);
+
+        Rotation2d azimuth = shot.driveAngle(); // or robot yaw if you're not doing SOTM
+        double vx = vHorizontal * azimuth.getCos();
+        double vy = vHorizontal * azimuth.getSin();
+
+        Translation3d launchPos = Constants.OFF_SET_SHOOTER.getTranslation();
+        Translation3d launchVel = new Translation3d(vx, vy, vVertical);
+
+        Constants.ShooterLookUpTables.fuelPhysicsSim.launchBall(launchPos, launchVel, Shooter.getInstance().getVelocity().in(RPM));
     }
 }

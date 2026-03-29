@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Button.AutoCommands;
 import frc.robot.Button.defualtCommand;
+import frc.robot.Button.devButoon;
 import frc.robot.Button.subsystemOp;
 import frc.robot.Button.swerveOp;
 import frc.robot.commands.BasicCommands.DriveCommands;
@@ -30,7 +31,7 @@ import frc.robot.subsystems.IntakePitch.IntakePitch;
 import frc.robot.subsystems.IntakeRoller.IntakeRoller;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.limeLight.limeLightVision;
+import frc.robot.subsystems.limeLight.limeLightTemp;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -64,6 +65,7 @@ public class RobotContainer {
                 "Drive SysId (Dynamic Forward)", Drive.getInsatnce().sysIdDynamic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", Drive.getInsatnce().sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        autoChooser.addDefaultOption("Auto1", CommandForAuto.Auto1());
 
         configureButtonBindings();
     }
@@ -88,8 +90,23 @@ public class RobotContainer {
         Drive.getInsatnce();
         Shooter.getInstance();
         IntakePitch.getInstance();
-        Indexer.getInstance();
         IntakeRoller.getInstance();
-        new limeLightVision("limelight-gg","limelight-3");
+        Indexer.getInstance();
+        new limeLightTemp("limelight-gg");
+    }
+    private static double FuelAmount = 0;
+    public static boolean haveFuel(){
+        return FuelAmount != 0;
+    }
+    public static boolean getFuel(){
+        if (haveFuel()) {
+            FuelAmount--;
+            return true;
+        }
+        return false;
+        
+    }
+    public static void addFuelToSim(){
+        FuelAmount++;
     }
 }

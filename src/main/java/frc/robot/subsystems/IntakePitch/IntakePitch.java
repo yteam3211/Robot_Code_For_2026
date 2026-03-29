@@ -46,7 +46,10 @@ public class IntakePitch extends SubsystemBase {
           instance = new IntakePitch(new IntakePitchReal());
           break;
         case SIM:
-          instance = new IntakePitch(new IntakePitchSim(getIntakeSimulation()));
+          instance = new IntakePitch(new IntakePitchSim());
+          break;
+        case MapleSim:
+          instance = new IntakePitch(new IntakePitchMapleSim(getIntakeSimulation()));
           break;
         
         default:
@@ -77,6 +80,9 @@ public class IntakePitch extends SubsystemBase {
     Logger.processInputs("IntakePitch", inputs);
     if (inputs.FullyOpen) {
       io.setPos(IntakePitchConstants.maxAngleDegree);
+    }
+    if (inputs.FullyClosed) {
+      io.setPos(IntakePitchConstants.minAngleDegree);
     }
   }
   public void goToAnlge(Angle angle){

@@ -92,7 +92,6 @@ public class Drive extends SubsystemBase {
               TunerConstants.FrontLeft.SlipCurrent,
               1),
           getModuleTranslations());
-
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
@@ -201,15 +200,24 @@ public class Drive extends SubsystemBase {
                 new ModuleIOTalonFX(TunerConstants.BackRight),
                 (psoe)->{});
         break;
-
       case SIM:
         instance =
             new Drive(
-                new GyroIOSim(getSwerveDriveSim().getGyroSimulation()),
-                new ModuleIOSim(TunerConstants.FrontLeft,getSwerveDriveSim().getModules()[0]),
-                new ModuleIOSim(TunerConstants.FrontRight,getSwerveDriveSim().getModules()[1]),
-                new ModuleIOSim(TunerConstants.BackLeft,getSwerveDriveSim().getModules()[2]),
-                new ModuleIOSim(TunerConstants.BackRight,getSwerveDriveSim().getModules()[3]),
+                new GyroIO() {},
+                new ModuleIOSim(TunerConstants.FrontLeft),
+                new ModuleIOSim(TunerConstants.FrontRight),
+                new ModuleIOSim(TunerConstants.BackLeft),
+                new ModuleIOSim(TunerConstants.BackRight),
+                (psoe)->{});
+        break;
+      case MapleSim:
+        instance =
+            new Drive(
+                new GyroIOMapleSim(getSwerveDriveSim().getGyroSimulation()),
+                new ModuleIOMapleSim(TunerConstants.FrontLeft,getSwerveDriveSim().getModules()[0]),
+                new ModuleIOMapleSim(TunerConstants.FrontRight,getSwerveDriveSim().getModules()[1]),
+                new ModuleIOMapleSim(TunerConstants.BackLeft,getSwerveDriveSim().getModules()[2]),
+                new ModuleIOMapleSim(TunerConstants.BackRight,getSwerveDriveSim().getModules()[3]),
                 getSwerveDriveSim()::setSimulationWorldPose);
         break;
 
@@ -359,6 +367,7 @@ public class Drive extends SubsystemBase {
     for (int i = 0; i < 4; i++) {
       states[i] = modules[i].getState();
     }
+    Logger.recordOutput("SwerveStates/Measured", states);
     return states;
   }
 
@@ -431,6 +440,7 @@ public class Drive extends SubsystemBase {
   public double getMaxAngularSpeedRadPerSec() {
     return getMaxLinearSpeedMetersPerSec() / DRIVE_BASE_RADIUS;
   }
+
 
   /** Returns an array of module translations. */
   public static Translation2d[] getModuleTranslations() {

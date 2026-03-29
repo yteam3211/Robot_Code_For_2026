@@ -5,7 +5,6 @@
 package frc.robot.subsystems.kicker;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -17,9 +16,12 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,9 +31,10 @@ import frc.robot.Robotstate;
 public class Kicker extends SubsystemBase {
   private TalonFX m_kicker = new TalonFX(kickerConstants.m_kickerID, kickerConstants.m_canbus);
   private kickerIOinputsAutoLogged inputs = new kickerIOinputsAutoLogged();
+  
   private MotionMagicVelocityVoltage motionMagicVelocityVoltage = new MotionMagicVelocityVoltage(0).withEnableFOC(true);
   private SysIdRoutine sysid = new SysIdRoutine(new SysIdRoutine.Config(null, null, null, (state)-> Logger.recordOutput("sysid/kicker", state.toString())), 
-  new SysIdRoutine.Mechanism((voltage)-> setVoltage(voltage.in(Volts)), null, this, "kicker"));
+  new SysIdRoutine.Mechanism((voltage)-> setVoltage(voltage), null, this, "kicker"));
   /** Creates a new kicker. */
   public Kicker() {
     TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
@@ -42,8 +45,9 @@ public class Kicker extends SubsystemBase {
         motorOutputConfigs.Inverted = kickerConstants.Inverted;
         CurrentLimitsConfigs currentLimitsConfigs = talonFXConfiguration.CurrentLimits;
         currentLimitsConfigs.StatorCurrentLimitEnable = false;
+        currentLimitsConfigs.StatorCurrentLimit = 120;
         currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-        currentLimitsConfigs.SupplyCurrentLimit = 30;
+        currentLimitsConfigs.SupplyCurrentLimit = 40;
         MotionMagicConfigs motionMagicConfigs = talonFXConfiguration.MotionMagic;
         motionMagicConfigs.MotionMagicCruiseVelocity =
                 kickerConstants.MotionMagicConstants.MOTION_MAGIC_VELOCITY;
@@ -92,10 +96,10 @@ public class Kicker extends SubsystemBase {
     inputs.acceleration = m_kicker.getAcceleration().getValue();
     inputs.postion = m_kicker.getPosition().getValue();
   }
-  public void setVoltage(double voltage){
-    m_kicker.setVoltage(voltage);
+  public void setVoltage(Voltage voltage){
+    m_kicker.setControl(new VoltageOut(voltage).withEnableFOC(true));
   }
-  public Command setVoltageCommand(double volatge){
+  public Command setVoltageCommand(Voltage volatge){
     return Commands.runOnce(()-> setVoltage(volatge));
   }
   public Command setVelocityCommand(AngularVelocity velocity){
@@ -122,5 +126,11 @@ public class Kicker extends SubsystemBase {
   }
   public Command setStateCommand(KickerState state){
     return Commands.runOnce(()->setState(state));
+  }
+  public void setPos(double pos){
+    m_kicker.setPosition(pos);
+  }
+  public Angle getPos(){
+    return m_kicker.getPosition().getValue();
   }
 }

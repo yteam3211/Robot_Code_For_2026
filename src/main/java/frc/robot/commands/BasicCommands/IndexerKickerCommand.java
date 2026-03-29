@@ -25,8 +25,8 @@ public class IndexerKickerCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    Indexer.getInstance().setState(IndexerState.Index);
     Kicker.getInstance().setState(KickerState.moveFuelToShooter);
+    Indexer.getInstance().setState(IndexerState.Index);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -36,8 +36,8 @@ public class IndexerKickerCommand extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    Indexer.getInstance().setState(IndexerState.Stop);
     Kicker.getInstance().setState(KickerState.stop);
+    Indexer.getInstance().setState(IndexerState.stop);
   }
 
   // Returns true when the command should end.

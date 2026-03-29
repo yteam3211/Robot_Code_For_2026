@@ -28,7 +28,7 @@ public class IntakePitchConstants {
     /** the id of the beam break at the front*/
     public static final int m_limitSwitch_max = 1;
     /** the id of the beam break at the back*/
-    public static final int m_limitSwitch_min = 0   ;
+    public static final int m_limitSwitch_min = 0;
     /** the can bus name defualt is rio */
     public static final String m_CanBusName = "subsystems";
     /** what mod dose the motor be in when idel */
@@ -39,7 +39,7 @@ public class IntakePitchConstants {
     public static final double gearRatio = 81.0;
     /** Min and Max angle in radians */
     public static final Angle minAngleDegree = Degree.of(90);
-    public static final Angle maxAngleDegree = Degree.of(90 + 50);
+    public static final Angle maxAngleDegree = Degree.of(140);
     /** the start position of the motor (arm should start at 90 if are facing up) */
     public static final Angle startingAngle = Degree.of(90);
     /** the length of the mechanism */
@@ -54,13 +54,13 @@ public class IntakePitchConstants {
         public static final double MOTION_MAGIC_ACCELERATION = 0.3;
         public static final double MOTION_MAGIC_JERK = 0;
 
-        public static final LoggedNetworkNumber MOTOR_KS = new LoggedNetworkNumber("/Tuning/IntakePitch/S",0.40619);//0.05075
-        public static final LoggedNetworkNumber MOTOR_KA = new LoggedNetworkNumber("/Tuning/IntakePitch/A",0);//0.028344
-        public static final LoggedNetworkNumber MOTOR_KV = new LoggedNetworkNumber("/Tuning/IntakePitch/V",9.72);//0.972
-        public static final LoggedNetworkNumber MOTOR_KG = new LoggedNetworkNumber("/Tuning/IntakePitch/G",0);//0.41111
-        public static final LoggedNetworkNumber MOTOR_KP = new LoggedNetworkNumber("/Tuning/IntakePitch/P",3.596);//133.77
-        public static final LoggedNetworkNumber MOTOR_KI = new LoggedNetworkNumber("/Tuning/IntakePitch/I",0);
-        public static final LoggedNetworkNumber MOTOR_KD = new LoggedNetworkNumber("/Tuning/IntakePitch/D",0);//4.0737
+        public static final double MOTOR_KS = 0.24449;//0.05075
+        public static final double MOTOR_KA = 0;//0.028344
+        public static final double MOTOR_KV = 9.72;//0.972
+        public static final double MOTOR_KG = 0.4;//0.41111
+        public static final double MOTOR_KP = 133;//3.596
+        public static final double MOTOR_KI = 0;
+        public static final double MOTOR_KD = 0;//4.0737
         public static final GravityTypeValue GravityType = GravityTypeValue.Arm_Cosine;
     }
 }

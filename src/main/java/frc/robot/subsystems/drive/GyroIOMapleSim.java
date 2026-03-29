@@ -12,10 +12,10 @@ import edu.wpi.first.math.util.Units;
 import frc.lib.util.PhoenixUtil;
 
 /** Add your docs here. */
-public class GyroIOSim implements GyroIO{
+public class GyroIOMapleSim implements GyroIO{
     private final GyroSimulation gyroSimulation;
 
-    public GyroIOSim(GyroSimulation gyroSimulation) {
+    public GyroIOMapleSim(GyroSimulation gyroSimulation) {
         this.gyroSimulation = gyroSimulation;
     }
 

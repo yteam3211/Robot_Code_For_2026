@@ -21,8 +21,8 @@ public class swerveOp {
     public static void loadButton(){
         Controller.getSwerve().R2().whileTrue(new DeferredCommand(()->DriveToPointFactory.driveToPosesimple(Drive.getInsatnce().getPose().transformBy(new Transform2d(1 ,1,Rotation2d.fromDegrees(90)))),Set.of(Drive.getInsatnce())));
         Controller.getSwerve().L2().whileTrue(new DeferredCommand(()->DriveToPointFactory.driveToPosesimple(Drive.getInsatnce().getPose().transformBy(new Transform2d(-1,1,Rotation2d.fromDegrees(-90)))),Set.of(Drive.getInsatnce())));
-        // Controller.getSwerve().R1().whileTrue(DriveCommands.joystickDriveAtAngle(Drive.getInsatnce(), ()-> -Controller.getSwerve().getLeftY(), 
-        //     ()-> -Controller.getSwerve().getLeftX(),()-> Rotation2d.fromDegrees(45)));
+        Controller.getSwerve().R1().whileTrue(DriveCommands.joystickDriveAtAngle(Drive.getInsatnce(), ()-> -Controller.getSwerve().getLeftY(), 
+            ()-> -Controller.getSwerve().getLeftX(),()-> Rotation2d.fromDegrees(45)));
         Controller.getSwerve().circle().whileTrue(
             DriveToPointFactory.driveToPosesimple(AllianceFlipUtil.apply(new Pose2d(10.38,0.422,Rotation2d.fromDegrees(180))))
                 .andThen(DriveToPointFactory.driveToPose( AllianceFlipUtil.apply(new Pose2d(6.2,0.422,Rotation2d.fromDegrees(180))))));

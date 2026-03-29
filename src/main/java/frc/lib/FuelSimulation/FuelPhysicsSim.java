@@ -20,12 +20,6 @@
 
 package frc.lib.FuelSimulation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -35,6 +29,11 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 /**
  * Full-field ball physics simulation for FRC 2026 REBUILT. Handles drag, Magnus lift, friction,

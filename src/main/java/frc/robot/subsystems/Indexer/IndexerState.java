@@ -4,22 +4,24 @@
 
 package frc.robot.subsystems.Indexer;
 
-import static edu.wpi.first.units.Units.Minute;
-import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.RPM;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.lib.util.ITarget;
 
 /** Add your docs here. */
 public enum IndexerState implements ITarget<AngularVelocity>{
-    Index(300),
-    Stop(0);
-    private AngularVelocity velocity;
+    Index(600),
+    stop(0),
+    Back(-800);
+    private AngularVelocity Velocity;
     private IndexerState(double velocity){
-        this.velocity = Rotation.per(Minute).of(velocity);
+        Velocity = RPM.of(velocity);
     }
+
     @Override
     public AngularVelocity getTarget() {
-        return velocity;
+        return Velocity;
     }
+
 }

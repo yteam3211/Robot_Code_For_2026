@@ -24,12 +24,15 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import frc.robot.Constants;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.IntakePitch.IntakePitch;
 
 /** Add your docs here. */
 public class ShooterIOSim implements ShooterIO{
     private FlywheelSim flywheelSim;
     private TalonFX m_master = new TalonFX(ShooterConstants.m_MasterR_ID, ShooterConstants.m_canbus);
-    private VelocityVoltage VelocityVoltage = new VelocityVoltage(0).withSlot(0).withEnableFOC(true);
+    private MotionMagicVelocityVoltage VelocityVoltage = new MotionMagicVelocityVoltage(0).withSlot(0).withEnableFOC(false);
     public ShooterIOSim(){
         flywheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(ShooterConstants.dcMotor, ShooterConstants.JKgMeterSqured, 
         ShooterConstants.gearRatio), ShooterConstants.dcMotor);
@@ -65,6 +68,9 @@ public class ShooterIOSim implements ShooterIO{
         inputs.Voltage = Volts.of(flywheelSim.getInputVoltage());
         inputs.velocity = flywheelSim.getAngularVelocity();
         inputs.position = Degree.of(0);
+        inputs.haveFuel = Constants.currentMode == Constants.Mode.MapleSim 
+            ? IntakePitch.getIntakeSimulation().getGamePiecesAmount() != 0
+                : RobotContainer.haveFuel();
     }
     private void updateSim(){
         flywheelSim.setInputVoltage(m_master.getSimState().getMotorVoltage());
@@ -81,7 +87,7 @@ public class ShooterIOSim implements ShooterIO{
     }
     @Override
     public void setVoltage(Voltage voltage){
-        m_master.setControl(new VoltageOut(voltage).withEnableFOC(true));
+        m_master.setControl(new VoltageOut(voltage).withEnableFOC(false));
     }
     
         @Override

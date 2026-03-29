@@ -4,26 +4,24 @@
 
 package frc.robot.subsystems.Indexer;
 
-import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import org.dyn4j.world.listener.BoundsListener;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 
 /** Add your docs here. */
-public interface IndexerIO {
-    @AutoLog
-    public class IndexerIOInputs{
-        public boolean isConnected = false;
-        public AngularVelocity velocity = RotationsPerSecond.of(0);
-        public Voltage volts = Volts.of(0);
-        public Angle pos = Degree.of(0);
-    }
-    public default void updateInputs(IndexerIOInputs inputs){};
-    public default void setVoltage(Voltage voltage){};
-    public default void setvelocity(AngularVelocity velocity){};
+@AutoLog
+public class IndexerInputs{
+    public Voltage voltage = Volts.of(0);
+    public Angle position = Rotation.of(0);
+    public AngularVelocity velocity = RotationsPerSecond.of(0);
+
 }

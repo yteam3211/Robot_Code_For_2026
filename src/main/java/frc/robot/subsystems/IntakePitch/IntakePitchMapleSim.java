@@ -4,9 +4,15 @@
 
 package frc.robot.subsystems.IntakePitch;
 
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
+import org.ironmaple.simulation.IntakeSimulation;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -15,29 +21,30 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 /** Add your docs here. */
-public class IntakePitchReal implements IntakePitchIO{
+public class IntakePitchMapleSim implements IntakePitchIO{
     private TalonFX m_intakePitch = new TalonFX(IntakePitchConstants.m_MotorId, new CANBus(IntakePitchConstants.m_CanBusName));
-    private DigitalInput m_limtMax = new DigitalInput(IntakePitchConstants.m_limitSwitch_max);
-    private DigitalInput m_limtMin = new DigitalInput(IntakePitchConstants.m_limitSwitch_min);
     private MotionMagicVoltage motionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(false);
-    public IntakePitchReal(){
+    private SingleJointedArmSim ArmSim;
+    private IntakeSimulation intakeSimulation;
+    public IntakePitchMapleSim(IntakeSimulation intakeSimulation){
+        this.intakeSimulation = intakeSimulation;
+        ArmSim = new SingleJointedArmSim(IntakePitchConstants.dcMotor, IntakePitchConstants.gearRatio, 
+        IntakePitchConstants.INERTIA.in(KilogramSquareMeters), IntakePitchConstants.lengthMeters, 
+        IntakePitchConstants.minAngleDegree.in(Radian), 
+        IntakePitchConstants.maxAngleDegree.in(Radian), true, 
+        IntakePitchConstants.startingAngle.in(Radian));
         TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
-        FeedbackConfigs feedbackConfigs = talonFXConfiguration.Feedback;
-        feedbackConfigs.SensorToMechanismRatio = IntakePitchConstants.POSITION_CONVERSION_FACTOR;
+        FeedbackConfigs feedbackConfigsspin = talonFXConfiguration.Feedback;
+        feedbackConfigsspin.SensorToMechanismRatio = IntakePitchConstants.POSITION_CONVERSION_FACTOR;
         MotorOutputConfigs motorOutputConfigs = talonFXConfiguration.MotorOutput;
         motorOutputConfigs.NeutralMode = IntakePitchConstants.NeutralMode;
-        motorOutputConfigs.Inverted = IntakePitchConstants.Invetrted;
-        CurrentLimitsConfigs currentLimitsConfigs = talonFXConfiguration.CurrentLimits;
-        currentLimitsConfigs.StatorCurrentLimitEnable = false;
-        currentLimitsConfigs.SupplyCurrentLimitEnable = false;
         MotionMagicConfigs motionMagicConfigs = talonFXConfiguration.MotionMagic;
         motionMagicConfigs.MotionMagicCruiseVelocity =
                 IntakePitchConstants.MotionMagicConstants.MOTION_MAGIC_VELOCITY;
@@ -63,41 +70,33 @@ public class IntakePitchReal implements IntakePitchIO{
         if (!status.isOK()) {
             System.out.println("Could not configure device. Error: " + status.toString());
         }
-        m_intakePitch.setPosition(IntakePitchConstants.startingAngle);
     }
     @Override
-    public void goToRotation(Angle rotation){
-        m_intakePitch.setControl(motionMagicVoltage.withPosition(rotation).withSlot(0).withEnableFOC(false));
-    }
-    @Override
-    public void setPos(Angle pos){
-        m_intakePitch.setPosition(pos);
+    public void goToRotation(Angle Rotation){
+        m_intakePitch.setControl(motionMagicVoltage.withPosition(Rotation).withEnableFOC(false));
     }
     @Override
     public void UpdateInputs(IntakePitchIOInputs inputs){
-        inputs.isConncted = m_intakePitch.isConnected();
-        inputs.position = m_intakePitch.getPosition().getValue();
-        inputs.velocity = m_intakePitch.getVelocity().getValue();
-        inputs.acc = m_intakePitch.getAcceleration().getValue();
-        inputs.voltage = m_intakePitch.getMotorVoltage().getValue();
-        inputs.FullyClosed = m_limtMin.get();
-        inputs.FullyOpen = m_limtMax.get();
+        updateSim();
+        inputs.isConncted = true;
+        inputs.position = Radian.of(ArmSim.getAngleRads());
+        inputs.velocity = RadiansPerSecond.of(ArmSim.getVelocityRadPerSec());
+        inputs.voltage = m_intakePitch.getSimState().getMotorVoltageMeasure();
+    }
+    private void updateSim(){
+        ArmSim.setInputVoltage(m_intakePitch.getSimState().getMotorVoltage());
+        ArmSim.update(0.02);
+        m_intakePitch.getSimState().setRawRotorPosition(Units.radiansToRotations(ArmSim.getAngleRads()) * IntakePitchConstants.POSITION_CONVERSION_FACTOR);
+        if (m_intakePitch.getPosition().getValue().gte(IntakePitchConstants.maxAngleDegree.minus(Degree.of(10)))) {
+            intakeSimulation.startIntake();
+        }
+        else{
+            intakeSimulation.stopIntake();
+        }
     }
     @Override
-    public void apliePIDF(){
-        Slot0Configs slot0 = new Slot0Configs();
-        slot0.kS = IntakePitchConstants.MotionMagicConstants.MOTOR_KS;
-        slot0.kG = IntakePitchConstants.MotionMagicConstants.MOTOR_KG;
-        slot0.kV = IntakePitchConstants.MotionMagicConstants.MOTOR_KV;
-        slot0.kA = IntakePitchConstants.MotionMagicConstants.MOTOR_KA;
-        slot0.kP = IntakePitchConstants.MotionMagicConstants.MOTOR_KP;
-        slot0.kI = IntakePitchConstants.MotionMagicConstants.MOTOR_KI;
-        slot0.kD = IntakePitchConstants.MotionMagicConstants.MOTOR_KD;
-        slot0.GravityType = GravityTypeValue.Arm_Cosine;
-        slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
-        m_intakePitch.getConfigurator().apply(
-            slot0
-        );
+    public void setPos(Angle pos) {
+        m_intakePitch.setPosition(pos);
     }
     @Override
     public void setVoltage(Voltage volts){

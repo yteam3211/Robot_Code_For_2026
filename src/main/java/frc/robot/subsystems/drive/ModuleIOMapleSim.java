@@ -7,10 +7,12 @@
 
 package frc.robot.subsystems.drive;
 
+import static edu.wpi.first.units.Units.Radians;
 import static frc.lib.util.PhoenixUtil.tryUntilOk;
 
-import java.util.Queue;
+import java.util.Arrays;
 
+import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -39,19 +41,20 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.lib.util.PhoenixUtil;
 import frc.robot.generated.TunerConstants;
 
 /**
- * Module IO implementation for Talon FX drive motor controller, Talon FX turn motor controller, and
- * CANcoder. Configured using a set of module constants from Phoenix.
- *
- * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
+ * Physics sim implementation of module IO. The sim models are configured using a set of module
+ * constants from Phoenix. Simulation is always based on voltage control.
  */
-public class ModuleIOTalonFX implements ModuleIO {
+public class ModuleIOMapleSim implements ModuleIO {
+
   private final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       constants;
 
+  private final SwerveModuleSimulation simulation;
   // Hardware objects
   private final TalonFX driveTalon;
   private final TalonFX turnTalon;
@@ -63,20 +66,14 @@ public class ModuleIOTalonFX implements ModuleIO {
       new PositionVoltage(0.0).withEnableFOC(true);
   private final VelocityVoltage velocityVoltageRequest =
       new VelocityVoltage(0.0).withEnableFOC(true);
-  ;
 
-  // Torque-current control requests
   private final PositionTorqueCurrentFOC positionTorqueCurrentRequest =
       new PositionTorqueCurrentFOC(0.0);
   private final VelocityTorqueCurrentFOC velocityTorqueCurrentRequest =
       new VelocityTorqueCurrentFOC(0.0);
 
-  // Timestamp inputs from Phoenix thread
-  private final Queue<Double> timestampQueue;
-
   // Inputs from drive motor
   private final StatusSignal<Angle> drivePosition;
-  private final Queue<Double> drivePositionQueue;
   private final StatusSignal<AngularVelocity> driveVelocity;
   private final StatusSignal<Voltage> driveAppliedVolts;
   private final StatusSignal<Current> driveCurrent;
@@ -84,7 +81,6 @@ public class ModuleIOTalonFX implements ModuleIO {
   // Inputs from turn motor
   private final StatusSignal<Angle> turnAbsolutePosition;
   private final StatusSignal<Angle> turnPosition;
-  private final Queue<Double> turnPositionQueue;
   private final StatusSignal<AngularVelocity> turnVelocity;
   private final StatusSignal<Voltage> turnAppliedVolts;
   private final StatusSignal<Current> turnCurrent;
@@ -97,14 +93,18 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final Debouncer turnEncoderConnectedDebounce =
       new Debouncer(0.5, Debouncer.DebounceType.kFalling);
 
-  public ModuleIOTalonFX(
+  public ModuleIOMapleSim(
       SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
-          constants) {
+          constants, SwerveModuleSimulation simulation) {
+            PhoenixUtil.regulateModuleConstantForSimulation(constants);
     this.constants = constants;
     driveTalon = new TalonFX(constants.DriveMotorId, TunerConstants.kCANBus);
     turnTalon = new TalonFX(constants.SteerMotorId, TunerConstants.kCANBus);
     cancoder = new CANcoder(constants.EncoderId, TunerConstants.kCANBus);
 
+    this.simulation = simulation;
+    simulation.useDriveMotorController(new PhoenixUtil.TalonFXMotorControllerSim(driveTalon));
+    simulation.useSteerMotorController(new PhoenixUtil.TalonFXMotorControllerWithRemoteCancoderSim(turnTalon, cancoder));
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -120,6 +120,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             : InvertedValue.CounterClockwise_Positive;
     tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
     tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25));
+    tryUntilOk(5, ()-> driveTalon.getConfigurator().apply(Drive.driveSwerveSecondConfigs,0.25));
     // Configure turn motor
     var turnConfig = new TalonFXConfiguration();
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -145,6 +146,7 @@ public class ModuleIOTalonFX implements ModuleIO {
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
     tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25));
+    tryUntilOk(5, ()-> turnTalon.getConfigurator().apply(Drive.steerSwerveSecondConfigs,0.25));
     // Configure CANCoder
     CANcoderConfiguration cancoderConfig = constants.EncoderInitialConfigs;
     cancoderConfig.MagnetSensor.MagnetOffset = constants.EncoderOffset;
@@ -154,12 +156,8 @@ public class ModuleIOTalonFX implements ModuleIO {
             : SensorDirectionValue.CounterClockwise_Positive;
     cancoder.getConfigurator().apply(cancoderConfig);
 
-    // Create timestamp queue
-    timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
-
     // Create drive status signals
     drivePosition = driveTalon.getPosition();
-    drivePositionQueue = PhoenixOdometryThread.getInstance().registerSignal(drivePosition.clone());
     driveVelocity = driveTalon.getVelocity();
     driveAppliedVolts = driveTalon.getMotorVoltage();
     driveCurrent = driveTalon.getStatorCurrent();
@@ -167,7 +165,6 @@ public class ModuleIOTalonFX implements ModuleIO {
     // Create turn status signals
     turnAbsolutePosition = cancoder.getAbsolutePosition();
     turnPosition = turnTalon.getPosition();
-    turnPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(turnPosition.clone());
     turnVelocity = turnTalon.getVelocity();
     turnAppliedVolts = turnTalon.getMotorVoltage();
     turnCurrent = turnTalon.getStatorCurrent();
@@ -213,19 +210,11 @@ public class ModuleIOTalonFX implements ModuleIO {
     inputs.turnCurrentAmps = turnCurrent.getValueAsDouble();
 
     // Update odometry inputs
-    inputs.odometryTimestamps =
-        timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
-    inputs.odometryDrivePositionsRad =
-        drivePositionQueue.stream()
-            .mapToDouble((Double value) -> Units.rotationsToRadians(value))
-            .toArray();
-    inputs.odometryTurnPositions =
-        turnPositionQueue.stream()
-            .map((Double value) -> Rotation2d.fromRotations(value))
-            .toArray(Rotation2d[]::new);
-    timestampQueue.clear();
-    drivePositionQueue.clear();
-    turnPositionQueue.clear();
+    inputs.odometryTimestamps = PhoenixUtil.getSimulationOdometryTimeStamps();
+    inputs.odometryDrivePositionsRad = Arrays.stream(simulation.getCachedDriveWheelFinalPositions())
+                .mapToDouble(angle -> angle.in(Radians))
+                .toArray();
+    inputs.odometryTurnPositions = simulation.getCachedSteerAbsolutePositions();
   }
 
   @Override

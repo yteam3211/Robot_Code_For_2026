@@ -13,8 +13,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.RPM;
-
 import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -23,21 +21,22 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.lib.FuelSimulation.FuelPhysicsSim;
-import frc.lib.FuelSimulation.ShotCalculator;
 import frc.lib.util.Elastic;
 import frc.lib.util.FieldConstants;
+import frc.robot.Constants.Mode;
 import frc.robot.Button.devButoon;
-import frc.robot.subsystems.Shooter.Shooter;
+import frc.robot.subsystems.IntakePitch.IntakePitch;
+import frc.robot.subsystems.IntakePitch.IntakePitchConstants;
 import frc.robot.subsystems.drive.Drive;
 
 /**
@@ -49,7 +48,6 @@ public class Robot extends LoggedRobot {
     // check for git
     private Command autonomousCommand;
     private RobotContainer robotContainer;
-    private FuelPhysicsSim fuelPhysicsSim;
     public Robot() {
         // Record metadata
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -82,7 +80,13 @@ public class Robot extends LoggedRobot {
                 Logger.addDataReceiver(new NT4Publisher());
                 Logger.addDataReceiver(new WPILOGWriter());
                 break;
-
+            case MapleSim:
+                // Running a physics simulator, log to NT   
+                Logger.addDataReceiver(new NT4Publisher());
+                Logger.addDataReceiver(new WPILOGWriter());
+                break;
+            
+            
             case REPLAY:
                 // Replaying a log, set up replay source
                 setUseTiming(false); // Run as fast as possible
@@ -102,20 +106,17 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during all modes. */
     @Override
     public void robotPeriodic() {
-        String gamedata = DriverStation.getGameSpecificMessage();
-        if (gamedata.length() > 0) {
-            if (gamedata.charAt(0) == (DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get().name().charAt(0) : 'B')) {
-                Logger.recordOutput("is Active First", true);
-                }else{
-                    Logger.recordOutput("is Active First", false);
-                }
-            }
-        Robotstate.logState();
-        Logger.recordOutput("DistanceToHub", Drive.getInsatnce().getPose().transformBy(new Transform2d(Constants.OFF_SET_SHOOTER.getTranslation().toTranslation2d(), Constants.OFF_SET_SHOOTER.getRotation().toRotation2d())).getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
-        Logger.recordOutput("ErorrToHUBDegree", devButoon.findAngle().getDegrees() - Drive.getInsatnce().getRotation().getDegrees());
+        // String gamedata = DriverStation.getGameSpecificMessage();
+        // if (gamedata.length() > 0) {
+        //     if (gamedata.charAt(0) == (DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get().name().charAt(0) : 'B')) {
+        //         Logger.recordOutput("is Active First", true);
+        //         }else{
+        //             Logger.recordOutput("is Active First", false);
+        //         }
+        //     }
+        // Robotstate.logState();
         // Switch thread to high priority to improve loop timing
         // Threads.setCurrentThreadPriority(true, 99);
-
         // Runs the Scheduler. This is responsible for polling buttons, adding
         // newly-scheduled commands, running already-scheduled commands, removing
         // finished or interrupted commands, and running subsystem periodic() methods.
@@ -132,8 +133,7 @@ public class Robot extends LoggedRobot {
         Robotstate.resetState();
         if (Constants.currentMode != Constants.Mode.SIM) return;
         Drive.getInsatnce().setPose(new Pose2d(2,2, new Rotation2d()));
-        fuelPhysicsSim.clearBalls();
-        fuelPhysicsSim.placeFieldBalls();
+        Constants.ShooterLookUpTables.fuelPhysicsSim.clearBalls();
         // SimulatedArena.getInstance().resetFieldForAuto();
     }
     /** This function is called periodically when disabled. */
@@ -188,36 +188,26 @@ public class Robot extends LoggedRobot {
     /** This function is called once when the robot is first started up. */
     @Override
     public void simulationInit() {
-        fuelPhysicsSim = new FuelPhysicsSim("Sim/Fuel");
-        fuelPhysicsSim.enable();
+        Constants.ShooterLookUpTables.fuelPhysicsSim = new FuelPhysicsSim("Sim/Fuel");
+        Constants.ShooterLookUpTables.fuelPhysicsSim.enable();
 
-        fuelPhysicsSim.configureRobot(
+        Constants.ShooterLookUpTables.fuelPhysicsSim.configureRobot(
             Drive.getModuleTranslations()[0].getY(), Drive.getModuleTranslations()[0].getX(), 0.2, 
             Drive.getInsatnce()::getPose, Drive.getInsatnce()::getChassisSpeeds);
+        Constants.ShooterLookUpTables.fuelPhysicsSim.addIntakeZone(
+            Units.inchesToMeters(12)*100, 0.0, 
+            Drive.getModuleTranslations()[0].getY(), Drive.getModuleTranslations()[0].getX(), 
+            ()->IntakePitch.getInstance().getAngle().gte(IntakePitchConstants.maxAngleDegree),()-> RobotContainer.addFuelToSim());
     }
 
     /** This function is called periodically whilst in simulation. */
     @Override
     public void simulationPeriodic() {
+        Constants.ShooterLookUpTables.fuelPhysicsSim.tick();
+        if (Constants.currentMode != Mode.MapleSim) {
+            return;
+        }
         SimulatedArena.getInstance().simulationPeriodic();
         Logger.recordOutput("FieldSimulation/RobotPosition", Drive.getSwerveDriveSim().getSimulatedDriveTrainPose());
-        fuelPhysicsSim.tick();
-        if (Shooter.getInstance().isAtVel()) {
-            ShotCalculator.LaunchParameters shot = Constants.launchParameters();
-            double exitSpeed = 0.6  * shot.rpm() * Math.PI * Units.inchesToMeters(3) / 60.0;
-            double launchRad = Math.toRadians(62);
-
-            double vHorizontal = exitSpeed * Math.cos(launchRad);
-            double vVertical = exitSpeed * Math.sin(launchRad);
-
-            Rotation2d azimuth = shot.driveAngle(); // or robot yaw if you're not doing SOTM
-            double vx = vHorizontal * azimuth.getCos();
-            double vy = vHorizontal * azimuth.getSin();
-
-            Translation3d launchPos = new Pose3d(Drive.getInsatnce().getPose()).transformBy(Constants.OFF_SET_SHOOTER).getTranslation();
-            Translation3d launchVel = new Translation3d(-vx, -vy, vVertical);
-
-            fuelPhysicsSim.launchBall(launchPos, launchVel, Shooter.getInstance().getVelocity().in(RPM));   
-        }
     }
 }

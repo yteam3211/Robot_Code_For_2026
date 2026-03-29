@@ -43,8 +43,8 @@ public class TunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     private static final Slot0Configs steerGains = new Slot0Configs()
-        .withKP(69.997).withKI(0).withKD(1.7086)
-        .withKS(0.24769).withKV(0.43948).withKA(0.023751)
+        .withKP(30).withKI(0).withKD(1.7086)
+        .withKS(0.24769).withKV(0.43948).withKA(0.023751)//ka = 0.023751
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
@@ -70,7 +70,7 @@ public class TunerConstants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private static final Current kSlipCurrent = Amps.of(120);
+    private static final Current kSlipCurrent = Amps.of(55);
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -92,11 +92,11 @@ public class TunerConstants {
 
     // CAN bus that the devices are located on;
     // All swerve devices must share the same CAN bus
-    public static final CANBus kCANBus = new CANBus("swerve", "./logs/signalLogger/swerve.hoot" );
+    public static final CANBus kCANBus = new CANBus("swerve", "U/logs/signalLogger/swerve.hoot");
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
-    public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.69);
+    public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4);
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
@@ -104,7 +104,7 @@ public class TunerConstants {
 
     private static final double kDriveGearRatio = 8.142857142857142;
     private static final double kSteerGearRatio = 21.428571428571427;
-    private static final Distance kWheelRadius = Inches.of(3);
+    private static final Distance kWheelRadius = Inches.of(2.277);
 
     private static final boolean kInvertLeftSide = false;
     private static final boolean kInvertRightSide = true;

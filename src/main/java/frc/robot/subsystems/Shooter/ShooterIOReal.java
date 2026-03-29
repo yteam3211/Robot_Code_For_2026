@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.Shooter;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
@@ -12,14 +14,15 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalOutput;
 
 /** Add your docs here. */
 public class ShooterIOReal implements ShooterIO{
@@ -27,8 +30,9 @@ public class ShooterIOReal implements ShooterIO{
     private TalonFX m_SlaveR = new TalonFX(ShooterConstants.m_SlaveR_ID, ShooterConstants.m_canbus);
     private TalonFX m_SlaveL1 = new TalonFX(ShooterConstants.m_SlaveL1_ID, ShooterConstants.m_canbus);
     private TalonFX m_SlaveL2 = new TalonFX(ShooterConstants.m_SlaveL2_ID, ShooterConstants.m_canbus);
-    private DigitalInput m_Beam = new DigitalInput(9);
-    private VelocityVoltage velocityVoltage = new VelocityVoltage(0).withSlot(0).withEnableFOC(true);
+    private DigitalInput m_Beam = new DigitalInput(ShooterConstants.m_Beam_Break);
+    private DigitalInput m_DigitalInput = new DigitalInput(2);
+    private MotionMagicVelocityVoltage velocityVoltage = new MotionMagicVelocityVoltage(0).withSlot(0).withEnableFOC(true);
     public ShooterIOReal(){
         TalonFXConfiguration talonFXConfiguration = new TalonFXConfiguration();
         FeedbackConfigs feedbackConfigsspin = talonFXConfiguration.Feedback;
@@ -40,9 +44,9 @@ public class ShooterIOReal implements ShooterIO{
         currentLimitsConfigs.StatorCurrentLimitEnable = true;
         currentLimitsConfigs.StatorCurrentLimit = 60;
         currentLimitsConfigs.SupplyCurrentLimitEnable = true;
-        currentLimitsConfigs.SupplyCurrentLimit = 40;
-        currentLimitsConfigs.SupplyCurrentLowerLimit = 50;
-        currentLimitsConfigs.SupplyCurrentLowerTime = 0.1; 
+        currentLimitsConfigs.SupplyCurrentLimit = 30;
+        currentLimitsConfigs.SupplyCurrentLowerLimit = 40;
+        currentLimitsConfigs.SupplyCurrentLowerTime = 0.1;
         VoltageConfigs voltageConfigs = talonFXConfiguration.Voltage;
         voltageConfigs.PeakForwardVoltage = 12;
         voltageConfigs.PeakReverseVoltage = -12; 
@@ -106,6 +110,7 @@ public class ShooterIOReal implements ShooterIO{
         inputs.velocity = m_master.getVelocity().getValue();
         inputs.position = m_master.getPosition().getValue();
         inputs.haveFuel = m_Beam.get();
+        Logger.recordOutput("Shotter/2", m_DigitalInput.get());
     }
     @Override
     public void setVelocity(AngularVelocity velRPM) {
